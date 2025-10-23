@@ -41,27 +41,6 @@ The system combines:
 
 ---
 
-### Folder Structure
-
-```
-Cancer_Research/
-│
-├── app.py                  # Flask application entry point
-├── crew_runner.py          # Multi-agent orchestration and conversation logic
-├── static/
-│   ├── js/app.js           # Frontend logic for SSE and audio streaming
-│   └── css/style.css       # User interface styling
-├── templates/
-│   └── index.html          # Chat interface for clinicians
-├── models/
-│   ├── document.py         # FAISS embedding and retrieval logic
-│   ├── llm.py              # Language model interfaces
-│   └── models.py           # Database and data models
-└── agents.yaml             # Agent role definitions
-```
-
----
-
 ### Technical Stack
 
 * **Backend:** Python (Flask), FAISS, CrewAI
