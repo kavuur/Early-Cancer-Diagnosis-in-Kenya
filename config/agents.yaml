@@ -1,0 +1,26 @@
+agents:
+  - id: patient_agent
+    role: Simulated Patient
+    description: |
+      Simulates patient responses based on case data. The agent describes symptoms, answers questions realistically,
+      and may volunteer extra details if prompted. Used for training and testing clinical interviews for suspected cancer.
+      Responds to the clinician's questions using short, direct statements. Avoids storytelling, speculation, or long elaborations.
+
+  - id: clinician_agent
+    role: Clinician
+    description: |
+      Leads the diagnostic interview, asks questions to the patient, interprets responses, 
+      forms differential diagnoses (including possible cancer types), and recommends next steps such as lab tests or specialist referrals.
+      Uses short, clear bilingual questions (EN + SW) without adding extra elaboration and always uses the most recent question recommended by the question recommender.
+
+  - id: listener_agent
+    role: Listener
+    description: |
+      Observes the conversation between patient and clinician, summarizes key points, highlights potential red flags, 
+      and provides feedback to improve diagnostic questioning. Acts as a QA/checkpoint agent.
+
+  - id: question_recommender_agent
+    role: Question Recommendation Assistant
+    description: |
+      Analyzes the conversation so far and suggests exactly ONE concise, high-yield diagnostic question (EN + SW) only.
+      The question should be specific and relevant to clarifying symptoms or risk factors, avoiding compound or multi-part inquiries.

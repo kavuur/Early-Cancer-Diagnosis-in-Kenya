@@ -1,0 +1,3025 @@
+[
+  {
+    "case_id": "1",
+    "Suspected_illness": "",
+    "red_flags": {
+      "Symptom duration": ">3 months"
+    },
+    "patient_background": {
+      "english": "Naomi is a 25-year-old woman who completed secondary school and now runs a small grocery stand in the local market. She lives in a rental one-room house with her husband, Dennis, and their three-year-old son. She wakes up early every day to go to the market, where she sells fruits and vegetables.",
+      "swahili": "Naomi ni mwanamke mwenye umri wa miaka 25 ambaye alimaliza shule ya upili na sasa anaendesha duka ndogo la mboga katika soko la ndani. Anaishi katika nyumba ya kupanga ya chumba kimoja na mume wake, Dennis, na mwana wao wa miaka mitatu. Yeye huamka mapema kila siku kwenda sokoni, ambako anauza matunda na mboga."
+    },
+    "chief_complaint_history": {
+      "english": "For the past six months, Naomi has been experiencing persistent pain and stiffness in her fingers, especially in the morning. The pain is worse when she wakes up, and it takes about an hour to improve. She also notices that her fingers sometimes swell, making it difficult to hold her knife while cutting vegetables. Lately, she has found it harder to peel fruits or count money at her stall. Two weeks ago, Naomi went to a local chemist, where she was given some painkillers. She takes one pill everyday. They provided some relief, but the pain keeps coming back. Recently, she has been feeling more tired than usual, and her appetite has slightly decreased.",
+      "swahili": "Kwa muda wa miezi sita iliyopita, Naomi amekuwa akipata maumivu ya kudumu na kukakamaa kwa vidole vyake, haswa asubuhi. Maumivu huwa mabaya zaidi anapoamka, na inachukua muda wa saa moja kupona. Pia anaona kwamba vidole vyake wakati mwingine huvimba, hivyo kufanya iwe vigumu kushika kisu chake wakati wa kukata mboga. Hivi majuzi, imekuwa vigumu kwake kumenya matunda au kuhesabu pesa kwenye duka lake. Wiki mbili zilizopita Naomi alienda kwa duka la dawa ambapo alipewa dawa za kutuliza maumivu. Yeye humeza tembe moja kila siku. Dawa zilisaidia kidogo  lakini maumivu yanaendelea kurudi. Hivi majuzi, amekuwa akihisi uchovu kuliko kawaida, na hamu yake ya kula imepungua kidogo."
+    },
+    "medical_social_history": {
+      "english": "Naomi has generally been in good health and has never had any serious illnesses. She has not had any major injuries in the past. She does not smoke or drink alcohol. Her husband, Dennis, works as a boda boda / motorcycle taxi rider. Naomi is a friendly and hardworking woman who enjoys chatting with customers at her market stall. However, lately, she has been worried about her worsening hand pain and fatigue. She fears that if her condition continues, she may not be able to continue working. Today, she has decided to visit the local health facility for a check-up.",
+      "swahili": "Kwa ujumla Naomi amekuwa na afya njema na hajawahi kuugua ugonjwa wowote mbaya. Hajapata majeraha makubwa siku za nyuma. Yeye havuti sigara au kunywa pombe. Mumewe, Dennis, anafanya kazi kama boda boda/mpanda teksi wa pikipiki. Naomi ni mwanamke mwenye urafiki na mchapakazi ambaye hufurahia kuzungumza na wateja kwenye soko lake. Walakini, hivi majuzi, amekuwa na wasiwasi juu ya maumivu yake ya mkono yanayozidi kuwa mbaya na uchovu. Anahofia kwamba ikiwa hali yake itaendelea, huenda asiweze kuendelea na kazi. Leo, ameamua kutembelea kituo cha afya cha eneo hilo kwa uchunguzi."
+    },
+    "opening_statement": {
+      "english": "Doctor, I have been having a lot of pain in my fingers, and it’s getting worse.",
+      "swahili": "Daktari, nimekuwa nikipata maumivu mengi kwenye vidole vyangu, na inazidi kuwa mbaya."
+    },
+    "recommended_questions": [
+      {
+        "question": {
+          "english": "Do you have pain in both hands?",
+          "swahili": "Je, una maumivu katika mikono yote miwili?"
+        },
+        "response": {
+          "english": "Yes",
+          "swahili": "Ndio"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have pain in any other joints?",
+          "swahili": "Je, una maumivu katika viungo vingine vyovyote?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Does the pain get worse at certain times of the day? (Is the pain constant?)",
+          "swahili": "Je, maumivu yanazidi kuwa mabaya nyakati fulani za siku? (Je, maumivu ni ya kudumu?)"
+        },
+        "response": {
+          "english": "Yes, the pain is worse in the morning. (No, the pain is worse in the morning.)",
+          "swahili": "Ndiyo, maumivu ni mabaya zaidi asubuhi. (Hapana, maumivu ni mabaya zaidi asubuhi.)"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you feel hotness in your joints?",
+          "swahili": "Je, unahisi joto kwenye viungo vyako?"
+        },
+        "response": {
+          "english": "Yes",
+          "swahili": "Ndio"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you feel swelling in your joints?",
+          "swahili": "Je, unahisi uvimbe kwenye viungo vyako?"
+        },
+        "response": {
+          "english": "Yes, sometimes",
+          "swahili": "Ndiyo, wakati mwingine"
+        }
+      },
+      {
+        "question": {
+          "english": "Is there any stiffness?",
+          "swahili": "Je, kuna ugumu wowote?"
+        },
+        "response": {
+          "english": "Yes, I have some in the morning.",
+          "swahili": "Ndiyo, nina baadhi asubuhi."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you feel any pain when you move your/fingers?",
+          "swahili": "Je, unahisi uchungu ukisongesha/ukishika vidole?"
+        },
+        "response": {
+          "english": "Yes, when swollen.",
+          "swahili": "Ndiyo, wakati umevimba"
+        }
+      },
+      {
+        "question": {
+          "english": "When did you first notice the pain?",
+          "swahili": "Ni lini uliona maumivu kwa mara ya kwanza?"
+        },
+        "response": {
+          "english": "Hmm… about 6 months ago.",
+          "swahili": "Hmm... kama miezi 6 iliyopita."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you had any recent injuries?",
+          "swahili": "Je, umekuwa na majeraha yoyote ya hivi majuzi?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any skin conditions like rash?",
+          "swahili": "Je, una hali yoyote ya ngozi kama upele?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you ever had any STDs? Any history of STDs?",
+          "swahili": "Je, umewahi kuwa na magonjwa ya zinaa? Historia yoyote ya magonjwa ya zinaa?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Did you ever have bone pain as a child or when younger?",
+          "swahili": "Je, umewahi kuwa na maumivu ya mifupa ukiwa mtoto au ukiwa mdogo?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have a fever?",
+          "swahili": "Je, una homa?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you ever been tested for sickle cell anemia?",
+          "swahili": "Je, umewahi kupimwa anemia ya seli mundu?"
+        },
+        "response": {
+          "english": "What is that? … Oh yes, I have. It was clear.",
+          "swahili": "Hiyo ni nini? ... Ndio, ninayo. Ilikuwa wazi."
+        }
+      },
+      {
+        "question": {
+          "english": "Are you a sickler (someone who has sickle cell anemia)?",
+          "swahili": "Je, wewe ni mgonjwa (mtu ambaye ana anemia ya seli mundu)?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Does anyone in your household or family have a history of bone pain/similar symptoms?",
+          "swahili": "Je, kuna mtu yeyote katika kaya au familia yako aliye na historia ya maumivu ya mfupa/dalili zinazofanana?"
+        },
+        "response": {
+          "english": "I don’t know…",
+          "swahili": "Sijui..."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you smoke?",
+          "swahili": "Unavuta sigara?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you drink alcohol?",
+          "swahili": "Unakunywa pombe?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have hypertension / high blood pressure or diabetes / blood sugar issues?",
+          "swahili": "Je, una shinikizo la damu /shinikizo la damu au kisukari/maswala ya sukari ya damu?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      }
+    ]
+  },
+  {
+    "case_id": "2",
+    "Suspected_illness": "",
+    "red_flags": {},
+    "patient_background": {
+      "english": "Angela is 24 years old and is currently living with her aunt in a three-bedroom apartment. She moved to the city a year ago and has been looking for a job to no avail. Lately, she has been having a cough, which worsens at night and in the early hours of the morning. Last night, Angela did not sleep well. Her cough seemed to worsen. She had bouts of difficulty breathing and her chest was producing a whistling sound. This was triggered by the cold weather last night as she came home late on a motorbike and was not dressed warmly. Angela’s parents are farmers. All her family is in good health, except for her older brother who has had some breathing problems for the last couple of years and has been taking treatment for the same. She remembers her mother saying that her childhood was spent with episodes of coughing and breathing difficulties, but these episodes seemed to disappear in secondary school.",
+      "swahili": "Angela ana umri wa miaka 24 na kwa sasa anaishi na shangazi yake katika nyumba ya vyumba vitatu. Alihamia mjini mwaka mmoja uliopita na amekuwa akitafuta kazi bila mafanikio. Hivi majuzi, amekuwa na kikohozi, ambacho kinazidi kuwa mbaya usiku na asubuhi. Jana usiku, Angela hakulala vizuri. Kikohozi chake kilionekana kuwa mbaya zaidi. Alikuwa na matatizo ya kupumua na kifua chake kilikuwa kikitoa sauti ya miluzi. Hili lilichochewa na hali ya hewa ya baridi jana usiku aliporudi nyumbani akiwa amechelewa kwa pikipiki na hakuwa amevalia kwa uchangamfu. Wazazi wa Angela ni wakulima. Familia yake yote ina afya njema, isipokuwa kaka yake mkubwa ambaye amekuwa na matatizo ya kupumua kwa miaka michache iliyopita na amekuwa akichukua matibabu kwa ajili hiyo hiyo. Anamkumbuka mama yake akisema kwamba utoto wake ulitumiwa na matukio ya kukohoa na matatizo ya kupumua, lakini matukio haya yalionekana kutoweka katika shule ya sekondari."
+    },
+    "chief_complaint_history": {
+      "english": "This problem started with an occasional episode a year ago, but over the last couple of months, Angela has had breathing problems about once a week. This problem seems to get worse when there is dust in the air. Earlier the episodes used to last for a few minutes but lately it takes about 10 – 15 minutes to get relief. The breathing problem is often accompanied by dry cough, more so at night. During such episodes, she finds relief with a hot cup of ginger tea or warm water and sometimes takes a cough syrup.",
+      "swahili": "Tatizo hili lilianza na kipindi cha mara kwa mara mwaka mmoja uliopita, lakini katika miezi michache iliyopita, Angela amekuwa na matatizo ya kupumua mara moja kwa wiki. Tatizo hili linaonekana kuwa mbaya zaidi wakati kuna vumbi hewani. Hapo awali vipindi vilidumu kwa dakika chache lakini hivi majuzi inachukua kama 10 – dakika 15 kupata ahueni. Tatizo la kupumua mara nyingi hufuatana na kikohozi kavu, zaidi usiku. Wakati wa vipindi kama hivyo, hupata ahueni na kikombe cha moto cha chai ya tangawizi au maji ya joto na wakati mwingine huchukua syrup ya kikohozi."
+    },
+    "medical_social_history": {
+      "english": "This morning, Angela is worried that the ginger tea did not work as fast as it usually does. She is exhausted. Her aunt is concerned about her condition and insists that Angela sees a doctor for fear that her symptoms will worsen or recur at night.",
+      "swahili": "Asubuhi ya leo, Angela ana wasiwasi kwamba chai ya tangawizi haikufanya kazi haraka kama kawaida. Amechoka. Shangazi yake ana wasiwasi kuhusu hali yake na anasisitiza kwamba Angela amwone daktari kwa kuhofia kuwa dalili zake zitazidi kuwa mbaya au kujirudia usiku."
+    },
+    "opening_statement": {
+      "english": "Last night, I had a lot of difficulty with breathing.",
+      "swahili": "Jana usiku nilikuwa na shida ya kupumua."
+    },
+    "recommended_questions": [
+      {
+        "question": {
+          "english": "Does the difficulty breathing come and go / is it episodic?",
+          "swahili": "Je, ugumu wa kupumua huja na kwenda / je, ni wa matukio?"
+        },
+        "response": {
+          "english": "Yes",
+          "swahili": "Ndio"
+        }
+      },
+      {
+        "question": {
+          "english": "How long does an episode / attack typically last?",
+          "swahili": "Kipindi/shambulio hudumu kwa muda gani?"
+        },
+        "response": {
+          "english": "About 10-15 minutes.",
+          "swahili": "Kama dakika 10-15."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you had any other episodes previously?",
+          "swahili": "Je, umekuwa na vipindi vingine hapo awali?"
+        },
+        "response": {
+          "english": "Yes",
+          "swahili": "Ndio"
+        }
+      },
+      {
+        "question": {
+          "english": "How often does it happen?",
+          "swahili": "Ni mara ngapi inafanyika?"
+        },
+        "response": {
+          "english": "Frequently (If doctor probes say - it just keeps coming)",
+          "swahili": "Mara kwa mara (inakuja kuja tu)"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you cough?",
+          "swahili": "Unakohoa?"
+        },
+        "response": {
+          "english": "Yes, sometimes.",
+          "swahili": "Ndio, mara nyingine."
+        }
+      },
+      {
+        "question": {
+          "english": "Are you coughing a lot?",
+          "swahili": "Unakohoa sana?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Tell me more about your cough. Is it dry or wet?",
+          "swahili": "Niambie kuhusu kikohozi yako. Ni kavu ama ina unyevunyevu?"
+        },
+        "response": {
+          "english": "It is dry.",
+          "swahili": "Imekauka"
+        }
+      },
+      {
+        "question": {
+          "english": "Are you coughing up any blood or mucus?",
+          "swahili": "Unakohoa damu ama makamasi?"
+        },
+        "response": {
+          "english": "No, I am not coughing anything up.",
+          "swahili": "Hapana, Sikohoi chochote"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you ever have wheezing / noise in your chest?",
+          "swahili": "Je, umewahi kupiga kelele /kelele kifuani mwako?"
+        },
+        "response": {
+          "english": "Yes, there is a whistling noise.",
+          "swahili": "Ndio, kifua inapiga kelele?"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you lost weight?",
+          "swahili": "Umepoteza kilo?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you had fever or night sweats?",
+          "swahili": "Je, umekuwa na homa au jasho la usiku"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any pain?",
+          "swahili": "Je una uchungu wowote?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "How do you get relief?",
+          "swahili": "Je, unapataje ahueni?"
+        },
+        "response": {
+          "english": "Ginger tea",
+          "swahili": "Chai tangawizi"
+        }
+      },
+      {
+        "question": {
+          "english": "What triggers the episodes (e.g., dust, pollution, bad air quality, cold)?",
+          "swahili": "Ni nini kinachochochea vipindi (kwa mfano, vumbi, uchafuzi wa mazingira, ubora mbaya wa hewa, baridi)?"
+        },
+        "response": {
+          "english": "It happens when there is a lot of dust.",
+          "swahili": "Inafanyika kukiwa na vumbi nyingi?"
+        }
+      },
+      {
+        "question": {
+          "english": "Does it happen when the weather is cold?",
+          "swahili": "Huwa inafanyika kama hali ya ang ani baridi?"
+        },
+        "response": {
+          "english": "Yes",
+          "swahili": "Ndio"
+        }
+      },
+      {
+        "question": {
+          "english": "Does it happen when it is dusty?",
+          "swahili": "Huwa infanyika kukiwa na vumbi?"
+        },
+        "response": {
+          "english": "Yes",
+          "swahili": "Ndio"
+        }
+      },
+      {
+        "question": {
+          "english": "Does it happen when it is smoky?",
+          "swahili": "Huwa inafanyika kukiwa na moshi?"
+        },
+        "response": {
+          "english": "Yes",
+          "swahili": "Ndio"
+        }
+      },
+      {
+        "question": {
+          "english": "Is it worse in wet or dry seasons?",
+          "swahili": "Ni mbaya msimu wa unyevunyevu ama kavu?"
+        },
+        "response": {
+          "english": "I am not sure.",
+          "swahili": "Sina hakika"
+        }
+      },
+      {
+        "question": {
+          "english": "Is it worse at certain times of the day?",
+          "swahili": "Ni mbaya nyakati zingine za siku?"
+        },
+        "response": {
+          "english": "It is worse at night",
+          "swahili": "Ni mbaya usiku?"
+        }
+      },
+      {
+        "question": {
+          "english": "Do any of your siblings/parents have similar problems?",
+          "swahili": "Je, ndugu/wazazi wako wowote wana matatizo sawa?"
+        },
+        "response": {
+          "english": "Hmm… my brother has some breathing issues sometimes.",
+          "swahili": "Hmm... kaka yangu huwa na matatizo ya kupumua wakati mwingine."
+        }
+      },
+      {
+        "question": {
+          "english": "Does anyone in your household or family have a history of similar symptoms?",
+          "swahili": "Je, kuna mtu yeyote katika kaya au familia yako aliye na historia ya dalili zinazofanana?"
+        },
+        "response": {
+          "english": "Hmm… my brother has some breathing issues sometimes.",
+          "swahili": "Hmm... kaka yangu huwa na matatizo ya kupumua wakati mwingine."
+        }
+      },
+      {
+        "question": {
+          "english": "Has this happened before when you were younger?",
+          "swahili": "“ ”"
+        },
+        "response": {
+          "english": "Yes",
+          "swahili": "Ndio"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you taken any medication?",
+          "swahili": "Umetumi dawa yoyote?"
+        },
+        "response": {
+          "english": "Yes, cough syrup",
+          "swahili": "Ndio, Dawa ya maji ya kikohozi"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you know the name of the cough syrup?",
+          "swahili": "Je, unajua jina ya hiyo dawa ya kukohoa?"
+        },
+        "response": {
+          "english": "No, I just got it from the chemist.",
+          "swahili": "Hapana, nilipata kutoka kwa dawa ya kuuza dawa"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you smoke?",
+          "swahili": "Je, unavuta sigara?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you drink alcohol?",
+          "swahili": "Je, unakunywa pombe?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have hypertension / high blood pressure or diabetes / blood sugar issues?",
+          "swahili": "Je, una shinikizo la damu /shinikizo la damu au kisukari/maswala ya sukari ya damu?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you ever had any STDs? Any history of STDs?",
+          "swahili": "Je, umewahi kuwa na magonjwa ya zinaa? Historia yoyote ya magonjwa ya zinaa?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      }
+    ]
+  },
+  {
+    "case_id": "3",
+    "Suspected_illness": "",
+    "red_flags": {
+      "Symptom duration": ">3 months",
+      "Unintentional weight loss": true,
+      "Possible cancer-related bleeding": true
+    },
+    "patient_background": {
+      "english": "Henry is a 55-year-old man who completed his education up to the diploma level. He owns a small electronics repair shop in his neighborhood, which provides him with a stable income. He lives in a three-room house with his wife, Jane, and their children. Henry has generally enjoyed good health and has never had any major chronic illnesses. However, he has noticed some changes in his toilet habits over the past few months.",
+      "swahili": "Henry ni mzee wa miaka 55 ambaye alimaliza elimu yake hadi kiwango cha diploma. Anamiliki duka dogo la kutengeneza vifaa vya elektroniki katika mtaa wake, ambalo humpa mapato thabiti. Anaishi katika nyumba ya vyumba vitatu pamoja na mke wake, Jane, na watoto wao. Henry kwa ujumla amefurahia afya njema na hajawahi kuwa na magonjwa yoyote makubwa sugu. Hata hivyo, ameona mabadiliko fulani katika tabia yake ya choo katika miezi michache iliyopita."
+    },
+    "chief_complaint_history": {
+      "english": "This morning, while getting ready for work, Henry mentioned to his wife Jane, “I think I need to see a doctor. The blood in stool hasn’t stopped.” Jane looked up from what she was doing and agreed that Henry should see a doctor as she has been suggesting for a while. She said, “It’s been happening nearly every time you go to the bathroom, and it has been weeks.” For the past three months, Henry has been experiencing blood in his stool without any pain. Initially, he assumed it might be piles/swelling and has taken some medications by mouth prescribed by a pharmacy/chemist. However, over the past three weeks, the blood in stool has occurred every time he goes to the toilet. He has also noticed that his stool is sometimes thinner than usual and sometimes he has constipation, but he has no abdominal pain. Henry feels more tired than usual and has noticed a slight, unexplained weight loss over the past two months. His appetite remains mostly unchanged, but he occasionally feels bloated and eats less when he feels like this.",
+      "swahili": "Asubuhi ya leo, alipokuwa akijiandaa kwa kazi, Henry alimtaja mke wake Jane, “nadhani ninahitaji kuonana na daktari. Damu kwenye kinyesi haijakoma.” Jane alitazama juu kutoka kwa kile alichokuwa akifanya na akakubali kwamba Henry amwone daktari kwani amekuwa akipendekeza kwa muda. Alisema, “Imekuwa ikitokea karibu kila unapoenda bafuni, na imekuwa wiki.” Kwa muda wa miezi mitatu iliyopita, Henry amekuwa akipata damu kwenye kinyesi chake bila maumivu yoyote. Hapo awali, alidhani inaweza kuwa milundo/uvimbe na amechukua baadhi ya dawa kwa mdomo zilizowekwa na duka la dawa/kemia. Hata hivyo, katika muda wa wiki tatu zilizopita, damu kwenye kinyesi imetokea kila anapoenda chooni. Pia amegundua kuwa kinyesi chake wakati mwingine ni chembamba kuliko kawaida na wakati mwingine huwa na kuvimbiwa, lakini hana maumivu ya tumbo. Henry anahisi uchovu zaidi kuliko kawaida na ameona kupungua kwa uzito kidogo, bila sababu katika kipindi cha miezi miwili iliyopita. Hamu yake bado haijabadilika, lakini mara kwa mara anahisi uvimbe na hula kidogo anapohisi hivi."
+    },
+    "medical_social_history": {
+      "english": "Henry has never had a colonoscopy before. He does not have a family history of colorectal cancer. He does not smoke or drink alcohol. His diet is mostly traditional, consisting of ugali, sometimes eating traditional vegetables, and meat – the admits he doesn’t eat as much fiber as he probably should. Henry has a strong and practical personality, but he looks uneasy today.",
+      "swahili": "Henry hajawahi kuwa na colonoscopy hapo awali. Hana historia ya familia ya saratani ya utumbo mpana. Havuti sigara wala kunywa pombe. Lishe yake ni ya kitamaduni, inayojumuisha ugali, wakati mwingine kula mboga za kitamaduni, na nyama – anakiri kuwa hatumii nyuzi nyingi kama inavyopaswa. Henry ana utu wenye nguvu na wa vitendo, lakini anaonekana kutokuwa na wasiwasi leo."
+    },
+    "opening_statement": {
+      "english": "Doctor, I am worried, I have noticed blood in my stool.",
+      "swahili": "Daktari, nina wasiwasi, nimeona damu kwenye kinyesi changu."
+    },
+    "recommended_questions": [
+      {
+        "question": {
+          "english": "When did it start / how long has it been happening?",
+          "swahili": "Ilianza lini/ imefanyika kwa muda gai?"
+        },
+        "response": {
+          "english": "The first time it happened was about 3 months ago",
+          "swahili": "Mara ya kwanza kufanyika ilikua miezi mitatu iliyopita"
+        }
+      },
+      {
+        "question": {
+          "english": "How frequently does it happen?",
+          "swahili": "Inatokea mara ngapi"
+        },
+        "response": {
+          "english": "Almost every time I go to the bathroom",
+          "swahili": "Kila mara nikienda bafu"
+        }
+      },
+      {
+        "question": {
+          "english": "How heavy is the bleeding?",
+          "swahili": "Je, damu ni nzito kiasi gani?"
+        },
+        "response": {
+          "english": "I am not sure as it is mixed in.",
+          "swahili": "Sina hakika kwani imechanganywa."
+        }
+      },
+      {
+        "question": {
+          "english": "Is there any change in bowel habits? Do you have any constipation or diarrhea?",
+          "swahili": "Je, kuna mabadiliko yoyote katika tabia ya matumbo? Je, una kuvimbiwa au kuhara?"
+        },
+        "response": {
+          "english": "Yes, sometimes I feel constipated.",
+          "swahili": "Ndio, wakati mwingine nahisi kuvimbiwa."
+        }
+      },
+      {
+        "question": {
+          "english": "Is there any mucus / slime in the stool?",
+          "swahili": "Je, kuna kamasi /matope kwenye kinyesi?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any abdominal pain?",
+          "swahili": "Je, una maumivu yoyote ya tumbo?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any swelling/protrusion/lumps down there?",
+          "swahili": "Je, una uvimbe/uchochezi/vivivimbe huko chini?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you experienced weight loss?",
+          "swahili": "Je, umepata kupoteza uzito?"
+        },
+        "response": {
+          "english": "Not a lot… But I have tightened my belt by one hold recently.",
+          "swahili": "Sio sana... Lakini nimekaza mkanda wangu kwa kushikilia mara moja hivi karibuni."
+        }
+      },
+      {
+        "question": {
+          "english": "When you go to the bathroom, do you feel like you’re getting everything out?",
+          "swahili": "Unapoenda bafuni, unahisi kama unapata kila kitu?"
+        },
+        "response": {
+          "english": "Yes, that is not a problem.",
+          "swahili": "Ndiyo, hilo si tatizo."
+        }
+      },
+      {
+        "question": {
+          "english": "What color is the stool?",
+          "swahili": "Kinyesi ni rangi gani?"
+        },
+        "response": {
+          "english": "Red and brown … The blood is mixed in",
+          "swahili": "Nyekundu na kahawia ... Damu imechanganywa"
+        }
+      },
+      {
+        "question": {
+          "english": "Has it gotten worse over these 3 months?",
+          "swahili": "Imekua mbaya zaidi kwa hii miezi mitatu?"
+        },
+        "response": {
+          "english": "Yes, the last few weeks it’s getting worse",
+          "swahili": "Ndio, kwa wiki chache zilizopita inaendelea kua mbaya"
+        }
+      },
+      {
+        "question": {
+          "english": "What is the texture of the stool?",
+          "swahili": "Je, muundo wa kinyesi ni nini?"
+        },
+        "response": {
+          "english": "Sometimes loose, sometimes hard.",
+          "swahili": "Wakati mwingine nyepesi, wakati mwingine ngumu."
+        }
+      },
+      {
+        "question": {
+          "english": "Is there any pain?",
+          "swahili": "Kuna uchungu wowote?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Are you bleeding from anywhere else?",
+          "swahili": "Je, unavuja damu kwingine popote?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you sought any treatment for this already?",
+          "swahili": "Je, umetafuta matibabu yoyote kwa sasa?"
+        },
+        "response": {
+          "english": "Yes",
+          "swahili": "Ndio"
+        }
+      },
+      {
+        "question": {
+          "english": "What medication have you been taking?",
+          "swahili": "Ni dawa zipi umekua ukitumia?"
+        },
+        "response": {
+          "english": "Oral medication from the pharmacy",
+          "swahili": "Dawa ya kunywa kutoka kwa duka la dawa"
+        }
+      },
+      {
+        "question": {
+          "english": "Did the treatment help?",
+          "swahili": "Je, matibabu yalisaidia?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Are you taking any other medications right now?",
+          "swahili": "Je, unatumia madawa mengine kwa sasa?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Are you experiencing/suffering from unusual fatigue?",
+          "swahili": "Je, unapitia/unakabiliwa na uchovu usio wa kawaida?"
+        },
+        "response": {
+          "english": "I have been doing some sports and find myself a bit breathless, but really, I feel fine",
+          "swahili": "Nimekuwa nikifanya michezo na kujikuta sina pumzi, lakini kwa kweli, ninahisi vizuri"
+        }
+      },
+      {
+        "question": {
+          "english": "Why are you coming now?",
+          "swahili": "Kwa nini unakuja sasa?"
+        },
+        "response": {
+          "english": "I thought it was nothing, but I am worried that the longer it goes on it might get worse.",
+          "swahili": "Nilidhani sio kitu, lakini nina wasiwasi kwamba kadiri inavyoendelea inaweza kuwa mbaya zaidi."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any other illnesses?",
+          "swahili": "Je, una magonjwa mengine?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "What is your diet?",
+          "swahili": "Mlo wako ni nini?"
+        },
+        "response": {
+          "english": "Ugali, sometimes I have traditional vegetables and also have meat regularly.",
+          "swahili": "Ugali, wakati mwingine nina mboga za kitamaduni na pia huwa na nyama mara kwa mara."
+        }
+      },
+      {
+        "question": {
+          "english": "Have there been any changes in your eating?",
+          "swahili": "Je, Kumekua na mabadiliko yoy0te vile unakula?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "What is your occupation?",
+          "swahili": "Kazi yako ni nini?"
+        },
+        "response": {
+          "english": "I have a small electronics repair shop.",
+          "swahili": "Nina duka dogo la kutengeneza vifaa vya elektroniki."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you smoke?",
+          "swahili": "Je, unavuta sigara?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you drink alcohol?",
+          "swahili": "Je, unakunywa pombe?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Does anyone in your family have a history of similar symptoms?",
+          "swahili": "Je, kuna mtu yeyote katika familia yako ana historia ya dalili zinazofanana?"
+        },
+        "response": {
+          "english": "I don’t think so",
+          "swahili": "Sidhani hivyo"
+        }
+      },
+      {
+        "question": {
+          "english": "Does anyone else in your household have this problem?",
+          "swahili": "Je, kuna mtu mwingine yeyote katika kaya yako ana tatizo hili?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have hypertension / high blood pressure or diabetes / blood sugar issues?",
+          "swahili": "Je, una shinikizo la damu /shinikizo la damu au kisukari/maswala ya sukari ya damu?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you ever had any STDs? Any history of STDs?",
+          "swahili": "Je, umewahi kuwa na magonjwa ya zinaa? Historia yoyote ya magonjwa ya zinaa?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      }
+    ]
+  },
+  {
+    "case_id": "4",
+    "Suspected_illness": "",
+    "red_flags": {},
+    "patient_background": {
+      "english": "John is 55 years old and has studied up to primary level. He is a market vendor and lives with his wife, Sharon, in a modest two-room house. They have three adult children, all of whom live in different towns, though they visit occasionally. John has always been in relatively good health, apart from the occasional cold. However, in the past few months, he has noticed some issues with his voice.",
+      "swahili": "John ana umri wa miaka 55 na amesoma hadi kiwango cha shule ya msingi. Yeye ni mchuuzi sokoni na anaishi na mke wake, Sharon, katika nyumba ya kawaida yenye vyumba viwili. Wana watoto watatu watu wazima, wote wanaoishi katika miji tofauti, ingawa huwatembelea mara kwa mara. John amekuwa na afya nzuri kwa ujumla, isipokuwa homaya mara kwa mara. Hata hivyo, katika miezi michache iliyopita, ameanza kugundua matatizo fulani kwenye sauti yake."
+    },
+    "chief_complaint_history": {
+      "english": "This morning, as John prepared to open his shop, his wife asked, “Your voice still sounds bad. Shouldn’t you see a doctor?” John sighed and responded, “It’s just been hoarse for a while now. I thought it would clear up, but it’s only getting worse.” John first experienced hoarseness three months ago. Initially, he assumed it was due to a cold or overuse of his voice and has taken some medications, but they did not help. However, the hoarseness has progressively worsened. He does not have a sore throat or difficulty swallowing, but he sometimes feels as though something is stuck in his throat. His appetite remains normal.",
+      "swahili": "Asubuhi ya leo, John alipokuwa akijiandaa kufungua duka lake, mke wake alimuuliza, “Sauti yako bado haijapona. Hufikirii unapaswa kumuona daktari?” John alisigha na kujibu, “Imekuwa tu ya kukwaruza kwa muda sasa. Nilidhani ingetulia, lakini inaendelea kuwa mbaya zaidi.” John alianza kupata sauti ya kukwaruza miezi mitatu iliyopita. Mwanzoni alidhani ni kutokana na homaau kutumia sauti kupita kiasi na alitumia dawa kadhaa, lakini hazikusaidia. Hata hivyo, hali hiyo imezidi kuwa mbaya kwa muda. Hana maumivu ya koo wala shida ya kumeza, lakini wakati mwingine huhisi kana kwamba kuna kitu kimekwama kooni. Hamu yake ya kula haijabadilika."
+    },
+    "medical_social_history": {
+      "english": "John was a heavy smoker for 30 years, averaging about one pack (or about 20 cigarettes) per day, but stopped smoking 5 years ago. He has never had any major health issues before and has not sought medical attention for his symptoms until now. His wife has been urging him to visit a doctor, but John has been reluctant, thinking it’s just part of aging. However, today, he seems more concerned and anxious.",
+      "swahili": "John alikuwa mvutaji sigara wa muda mrefu kwa miaka 30, akivuta wastani wa pakiti moja (au takriban sigara 20) kwa siku, lakini aliacha kuvuta sigara miaka mitano iliyopita. Hajawahi kuwa na matatizo makubwa ya kiafya hapo awali na hajawahi kutafuta matibabu kwa ajili ya dalili anazopata hadi sasa. Mke wake amekuwa akimsihi amuone daktari, lakini John amekuwa na kusita, akidhani ni sehemu ya kuzeeka tu. Hata hivyo, leo anaonekana kuwa na wasiwasi zaidi na ana hofu."
+    },
+    "opening_statement": {
+      "english": "Doctor, my voice has been hoarse for some time now.",
+      "swahili": "Daktari, sauti yangu imekuwa ya kukwaruza kwa muda sasa."
+    },
+    "recommended_questions": [
+      {
+        "question": {
+          "english": "How long has your voice been hoarse?",
+          "swahili": "Sauti yako imekuwa ya kukwaruza kwa muda gani?"
+        },
+        "response": {
+          "english": "Three months.",
+          "swahili": "Miezi mitatu."
+        }
+      },
+      {
+        "question": {
+          "english": "Is it all the time?",
+          "swahili": "Je, sauti yako ni ya kukwaruza kila wakati?"
+        },
+        "response": {
+          "english": "Yes.",
+          "swahili": "Ndio."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you smoke ?",
+          "swahili": "Je, unavuta sigara?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you smoked in the past?",
+          "swahili": "Je, umewahi kuvuta sigara zamani?"
+        },
+        "response": {
+          "english": "Yes.",
+          "swahili": "Ndio."
+        }
+      },
+      {
+        "question": {
+          "english": "For how long did you smoke?",
+          "swahili": "Ulivuta sigara kwa muda gani?"
+        },
+        "response": {
+          "english": "About 30 years, but I stopped.",
+          "swahili": "Kwa mda wa miaka 30, lakini naliacha."
+        }
+      },
+      {
+        "question": {
+          "english": "How many sticks did you smoke back then?",
+          "swahili": "Ulivuta sigara ngapi wakati huo?"
+        },
+        "response": {
+          "english": "About a pack a day.",
+          "swahili": "Kamapakiti moja kwa siku."
+        }
+      },
+      {
+        "question": {
+          "english": "Which brand did you use",
+          "swahili": "‘’’"
+        },
+        "response": {
+          "english": "Sportsman.",
+          "swahili": "Sportsman"
+        }
+      },
+      {
+        "question": {
+          "english": "When did you stop smoking?",
+          "swahili": "Uliacha kuvuta sigara lini?"
+        },
+        "response": {
+          "english": "About five years ago.",
+          "swahili": "Kamamiaka mitano iliyopita."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you cough?",
+          "swahili": "Je, unakohoa?"
+        },
+        "response": {
+          "english": "No. Maybe, once in a while.",
+          "swahili": "Hapana. Labda, mara moja kwa wakati."
+        }
+      },
+      {
+        "question": {
+          "english": "Is there blood when you cough?",
+          "swahili": "Je, kuna damu unapopiga chafya?"
+        },
+        "response": {
+          "english": "No, there’s no blood.",
+          "swahili": "Hapana, hakuna damu."
+        }
+      },
+      {
+        "question": {
+          "english": "Are you able to swallow normally?",
+          "swahili": "Je, unaweza kumeza kwa kawaida?"
+        },
+        "response": {
+          "english": "Yes, but occasionally I feel something stuck in my throat.",
+          "swahili": "Ndio, lakini wakati mwingine nasikia kitu kimekwama kooni."
+        }
+      },
+      {
+        "question": {
+          "english": "When you swallow, do you feel pain?",
+          "swahili": "Unapomeza, je, unahisi maumivu?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any ear pain or ear issues?",
+          "swahili": "Je, una maumivu ya sikio au matatizo ya masikio?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have difficulty with breathing?",
+          "swahili": "Je, una shida ya kupumua?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any chest pain?",
+          "swahili": "Je, una maumivu ya kifua?"
+        },
+        "response": {
+          "english": "No, none.",
+          "swahili": "Hapana, hakuna."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you use your voice a lot (e.g., speaking, teaching, singing in the choir)?",
+          "swahili": "Je, unatumia sauti yako mara nyingi (kwa mfano, kuzungumza, kufundisha, kuimba katika kwaya)?"
+        },
+        "response": {
+          "english": "Well… when I take customers’ orders, I can talk a lot.",
+          "swahili": "Ndio ninapongea na wateja"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you take alcohol?",
+          "swahili": "Je, unakunywa pombe?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you often have heartburn, or feel some discomfort in your throat, especially at night?",
+          "swahili": "Je, una kiungulia mara nyingi, au unahisi usumbufu katika koo lako, hasa usiku?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "What do you do for a living?",
+          "swahili": "Unajishughulisha na nini?"
+        },
+        "response": {
+          "english": "I’m a market vendor.",
+          "swahili": "Mimi ni mchuuzi sokoni."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you ever worked in industry before?",
+          "swahili": "Je, umewahi kufanya kazi katika viwanda hapo awali?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you experienced any weight loss recently?",
+          "swahili": "Je, umepoteza uzito hivi karibuni?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you had similar experiences in the past?",
+          "swahili": "Je, umewahi kupata uzoefu kama huu hapo awali?"
+        },
+        "response": {
+          "english": "Just some cold and usually when I take medication, it clears after a few days.",
+          "swahili": "Nilikuwa na homana kawaidaninapokunywadawa, inatulia baada ya siku chache."
+        }
+      },
+      {
+        "question": {
+          "english": "What have you done about this particular episode?",
+          "swahili": "Umefanya nini kuhusu hali hii?"
+        },
+        "response": {
+          "english": "I took medicine at a pharmacy, but it did not get better.",
+          "swahili": "Nilitumia dawa kutoka kwa duka la dawa, lakini haikusaidia."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you feel pain in the throat when you speak?",
+          "swahili": "Unahisi maumivu kooni unapoongea?"
+        },
+        "response": {
+          "english": "Occasionally, especially when I talk too much.",
+          "swahili": "Mara kwa mara, hasa nikiongeasana."
+        }
+      },
+      {
+        "question": {
+          "english": "How did it start?",
+          "swahili": "Ilianzaje?"
+        },
+        "response": {
+          "english": "I had a cold at some point and took some medicine but that did not help.",
+          "swahili": "Nilikuwa na homakwa wakati fulani na nilipotumia dawa haikusaidi."
+        }
+      },
+      {
+        "question": {
+          "english": "Does it get better sometimes?",
+          "swahili": "Je, inatulia wakati mwingine?"
+        },
+        "response": {
+          "english": "It is there all the time.",
+          "swahili": "Ipo kila wakati."
+        }
+      },
+      {
+        "question": {
+          "english": "Did you realize it’s worse in the morning or better in the evening?",
+          "swahili": "Je, umekubali kuwa ni mbaya zaidi asubuhi au bora jioni?"
+        },
+        "response": {
+          "english": "It’s always there.",
+          "swahili": "Ipo kila wakati."
+        }
+      },
+      {
+        "question": {
+          "english": "Is anyone in your household experiencing similar symptoms?",
+          "swahili": "Je, kuna mtu yeyote katika nyumba yako anayeonyesha dalili kama hizi?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any other symptoms?",
+          "swahili": "Je, una dalili nyingine yoyote?"
+        },
+        "response": {
+          "english": "REPEAT SYMPTOMS THAT HAVE BEEN MENTIONED UP TO THIS POINT",
+          "swahili": "RUDIA DALILI ZILIZO TUMIKA HADI SASA"
+        }
+      },
+      {
+        "question": {
+          "english": "How is your general health today?",
+          "swahili": "Je, una hali gani ya afya leo?"
+        },
+        "response": {
+          "english": "Normal except for the hoarse voice.",
+          "swahili": "Kawaida isipokuwa sauti ya kukwaruza."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you been diagnosed of ulcers before?",
+          "swahili": "Je, umewahi kugundulika kuwa na vidonda vya tumbo?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Any swelling in your neck or any other part of your body?",
+          "swahili": "Je, kuna uvimbe kwenye shingo yako au sehemu nyingine ya mwili wako?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you sneeze a lot or have stuffy nose most times?",
+          "swahili": "Je, unapiga chafya mara nyingi au una pua iliyojaa kwa wakati mwingi?"
+        },
+        "response": {
+          "english": "No, only when I have cold.",
+          "swahili": "Hapana, ni wakati tu wa homa."
+        }
+      }
+    ]
+  },
+  {
+    "case_id": "5",
+    "Suspected_illness": "",
+    "red_flags": {
+      "Symptom duration": ">3 months"
+    },
+    "patient_background": {
+      "english": "Robert is a 40-year-old man who owns a hardware shop. He completed his primary education but did not continue with further studies. He lives with his wife, Grace, and their two children, aged 14 and 10, in a rented house near his business.",
+      "swahili": "Robert ni mwanaume mwenye umri wa miaka 40 anaye miliki duka la vifaa vya ujenzi. Alimaliza elimu ya msingi lakini hakendelea na masomo zaidi. Anaishi na mkewe, Grace, na watoto wao wawili, wenye umri wa miaka 14 na 10, katika nyumba ya kupanga karibu na biashara yake."
+    },
+    "chief_complaint_history": {
+      "english": "For the past three months, Robert has been experiencing persistent nasal blockage, which has progressively worsened. The issue is only affecting his right side. Three weeks ago, in addition to nasal blockage, he started experiencing nosebleeds from the right nostril, which started mildly but have become more frequent. He also has been experiencing a sensation of fullness in his right ear, making it feel blocked. He has some dull facial pain on the right side, which started in the last couple weeks. Also, Robert has not noticed a diminished sense of smell. Initially, he thought he was having a common cold, but since his symptoms have worsened, he has grown increasingly worried. Today, he has decided to visit a health facility for further evaluation.",
+      "swahili": "Kwa miezi mitatu iliyopita, Robert amekuwa akiona kuziba kwa pua ambayo imekuwa ikizidi kuwa mbaya. Shida hii inaathiri upande wake wa kulia pekee. Wiki tatu zilizopita, pamoja na kuziba kwa pua, alianza kupata bleeding ya pua kutoka kwenye pua ya kulia, ambayo ilianza kidogo lakini sasa imekuwa mara kwa mara. Pia, amekuwa akihisi usumbufu wa kujaza kwenye sikio lake la kulia, ambalo linamfanya alihisi limejaa. Ana maumivu ya sura upande wa kulia, ambayo yalianza katika wiki chache zilizopita. Pia, Robert hajagundua kupungua kwa hali ya harufu. Awali alidhani alikuwa na mafua ya kawaida, lakini kutokana na dalili zake kuzidi kuwa mbaya, amekuwa na wasiwasi zaidi. Leo, ameamua kutembelea kituo cha afya kwa tathmini zaidi."
+    },
+    "medical_social_history": {
+      "english": "Robert does not have a history of smoking. He does not have a history of allergies. His wife has also noticed that the blockages are bothering her husband. Robert is concerned about his health but is also anxious about missing work if he needs treatment.",
+      "swahili": "Robert hana historia ya kuvuta sigara. Hana historia ya mzio. Mkewe pia ameona kuwa kuziba kwa pua kumekuwa kukimsumbua mumewe. Robert ana wasiwasi kuhusu afya yake lakini pia anahofia kukosa kazi ikiwa atahitaji matibabu."
+    },
+    "opening_statement": {
+      "english": "My nose has been blocked for a long time and am having nose bleeds over here on this side. [motions to right side]",
+      "swahili": "Pua yangu imejaa kwa muda mrefu na nina damu kutoka pua yangu upande huu. [Anatia kidole upande wa kulia]"
+    },
+    "recommended_questions": [
+      {
+        "question": {
+          "english": "When did the nose blockage start?",
+          "swahili": "Je, kuziba kwa pua kulianza lini?"
+        },
+        "response": {
+          "english": "3 months ago",
+          "swahili": "Miezi mitatu iliyopita"
+        }
+      },
+      {
+        "question": {
+          "english": "Is the blockage in both nostrils?",
+          "swahili": "Je, kuziba kwa pua kunatokea kwenye pua zote mbili?"
+        },
+        "response": {
+          "english": "No, it is only on this side. [motions to the right side of nose]",
+          "swahili": "Hapana, ni upande huu tu. [Anatia kidole upande wa kulia wa pua]"
+        }
+      },
+      {
+        "question": {
+          "english": "Has the blockage worsened over time?",
+          "swahili": "Je, kuziba kwa pua kumekuwa mbaya zaidi kwa wakati?"
+        },
+        "response": {
+          "english": "Yes, it has been getting worse.",
+          "swahili": "Ndio, kumezidi kuwa mbaya."
+        }
+      },
+      {
+        "question": {
+          "english": "Has this ever happened before in your life?",
+          "swahili": "Je, hii imewahi kutokea hapo awali katika maisha yako?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Do any positional changes help improve the blockage?",
+          "swahili": "Je, mabadiliko yoyote ya mkao yanafaa kusaidia kuboresha kuziba kwa pua?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "6. When did you first notice the blood?",
+          "swahili": "Uliona damu kwa mara ya kwanza lini?"
+        },
+        "response": {
+          "english": "About three weeks ago.",
+          "swahili": "Takriban wiki tatu zilizopita."
+        }
+      },
+      {
+        "question": {
+          "english": "How frequent is the bleeding?",
+          "swahili": "Damu inatoka mara ngapi?"
+        },
+        "response": {
+          "english": "It’s not every time. It’s been happening more since it started.",
+          "swahili": "Sio kila wakati. Imekuwa ikitokea mara nyingi tangu ianze."
+        }
+      },
+      {
+        "question": {
+          "english": "Is the bleeding a lot?",
+          "swahili": "Damu inatoka kwa wingi?"
+        },
+        "response": {
+          "english": "Not so much.",
+          "swahili": "Hapana sana."
+        }
+      },
+      {
+        "question": {
+          "english": "When does the blood come out? Is it spontaneous or when you sneeze…?",
+          "swahili": "Damu hutoka lini? Je, inatokea kwa ghafla au unapochafya...?"
+        },
+        "response": {
+          "english": "The blood just comes out on its own, but when I sneeze or blow my nose, it comes with mucus.",
+          "swahili": "Damu hutoka kwa kujitokeza yenyewe, lakini ninapochafya au kupiga pua, hutoka na kamasi."
+        }
+      },
+      {
+        "question": {
+          "english": "What medications have you used for this?",
+          "swahili": "Ni dawa gani umekutumia kwa hili?"
+        },
+        "response": {
+          "english": "Just cold medicines.",
+          "swahili": "Dawa za mafua pekee."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you been using nasal spray?",
+          "swahili": "Je, umekuwa ukitumia sprey ya pua?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any problem with your ears?",
+          "swahili": "Je, una shida yoyote na masikio yako?"
+        },
+        "response": {
+          "english": "Yes, my right ear is blocked.",
+          "swahili": "Ndio, sikio langu la kulia limejaa."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you had hearing loss?",
+          "swahili": "Je, umepoteza uwezo wa kusikia?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any (facial) pain?",
+          "swahili": "Je, una maumivu yoyote ya uso?"
+        },
+        "response": {
+          "english": "Yes",
+          "swahili": "Ndiyo"
+        }
+      },
+      {
+        "question": {
+          "english": "Which side of the face is the pain coming from?",
+          "swahili": "Unasikia uchungu kwa pande gani wa uso?"
+        },
+        "response": {
+          "english": "I have some discomfort on my face on the right side…I’m not sure I would call it pain, but discomfort that comes and goes. It is happening a bit more.",
+          "swahili": "Nina usumbufu fulani kwenye uso wangu upande wa kulia… Siwezi kusema ni maumivu, lakini ni usumbufu unaokuja na kuondoka. Unatokea kidogo zaidi."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you had any changes to your vision?",
+          "swahili": "Je, umepata mabadiliko yoyote kwenye kuona kwako?"
+        },
+        "response": {
+          "english": "No, my eyes are ok.",
+          "swahili": "Hapana, macho yangu yako sawa."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any allergies? Have you experienced allergies before?",
+          "swahili": "Je, una mzio wowote? Je, umewahi kuwa na mzio hapo awali?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Are you experiencing any headaches?",
+          "swahili": "Je, una maumivu yoyote ya kichwa?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Any issues with your teeth or your gums?",
+          "swahili": "Je, una matatizo yoyote na meno au fizi zako?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you lost weight?",
+          "swahili": "Je, umepoteza uzito?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you had a loss of smell?",
+          "swahili": "Je, umepoteza uwezo wa kunusa?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Any other conditions?",
+          "swahili": "Je, kuna hali nyingine yoyote?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you smoke?",
+          "swahili": "Je, unavuta sigara?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you use snuff, snort, or do any drugs?",
+          "swahili": "Je, unatumia ugoro, kukoroma, au kufanya dawa yoyote?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      }
+    ]
+  },
+  {
+    "case_id": "6",
+    "Suspected_illness": "",
+    "red_flags": {
+      "Symptom duration": ">3 months",
+      "Unintentional weight loss": true,
+      "Possible cancer-related bleeding": true
+    },
+    "patient_background": {
+      "english": "James is 50 years old and has studied up to secondary level. James runs a small food kiosk in town, which provides a stable income. He lives in a two-room rental house with his spouse with occasional visits from their grown children. James has generally maintained good health, apart from the occasional cold or flu. However, over the past couple of months, he has noticed some troubling symptoms.",
+      "swahili": "James ana umri wa miaka 50 na amesoma hadi ngazi ya sekondari. James anaendesha kioski kidogo cha chakula mjini, ambacho hutoa mapato thabiti. Anaishi katika nyumba ya kukodisha ya vyumba viwili na mwenzi wake na kutembelewa mara kwa mara na watoto wao wazima. James kwa ujumla amedumisha afya njema, mbali na baridi au mafua ya hapa na pale. Walakini, katika miezi michache iliyopita, amegundua dalili zinazosumbua."
+    },
+    "chief_complaint_history": {
+      "english": "This morning, while preparing tea, James’ wife noticed his coughing again and asked, “That cough isn’t going away… Are you sure you don’t need to see a doctor?” James sighed and said, “It’s just a cough, but lately, I’ve lost some weight too.” James’ wife looked more concerned and pressed further, “What about last week? You said you saw blood in your sputum.” For the past three months, James has had a persistent cough, which has not improved despite taking over-the-counter cough syrups from the local pharmacy. The cough is mostly dry but occasionally produces small amounts of sputum. Over the past two weeks, he has coughed up fresh blood on two separate occasions. Additionally, James has experienced: Unexplained weight loss over the last month, despite maintaining a normal appetite. Fatigue and general weakness, which makes daily work at the food kiosk more exhausting than usual. Occasional chest discomfort, though no sharp or severe pain. James does not have night sweats or fevers but mentions feeling slightly more chilled than usual at night.",
+      "swahili": "Asubuhi ya leo, alipokuwa akitayarisha chai, mke wa James’ aliona kukohoa kwake tena na akauliza, “Kikohozi hicho hakiondoki... Je, una uhakika huhitaji kuonana na daktari?” James alipumua na kusema, “Ni kikohozi tu, lakini hivi majuzi, nimepungua uzito pia.” Mke wa James’ alionekana kuwa na wasiwasi zaidi na akasisitiza zaidi, “Vipi kuhusu wiki iliyopita? Ulisema umeona damu kwenye hohoziyako.” Kwa muda wa miezi mitatu iliyopita, James amekuwa na kikohozi cha kudumu, ambacho hakijaimarika licha ya kuchukua dawa za kikohozi kutoka kwa duka la dawa la ndani. Kikohozi mara nyingi ni kavu lakini mara kwa mara hutoa kiasi kidogo cha makohozi. Katika muda wa wiki mbili zilizopita, amekohoa damu safi mara mbili tofauti. Zaidi ya hayo, James amepata uzoefu: Kupunguza uzito bila maelezo zaidi ya mwezi uliopita, licha ya kudumisha hamu ya kawaida. Uchovu na udhaifu wa jumla, ambao hufanya kazi ya kila siku kwenye kioski cha chakula kuwa ya kuchosha zaidi kuliko kawaida. Usumbufu wa kifua mara kwa mara, ingawa hakuna maumivu makali au makali. James hana jasho la usiku au homa lakini anataja kuhisi baridi kidogo kuliko kawaida usiku."
+    },
+    "medical_social_history": {
+      "english": "James has been a smoker for30 years . He smokes around 10-20 cigarettes per day. There is no known family history of lung cancer. He has also not been in contact with anyone who has been coughing. He has never had a chest X-ray before and has not visited a doctor yet because he assumed the symptoms were from smoking or a stubborn infection. Today, however, James appears more worried—especially about the coughing up blood—and is finally considering seeking medical advice.",
+      "swahili": "James amekuwa mvutaji sigarakwa miaka 30.. Anavuta sigara karibu 10-20 kwa siku. Hakuna historia ya familia inayojulikana ya saratani ya mapafu. Pia hajatangamanana mtu yeyote ambaye amekuwa akikohoa. Hajawahi kuwa na X-ray ya kifua hapo awali na bado hajamtembelea daktari kwa sababu alidhani dalili zilitokana na kuvuta sigara au maambukizi ya ukaidi. Leo, hata hivyo, James anaonekana kuwa na wasiwasi zaidi— hasa kuhusu kukohoa kwa damu na hatimaye anafikiria kutafuta ushauri wa matibabu."
+    },
+    "opening_statement": {
+      "english": "I have been coughing too much lately.",
+      "swahili": "Nimekuwa nikikohoa sana hivi majuzi."
+    },
+    "recommended_questions": [
+      {
+        "question": {
+          "english": "How long have you been coughing?",
+          "swahili": "Je, umekuwa ukikohoa kwa muda gani?"
+        },
+        "response": {
+          "english": "For about 3 months now.",
+          "swahili": "Takriban miezi 3 sasa."
+        }
+      },
+      {
+        "question": {
+          "english": "Are you producing any sputum?",
+          "swahili": "Je, unatoa kamasi yoyote?"
+        },
+        "response": {
+          "english": "Yes.",
+          "swahili": "Ndio."
+        }
+      },
+      {
+        "question": {
+          "english": "3. Have you ever seen blood in your sputum or coughed up blood?",
+          "swahili": "Je, umewahi kuona damu kwenye kamasi yako au kutema damu wakati wa kukohoa?"
+        },
+        "response": {
+          "english": "Yes.",
+          "swahili": "Ndio."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have a fever?",
+          "swahili": "Je, una homa?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you lost any weight?",
+          "swahili": "Je, umepoteza uzito wowote?"
+        },
+        "response": {
+          "english": "Yes, my clothes are fitting a bit looser than normal.",
+          "swahili": "Ndio, mavazi yangu yanakuwa makubwa kidogo kuliko kawaida."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you smoke?",
+          "swahili": "Je, unavuta sigara?"
+        },
+        "response": {
+          "english": "Yes.",
+          "swahili": "Ndio."
+        }
+      },
+      {
+        "question": {
+          "english": "How much do you smoke?",
+          "swahili": "Je, unavuta sigara ngapi?"
+        },
+        "response": {
+          "english": "About 10-20 cigarettes a day.",
+          "swahili": "Takriban sigara 10-20 kwa siku."
+        }
+      },
+      {
+        "question": {
+          "english": "Are you experiencing any chest pain?",
+          "swahili": "Je, una maumivu yoyote ya kifua?"
+        },
+        "response": {
+          "english": "I have discomfort in my chest sometimes… I wouldn’t call it pain.",
+          "swahili": "Nina usumbufu kwenye kifua changu wakati mwingine... Sidhani kama ningeiita maumivu."
+        }
+      },
+      {
+        "question": {
+          "english": "Are you wheezing / having difficulty breathing?",
+          "swahili": "Je, unapata sauti ya kupiga hewa / unapata shida ya kupumua?"
+        },
+        "response": {
+          "english": "Yes.",
+          "swahili": "Ndio."
+        }
+      },
+      {
+        "question": {
+          "english": "Is anyone in your household experiencing similar symptoms?",
+          "swahili": "Je, kuna mtu yeyote nyumbani kwako anayeonyesha dalili kama hizi?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you recently stayed or visited with someone who has been coughing?",
+          "swahili": "Je, hivi karibuni umekaa au kutembelea mtu yeyote ambaye amekuwa akikohoa?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have HIV/AIDS?",
+          "swahili": "Je, una ukimwi?"
+        },
+        "response": {
+          "english": "No, I do not.",
+          "swahili": "Hapana, sina."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you ever had any lung diseases, conditions, or issues with your lungs?",
+          "swahili": "Je, umewahi kuwa na magonjwa ya mapafu, hali yoyote au matatizo na mapafu yako?"
+        },
+        "response": {
+          "english": "No, not before this started.",
+          "swahili": "Hapana, sio kabla hii kuanza."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you taken any medicines for the cough?",
+          "swahili": "Je, umechukua dawa yoyote kwa ajili ya kikohozi?"
+        },
+        "response": {
+          "english": "Yes.",
+          "swahili": "Ndiyo."
+        }
+      },
+      {
+        "question": {
+          "english": "Which medicine did you take?",
+          "swahili": "Ulikunywa dawa gani?"
+        },
+        "response": {
+          "english": "I cant remember - I bought cough syrup from a chemist, though it did not provide relief",
+          "swahili": "Sikumbuki - nilinunua dawa ya kukohoa kutoka duka la dawa lakini haikusidia"
+        }
+      },
+      {
+        "question": {
+          "english": "Did the cough start after a cold?",
+          "swahili": "Je, kikohozi kilianza baada ya kuwa na homa?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "15. Is there a certain time of day when you typically cough?",
+          "swahili": "Je, kuna wakati maalum wa siku ambapo kawaida unakohoa?"
+        },
+        "response": {
+          "english": "No, not really. It is there all the time.",
+          "swahili": "Hapana, sio hasa. Inakuwa kila wakati."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you been sweating profusely at night?",
+          "swahili": "Je, umekuwa na joto jingi usiku?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you been vaccinated against TB?",
+          "swahili": "Je, umepata chanjo dhidi ya TB?"
+        },
+        "response": {
+          "english": "Yes.",
+          "swahili": "Ndio."
+        }
+      },
+      {
+        "question": {
+          "english": "What type of work do you do?",
+          "swahili": "Je, unafanya kazi gani?"
+        },
+        "response": {
+          "english": "I have a kiosk in town.",
+          "swahili": "Nina duka la kiosk mjini."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you been exposed to industrial/chemical gases in the past couple of years?",
+          "swahili": "Je, umepata kupumua gesi za viwandani/kemikali katika miaka michache iliyopita?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Does anyone in your family have a history of similar symptoms?",
+          "swahili": "Je, kuna mtu yeyote katika familia yako aliye na historia ya dalili zinazofanana?"
+        },
+        "response": {
+          "english": "I don’t know…",
+          "swahili": "Sijui…"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you drink alcohol?",
+          "swahili": "Je, unakunywa pombe?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have hypertension / high blood pressure or diabetes / blood sugar issues?",
+          "swahili": "Je, una shinikizo la damu / presha ya juu au kisukari / matatizo ya sukari ya damu?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you ever had any STDs? Any history of STDs?",
+          "swahili": "Je, umewahi kuwa na magonjwa ya zinaa? Je, una historia ya magonjwa ya zinaa?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      }
+    ]
+  },
+  {
+    "case_id": "7",
+    "Suspected_illness": "",
+    "red_flags": {
+      "Unintentional weight loss": true
+    },
+    "patient_background": {
+      "english": "Amina is a 29-year-old woman who owns a small tailoring shop. She completed her secondary education and later trained as a tailor. She lives with her husband, Yusuf, who works as a matatu/minibus driver, and their five-year-old daughter.",
+      "swahili": "Amina ni mwanamke mwenye umri wa miaka 29 ambaye ana duka dogo la ushonaji nguo. Alimaliza elimu yake ya sekondari na baadaye akapata mafunzo ya ushonaji nguo. Anaishi na mumewe, Yusuf, ambaye anafanya kazi kama dereva wa matatu/basi dogo, na binti yao wa miaka mitano."
+    },
+    "chief_complaint_history": {
+      "english": "For the past three months, Amina has been experiencing frequent episodes of a fast heartbeat, even when she is sitting or resting. She also feels unusually warm, even when others around her are comfortable. Despite eating normally and feeling a bit hungrier than normal, her friends and family have commented that she looks thinner, and she has had to adjust her clothes because they feel looser. She sometimes feels anxious for no apparent reason and has been having trouble sleeping at night. Amina visited a local chemist two weeks ago, where she was given medication for \"anxiety,\" but her symptoms have not improved. She is now concerned about her rapid heartbeat and weight loss which is not improving and has decided to visit the local health center for further evaluation.",
+      "swahili": "Kwa muda wa miezi mitatu iliyopita, Amina amekuwa akipitia vipindi vya mara kwa mara vya mapigo ya moyo ya haraka, hata akiwa ameketi au amepumzika. Pia anahisi joto isivyo kawaida, hata wakati wengine karibu naye wanastarehe. Licha ya kula chakula cha kawaida na kuhisi njaa kupita kawaida, marafiki na familia yake wameeleza kuwa anaonekana kukonda, na imemlazimu kurekebisha nguo zake kwa sababu zinalegea. Wakati fulani yeye huhisi wasiwasi bila sababu yoyote na amekuwa na shida ya kulala usiku. Amina alimtembelea mwanakemia wa eneo hilo wiki mbili zilizopita, ambapo alipewa dawa za \"wasiwasi,\" lakini dalili zake hazijaimarika. Sasa ana wasiwasi juu ya mapigo yake ya moyo ya haraka na kupungua uzito ambayo si bora na ameamua kutembelea kituo cha afya cha eneo hilo kwa tathmini zaidi."
+    },
+    "medical_social_history": {
+      "english": "Amina has generally been in good health and has never had a serious illness before. She does not smoke or drink alcohol. She is an active and social person, but lately, she has been feeling easily fatigued and restless. She is worried that her symptoms might affect her ability to work, as she needs steady hands and concentration for her sewing business. She also fears that her condition might be something serious and is anxious about what the doctor will say.",
+      "swahili": "Amina kwa ujumla amekuwa na afya njema na hajawahi kuwa na ugonjwa mbaya hapo awali. Yeye havuti sigara au kunywa pombe. Yeye ni mtu anayefanya kazi na kijamii, lakini hivi karibuni, amekuwa anahisi uchovu kwa urahisi na kutotulia. Ana wasiwasi kwamba dalili zake zinaweza kuathiri uwezo wake wa kufanya kazi, kwani anahitaji mikono thabiti na umakini kwa biashara yake ya ushonaji. Pia anaogopa kwamba hali yake inaweza kuwa mbaya na ana wasiwasi juu ya kile daktari atasema."
+    },
+    "opening_statement": {
+      "english": "I feel my heart is beating fast and I have been losing weight.",
+      "swahili": "Ninahisi moyo wangu unapiga haraka na nimepunguza kilo."
+    },
+    "recommended_questions": [
+      {
+        "question": {
+          "english": "How long has this been happening?",
+          "swahili": "Je, hili limekuwa likitokea kwa muda gani?"
+        },
+        "response": {
+          "english": "For about 3 months now.",
+          "swahili": "Takriban miezi 3 sasa."
+        }
+      },
+      {
+        "question": {
+          "english": "Does the feeling of your heart racing come and go?",
+          "swahili": "Je, hisia ya moyo kupiga kwa kasi huja na kuondoka?"
+        },
+        "response": {
+          "english": "No. It feels like it’s racing all the time.",
+          "swahili": "Hapana. Inahisi kana kwamba unapiga kwa kasi kila wakati."
+        }
+      },
+      {
+        "question": {
+          "english": "Is there anything you’ve noticed that causes your heart to beat fast?",
+          "swahili": "Je, kuna jambo lolote uliloligundua linalosababisha moyo wako kupiga kwa kasi?"
+        },
+        "response": {
+          "english": "I’m not sure. It feels like it’s racing all the time.",
+          "swahili": "Sina uhakika. Inahisi kama moyo unapiga kwa kasi kila wakati."
+        }
+      },
+      {
+        "question": {
+          "english": "How is your appetite?",
+          "swahili": "Je, hamu yako ya chukula iko vipi?"
+        },
+        "response": {
+          "english": "I feel hungrier than usual",
+          "swahili": "Nahisi njaa sana siyo kama kawaida"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you been losing or gaining weight?",
+          "swahili": "Je, unapoteza au kuongeza uzito?"
+        },
+        "response": {
+          "english": "Yes I am losing weight",
+          "swahili": "Ndio  napunguza kilo."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you hands been shaking",
+          "swahili": "Je, mikono yako yamekuwa yakitetemeka?"
+        },
+        "response": {
+          "english": "Yes, sometimes",
+          "swahili": "Ndio, wakati mwingine"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you feel unusually hot even when it is not hotl",
+          "swahili": "Je, unahisi joto hata wakati hakuna joto jingi?"
+        },
+        "response": {
+          "english": "Yes, I am feeling hot a lot.",
+          "swahili": "Ndio, ninahisi joto mara nyingi."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you noticed any swelling in your neck?",
+          "swahili": "Je, umeona uvimbe wowote kwenye shingo yako?"
+        },
+        "response": {
+          "english": "No, I don’t think so.",
+          "swahili": "Hapana, sidhani."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you noticed any changes with your eyes (e.g., eyes protruding)?",
+          "swahili": "Je, umeona mabadiliko yoyote kwenye macho yako (k.m. macho kutoka nje)?"
+        },
+        "response": {
+          "english": "No, I don’t think so.",
+          "swahili": "Hapana, sidhani."
+        }
+      },
+      {
+        "question": {
+          "english": "Are you feeling more tired or fatigued than usual?",
+          "swahili": "Je, unajisikia kuchoka zaidi kuliko kawaida?"
+        },
+        "response": {
+          "english": "Yes, usually I am very active, but I have been more tired lately.",
+          "swahili": "Ndio, kawaida huwa mchangamfu lakini hivi karibuni nimechoka zaidi."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you had any changes in your bowel movements?",
+          "swahili": "Je, kumekuwa na mabadiliko yoyote kwenye haja zako?"
+        },
+        "response": {
+          "english": "Yes, I have noticed that I go to the toilet frequently.",
+          "swahili": "Ndio, nimegundua naenda chooni mara kwa mara."
+        }
+      },
+      {
+        "question": {
+          "english": "Are you sleeping normally?",
+          "swahili": "Je, unalala kawaida?"
+        },
+        "response": {
+          "english": "No, I am really having difficulty sleeping at night.",
+          "swahili": "Hapana, nina shida kulala usiku."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have a fever?",
+          "swahili": "Je, una homa?"
+        },
+        "response": {
+          "english": "No, but I do feel hot a lot.",
+          "swahili": "Hapana, lakini huhisi joto sana."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you feel breathlessness?",
+          "swahili": "Je, unahisi kupumua kwa shida?"
+        },
+        "response": {
+          "english": "Yes",
+          "swahili": "Ndio."
+        }
+      },
+      {
+        "question": {
+          "english": "When was your last menstrual period?",
+          "swahili": "Je, hedhi yako ya mwisho ilikuwa lini?"
+        },
+        "response": {
+          "english": "About 3 weeks ago.",
+          "swahili": "Takriban wiki 3 zilizopita."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you noticed any changes to your menstrual period?",
+          "swahili": "Je, umeona mabadiliko yoyote kwenye hedhi yako?"
+        },
+        "response": {
+          "english": "Maybe some increase in the flow.",
+          "swahili": "Labda kuongezeka kidogo kwa mtiririko."
+        }
+      },
+      {
+        "question": {
+          "english": "Is there anybody in your family with similar symptoms?",
+          "swahili": "Je, kuna mtu yeyote katika familia yako mwenye dalili kama hizi?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Are you urinating more in volume than usual?",
+          "swahili": "Je, mkojo yako ni nyingi kuliko kawaida?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you find yourself thirstier than usual?",
+          "swahili": "Je, unajipata uko na kiu isio ya kawaida?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you taken any medicines for your symptoms?",
+          "swahili": "Je, umepata dawa yoyote kwa ajili ya dalili zako?"
+        },
+        "response": {
+          "english": "Yes, I got something from the pharmacy.",
+          "swahili": "Ndio, nilinunua dawa dukani."
+        }
+      },
+      {
+        "question": {
+          "english": "What was it for?",
+          "swahili": "Ilikuwa kwa ajili ya nini?"
+        },
+        "response": {
+          "english": "The pharmacist told me it would calm me down.",
+          "swahili": "Mfamasia aliniambia itanituliza."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you know the name of the drugs?",
+          "swahili": "Je, unajua jina la dawa hizo?"
+        },
+        "response": {
+          "english": "No, no I don’t remember.",
+          "swahili": "Hapana, sikumbuki."
+        }
+      },
+      {
+        "question": {
+          "english": "How has your mood been these days?",
+          "swahili": "Je, hali yako ya kihisia imekuwa vipi siku hizi?"
+        },
+        "response": {
+          "english": "I have been feeling a bit on edge.",
+          "swahili": "Nimekuwa nikihisi wasiwasi kidogo."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you been feeling sad or depressed?",
+          "swahili": "Je, umekuwa ukihisi huzuni au msongo wa mawazo?"
+        },
+        "response": {
+          "english": "No – just feeling a bit on edge.",
+          "swahili": "Hapana – ni hali ya wasiwasi tu."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you ever been treated for depression or stress-related conditions?",
+          "swahili": "Je, umewahi kutibiwa kwa msongo wa mawazo au matatizo yanayohusiana na hali ya akili?"
+        },
+        "response": {
+          "english": "Just the medicines a pharmacist gave me to calm me down.",
+          "swahili": "Ni zile dawa nilizopewa na mfamasia za kunituliza tu."
+        }
+      },
+      {
+        "question": {
+          "english": "Are you urinating more often?",
+          "swahili": "Je, unakojoa mara nyingi?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you drink water frequently?",
+          "swahili": "Je, unakunywa maji mara kwa mara?"
+        },
+        "response": {
+          "english": "A normal amount.",
+          "swahili": "Kiasi cha kawaida."
+        }
+      },
+      {
+        "question": {
+          "english": "Does anyone in your household or family have a history of similar symptoms?",
+          "swahili": "Je, kuna mtu yeyote nyumbani kwako au katika familia yako mwenye historia ya dalili kama hizi?"
+        },
+        "response": {
+          "english": "I don’t know…",
+          "swahili": "Sijui…"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you smoke?",
+          "swahili": "Je, unavuta sigara?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you drink alcohol?   Je, unakunywa pombe?",
+          "swahili": "No"
+        },
+        "response": {
+          "english": "Hapana",
+          "swahili": "Do you have hypertension / high blood pressure or diabetes / blood sugar issues?"
+        }
+      },
+      {
+        "question": {
+          "english": "Je, una shinikizo la damu /shinikizo la damu au kisukari/maswala ya sukari ya damu?",
+          "swahili": "No"
+        },
+        "response": {
+          "english": "Hapana",
+          "swahili": "Have you ever had any STDs? Any history of STDs?"
+        }
+      },
+      {
+        "question": {
+          "english": "Je, umewahi kuwa na magonjwa ya zinaa? Historia yoyote ya magonjwa ya zinaa?",
+          "swahili": "No"
+        },
+        "response": {
+          "english": "Hapana",
+          "swahili": "Please note: If Asked about family history of any conditions the answer is No"
+        }
+      }
+    ]
+  },
+  {
+    "case_id": "8",
+    "Suspected_illness": "",
+    "red_flags": {
+      "Symptom duration": ">3 months",
+      "Unintentional weight loss": true
+    },
+    "patient_background": {
+      "english": "Vincent is a 40-year-old teacher. He lives with his wife and two children in a modest family home and relies on his salary for his daily expenses.",
+      "swahili": "Vincent ni mwalimu mwenye umri wa miaka 40. Anaishi na mke wake pamoja na watoto wao wawili katika nyumba ya kawaida ya kifamilia na hutegemea mshahara wake kwa matumizi ya kila siku."
+    },
+    "chief_complaint_history": {
+      "english": "For the past 2 months, Vincent has been experiencing recurrent abdominal  pain. Initially, the pain was mild, but it has gradually worsened. It is mostly in the upper abdomen, dull in nature, and sometimes comes in waves. Two weeks ago, he noticed occasional passage of black stool, which alarmed him. He has had heartburn for 6 months, accompanied by feeling full very quickly after eating just a portion. His appetite has declined significantly, and he has unintentionally lost weight and his clothes have become noticeably loose. Vincent has also been having nausea and feeling fatigued. Over 3 months ago, he visited a local chemist and was given some antacids, but they did not relieve his symptoms. He is now worried and has decided to seek medical attention.",
+      "swahili": "Kwa kipindi cha miezi miwili iliyopita, Vincent amekuwa akipata maumivu ya tumbo yanayoendelea. Hapo awali, maumivu yalikuwa hafifu, lakini yamezidi kuwa makali kwa muda. Maumivu yako hasa sehemu ya juu ya tumbo, ni ya polepole na wakati mwingine huja kwa mawimbi. Wiki mbili zilizopita, aligundua kuwa kinyesi chake kilikuwa kinakaribia kuwa cheusi.), jambo ambalo lilimtisha. Amekuwa na kiungulia kwa miezi sita, kikiambatana na kusikia kushiba haraka baada ya kula chakula kidogo. Hamu yake ya kula imeshuka sana na amepunguza uzito bila kukusudia, na mavazi yake yamekuwa mapana. Vincent pia amekuwa na kichefuchefu na kuhisi uchovu. Zaidi ya miezi mitatu iliyopita alitembelea duka la dawa na kupewa dawa za kupunguza asidi, lakini hazikusaidia. Sasa ana wasiwasi na ameamua kutafuta matibabu hospitalini."
+    },
+    "medical_social_history": {
+      "english": "Vincent has generally been in good health but has a history of smoking, about 10 cigarettes per day for 10 years, though he quit five years ago. He does not drink alcohol. His wife has noticed his declining appetite and weight loss and has urged him to see a doctor. Vincent himself is concerned about his symptoms so has decided to go to a health facility.",
+      "swahili": "Kwa kawaida Vincent huwa na afya nzuri, lakini ana historia ya kuvuta sigara—takriban sigara 10 kwa siku kwa miaka 10—ingawa aliacha kuvuta sigara miaka mitano iliyopita. Hanywi pombe. Mke wake ametambua kupungua kwa hamu ya kula na kupungua kwa uzito na amemshauri aende kwa daktari. Vincent mwenyewe ana wasiwasi kuhusu dalili zake na kwa hivyo ameamua kwenda hospitalini."
+    },
+    "opening_statement": {
+      "english": "",
+      "swahili": ""
+    },
+    "recommended_questions": [
+      {
+        "question": {
+          "english": "How long have you had this pain?",
+          "swahili": "Kwa muda gani umekuwa na maumivu haya?"
+        },
+        "response": {
+          "english": "For about two months now…",
+          "swahili": "Kwa miezi miwili sasa…"
+        }
+      },
+      {
+        "question": {
+          "english": "Has the pain been getting worse?",
+          "swahili": "Je, maumivu yamekuwa yakizidi kuwa makali?"
+        },
+        "response": {
+          "english": "Yes, it has.",
+          "swahili": "Ndiyo, yamekuwa yakizidi."
+        }
+      },
+      {
+        "question": {
+          "english": "Can you show me where the pain is?",
+          "swahili": "Unaweza kunionyesha maumivu yapo wapi?"
+        },
+        "response": {
+          "english": "Here - [Points to upper abdominal area]",
+          "swahili": "Hapa - [Anaonyesha sehemu ya juu ya tumbo]"
+        }
+      },
+      {
+        "question": {
+          "english": "What is the pain like (i.e. sharp/dull)?",
+          "swahili": "Maumivu yakoje? (Yanakuchoma au ni butu?)"
+        },
+        "response": {
+          "english": "It is a dull pain, but it has been getting worse.",
+          "swahili": "Naskia maumivu kwa umbali,, lakini yamekuwa yakizidi kuwa makali."
+        }
+      },
+      {
+        "question": {
+          "english": "What is the intensity of the pain when it comes?",
+          "swahili": "Maumivu huwa makali kiasi gani yanapokuja?"
+        },
+        "response": {
+          "english": "It’s quite bad.",
+          "swahili": "Ni kali sana."
+        }
+      },
+      {
+        "question": {
+          "english": "Is the pain persistent or does it come and go?",
+          "swahili": "Je, maumivu yanaendelea au huja na kuondoka?"
+        },
+        "response": {
+          "english": "It comes and goes.",
+          "swahili": "Huja na kuondoka."
+        }
+      },
+      {
+        "question": {
+          "english": "When it comes, how long does it last?",
+          "swahili": "Yanapokuja, hukaa kwa muda gani?"
+        },
+        "response": {
+          "english": "A couple of hours.",
+          "swahili": "Kwa saa kadhaa."
+        }
+      },
+      {
+        "question": {
+          "english": "Does the pain get worse when you eat?",
+          "swahili": "Je, maumivu huongezeka unapokula?"
+        },
+        "response": {
+          "english": "Yes, during and after eating",
+          "swahili": "Ndiyo, wakati ninapokula na nikimaliza kula"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any changes in your appetite?",
+          "swahili": "Je, kuna mabadiliko yoyote katika hamu yako ya kula?"
+        },
+        "response": {
+          "english": "Yes, I don’t want to eat so much. I feel like I am getting full much faster.",
+          "swahili": "Ndiyo, sitaki kula sana. Nahisi kushiba haraka."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any loss of appetite?",
+          "swahili": "Je, unapoteza hamu ya kula?"
+        },
+        "response": {
+          "english": "Yes, my appetite has reduced",
+          "swahili": "Ndiyo, hamu ya kula imeshuka"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any changes to your bowel movements?",
+          "swahili": "Je, kuna mabadiliko katika haja kubwa?"
+        },
+        "response": {
+          "english": "It is normal, but the stool is  almost black.",
+          "swahili": "Ni kawaida, lakini kinyesi, kinakaribia kuwa cheusi"
+        }
+      },
+      {
+        "question": {
+          "english": "How is your stool?",
+          "swahili": "Kinyesi chako kikoje?"
+        },
+        "response": {
+          "english": "It is , almost black.",
+          "swahili": "kinakaribia  kuwa cheusi ,"
+        }
+      },
+      {
+        "question": {
+          "english": "Is there blood in your stool?",
+          "swahili": "Je, kuna damu katika kinyesi?"
+        },
+        "response": {
+          "english": "No, no blood.",
+          "swahili": "Hapana, hakuna damu."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you been feeling nauseous or have you been vomiting?",
+          "swahili": "Je, umekuwa ukisikia kichefuchefu au kutapika?"
+        },
+        "response": {
+          "english": "Yes, I feel a bit nauseous sometimes.",
+          "swahili": "Ndiyo, wakati mwingine nahisi kichefuchefu kidogo."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you vomited or coughed up any blood?",
+          "swahili": "Je, umetapika au kukohoa damu?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Is it difficult to swallow?",
+          "swahili": "Je, una shida ya kumeza?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you been experiencing heartburn or regurgitation?",
+          "swahili": "Je, umekuwa ukipata kiungulia au chakula kurudi mdomoni?"
+        },
+        "response": {
+          "english": "Yes",
+          "swahili": "Ndiyo"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you lost weight recently?",
+          "swahili": "Je, umepungua uzito hivi karibuni?"
+        },
+        "response": {
+          "english": "My clothes fit a little loosely.",
+          "swahili": "Ndio, mavazi yangu hayanishiki sana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you drink alcohol?",
+          "swahili": "Je, unatumia pombe?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you smoke?",
+          "swahili": "Je, unavuta sigara?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Any history of smoking?",
+          "swahili": "Je, una historia ya kuvuta sigara?"
+        },
+        "response": {
+          "english": "I was smoking but quit about 5 years ago.",
+          "swahili": "Nilikuwa navuta sigara lakini niliacha miaka mitano iliyopita."
+        }
+      },
+      {
+        "question": {
+          "english": "How much did you smoke?",
+          "swahili": "Ulivuta sigara kiasi gani?"
+        },
+        "response": {
+          "english": "10 sticks a day",
+          "swahili": "Sigara 10 kwa siku."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any history of stomach ulcers?",
+          "swahili": "Je, una historia ya vidonda vya tumbo?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Are you taking any medication for the pain?",
+          "swahili": "Je, unatumia dawa yoyote kwa ajili ya maumivu?"
+        },
+        "response": {
+          "english": "Yes",
+          "swahili": "Ndiyo"
+        }
+      },
+      {
+        "question": {
+          "english": "What medication are you taking for it?",
+          "swahili": "Unatumia dawa gani kwa ajili ya maumivu hayo?"
+        },
+        "response": {
+          "english": "Antacids",
+          "swahili": "Dawa za kupunguza asidi."
+        }
+      },
+      {
+        "question": {
+          "english": "Does the medication help?",
+          "swahili": "Je, dawa hizo zinasaidia?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Are you taking any other medicines, aside from antacids?",
+          "swahili": "Je, unatumia dawa nyingine yoyote kando na dawa za kupunguza asidi?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Are you taking any traditional medicines?",
+          "swahili": "Je, unatumia dawa za asili?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Any fatigue?",
+          "swahili": "Je, unahisi uchovu?"
+        },
+        "response": {
+          "english": "Sometimes",
+          "swahili": "Wakati mwingine"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you take spicy foods often?",
+          "swahili": "Je, unakula vyakula vyenye pilipili mara kwa mara?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any chest tightness?",
+          "swahili": "Je, unahisi kizuizi kwenye kifua?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Does anyone in your household or family have a history of similar symptoms?",
+          "swahili": "Je, kuna mtu yeyote katika familia yako au kaya yako ambaye ana historia ya dalili kama hizi?"
+        },
+        "response": {
+          "english": "I don’t know…",
+          "swahili": "Sijui…"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have hypertension / high blood pressure or diabetes / blood sugar issues?",
+          "swahili": "Je, una shinikizo la damu au matatizo ya kisukari?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you ever had any STDs? Any history of STDs?",
+          "swahili": "Je, umewahi kuwa na magonjwa ya zinaa?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      }
+    ]
+  },
+  {
+    "case_id": "9",
+    "Suspected_illness": "",
+    "red_flags": {
+      "Symptom duration": ">3 months",
+      "Possible cancer-related bleeding": true
+    },
+    "patient_background": {
+      "english": "Mary is 55 years old and a retired school teacher. She lives with her husband, has two children (ages 30 and 28), and enjoys spending time with her granddaughter, gardening, and attending church gatherings. She went through menopause five years ago and has not had any menstrual bleeding since then. Mary has always taken good care of her health and has no major medical conditions. She maintains a healthy diet and walks regularly for exercise.",
+      "swahili": "Mary ana umri wa miaka 55 na mwalimu wa shule aliyestaafu. Anaishi na mume wake, ana watoto wawili (umri wa miaka 30 na 28), na anafurahia kutumia wakati na mjukuu wake, bustani, na kuhudhuria mikusanyiko ya kanisa. Alipitia kukoma hedhi miaka mitano iliyopita na hajavuja damu hedhi tangu wakati huo. Mary daima ametunza afya yake vizuri na hana hali kubwa za kiafya. Anadumisha lishe bora na hutembea mara kwa mara kwa mazoezi."
+    },
+    "chief_complaint_history": {
+      "english": "About 3-4 months ago, Mary noticed a few blood drops in the form of vaginal bleeding when she went to the bathroom. It lasted for two days, and she thought it was a one-time occurrence. However, it happened again two weeks later (2 months ago). The second time, it again lasted two days but the blood drops were heavier. She was a little concerned, but did not seek care because it stopped. The spotting returned again last week. In the past 2-3 days, the bleeding increased and contained some small clots. Her concern grew when the bleeding became heavier in the last two days. “I thought I was done with all this years ago,” she told her husband, who wanted to accompany her to the health facility. She decided to go on her own. The bleeding has never been associated with vaginal discharge, pain, intercourse, or any triggers.",
+      "swahili": "Takriban miezi 3-4 iliyopita, Mary aliona kutokwa na damu ukeni alipokuwa akienda bafuni. Ilidumu kwa siku mbili, na alifikiri lilikuwa tukio la mara moja. Walakini, ilitokea tena wiki mbili baadaye (miezi 2 iliyopita). Mara ya pili, ilidumu tena kwa siku mbili lakini uangalizi ulikuwa mzito zaidi. Alikuwa na wasiwasi kidogo, lakini hakutafuta huduma kwa sababu ilisimama. Nafasi ilirudi tena wiki iliyopita. Katika siku 2-3 zilizopita, damu iliongezeka na ilikuwa na vifungo vidogo. Wasiwasi wake uliongezeka wakati damu ilipozidi kuwa nzito katika siku mbili zilizopita. “Nilidhani nimemalizana naye miaka hii yote iliyopita,” alimwambia mumewe, ambaye alitaka kuandamana naye hadi kituo cha afya. Aliamua kwenda peke yake. Kutokwa na damu hakujawahi kuhusishwa na kutokwa na uchafu ukeni, maumivu, kujamiiana, au vichochezi vyovyote."
+    },
+    "medical_social_history": {
+      "english": "Mary has had normal pregnancies and deliveries. After having her younger child, she used an IUD/IUCD, which was removed a couple years before menopause began (around age 48). She has no family history of gynecological cancers. She has not had a Pap smear or pelvic exam in a few years but always had normal results in the past. Mary is mildly anxious but remains composed. She hopes the bleeding is “just a minor issue” but is aware that postmenopausal bleeding can sometimes be a warning sign.",
+      "swahili": "Mary amekuwa na mimba za kawaida na kujifungua. Baada ya kupata mtoto wake mdogo, alitumia IUD/IUCD, ambayo iliondolewa miaka michache kabla ya kukoma hedhi kuanza (karibu na umri wa miaka 48). Hana historia ya familia ya saratani ya uzazi.Hajafanyiwa uchunguzi wa Pap smear au pelvic katika miaka michache lakini kila mara amekuwa na matokeo ya kawaida hapo awali. Mary ana wasiwasi kidogo lakini bado anatungwa. Anatumai kutokwa na damu ni “tu suala dogo lakini anafahamu kuwa kutokwa na damu baada ya hedhi wakati mwingine kunaweza kuwa ishara ya onyo."
+    },
+    "opening_statement": {
+      "english": "Doctor, I’ve stopped menstruating for almost 5 years now, and it has started up again.",
+      "swahili": "Daktari, nimeacha kupata hedhi kwa karibu miaka 5 sasa, na imeanza tena."
+    },
+    "recommended_questions": [
+      {
+        "question": {
+          "english": "When did you first notice this?",
+          "swahili": "Ulianza kugundua hili lini?"
+        },
+        "response": {
+          "english": "It started 3–4 months ago.",
+          "swahili": "Ilianza miezi 3–4 iliyopita."
+        }
+      },
+      {
+        "question": {
+          "english": "How many times has this occurred?",
+          "swahili": "Hili limetokea mara ngapi?"
+        },
+        "response": {
+          "english": "A few times now.",
+          "swahili": "Mara chache sasa."
+        }
+      },
+      {
+        "question": {
+          "english": "How heavy is the bleeding? (Asking in general)",
+          "swahili": "Je, damu inatoka kwa wingi kiasi gani? (Kwa ujumla)"
+        },
+        "response": {
+          "english": "I have been having a few drops on and off for the last 3–4 months but has been heavy for the past couple days.",
+          "swahili": "Nimekuwa nikiona damu kidogo kidogo kwa miezi 3–4 iliyopita, lakini imekuwa nyingi kwa siku chache zilizopita."
+        }
+      },
+      {
+        "question": {
+          "english": "How often are you changing your pads? (Asking specifically about recent days)",
+          "swahili": "Unabadilisha pedi mara ngapi kwa siku? (Hasa siku za hivi karibuni)"
+        },
+        "response": {
+          "english": "About 3–4 times in a day.",
+          "swahili": "Takriban mara 3–4 kwa siku."
+        }
+      },
+      {
+        "question": {
+          "english": "Were there clots?",
+          "swahili": "Je, kulikuwa na madonge ya damu?"
+        },
+        "response": {
+          "english": "Yes, in the last 2 days.",
+          "swahili": "Ndio, katika siku mbili zilizopita."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you notice the bleeding after sexual intercourse?",
+          "swahili": "Je, unagundua kutokwa na damu baada ya tendo la ndoa?"
+        },
+        "response": {
+          "english": "No, I do not think so",
+          "swahili": "Hapana, sidhani."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any (vaginal) discharge at all?",
+          "swahili": "Je, kuna uchafu wowote unaotoka ukeni?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any pain anywhere? Any abdominal pain? Any pain in your pelvis area?",
+          "swahili": "Je, unahisi maumivu sehemu yoyote? Maumivu ya tumbo? Maumivu kwenye nyonga?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you used hormone replacement therapy (HRT) in the past? Or are you currently using it?",
+          "swahili": "Je, umewahi kutumia matibabu ya kuchukua nafasi ya homoni (HRT)? Au unatumia kwa sasa?"
+        },
+        "response": {
+          "english": "What is that? … [provider explains] oh no, no.",
+          "swahili": "Ni nini hiyo? … [mhudumu anaeleza] aaah hapana."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you lost any weight?",
+          "swahili": "Je, umepunguza uzito?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "How many marriages / partners have you had?",
+          "swahili": "Umeolewa mara ngapi / umekuwa na wapenzi wangapi?"
+        },
+        "response": {
+          "english": "One. Just my husband.",
+          "swahili": "Mmoja tu. Mume wangu pekee."
+        }
+      },
+      {
+        "question": {
+          "english": "How old were you when you got married?",
+          "swahili": "Ulikuwa na umri gani ulipoolewa?"
+        },
+        "response": {
+          "english": "25 years of age.",
+          "swahili": "Miaka 25."
+        }
+      },
+      {
+        "question": {
+          "english": "How old were you the first time you had sexual intercourse?",
+          "swahili": "Ulifanya tendo la ndoa kwa mara ya kwanza ukiwa na umri gani?"
+        },
+        "response": {
+          "english": "When I was married – I was 25 years of age.",
+          "swahili": "Nilipokuwa nimeolewa – nilikuwa na miaka 25."
+        }
+      },
+      {
+        "question": {
+          "english": "How many children do you have?",
+          "swahili": "Una watoto wangapi?"
+        },
+        "response": {
+          "english": "2",
+          "swahili": "Wawili."
+        }
+      },
+      {
+        "question": {
+          "english": "When was the last time you delivered?",
+          "swahili": "Ulijifungua mara ya mwisho lini?"
+        },
+        "response": {
+          "english": "28 years ago.",
+          "swahili": "Miaka 28 iliyopita."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you know what a pap smear is?",
+          "swahili": "Je, unajua pap smear ni nini?"
+        },
+        "response": {
+          "english": "Yes",
+          "swahili": "Ndio"
+        }
+      },
+      {
+        "question": {
+          "english": "When was your last pap smear?",
+          "swahili": "Ulifanyiwa pap smear mara ya mwisho lini?"
+        },
+        "response": {
+          "english": "3 years ago.",
+          "swahili": "Miaka 3 iliyopita."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you smoke? Any history of smoking?",
+          "swahili": "Je, unavuta sigara? Umewahi kuvuta?"
+        },
+        "response": {
+          "english": "No, I’ve never smoked.",
+          "swahili": "Hapana, sijawahi kuvuta."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you drink alcohol?",
+          "swahili": "Je, unatumia pombe?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you experienced fatigue or general/body weakness or dizziness?",
+          "swahili": "Je, umekuwa ukihisi uchovu, udhaifu mwilini au kizunguzungu?"
+        },
+        "response": {
+          "english": "Last night, when I was walking, I felt a little more tired than usual.",
+          "swahili": "Usiku uliopita, nilipokuwa natembea, nilihisi nimechoka zaidi ya kawaida."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you taken any iron tablets?",
+          "swahili": "Je, umewahi kutumia tembe za chuma (iron)?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you taken any medications to stop this?",
+          "swahili": "Je, umewahi kutumia dawa yoyote kuzuia hali hii?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any dryness in the vagina?",
+          "swahili": "Je, kuna ukavu wowote ukeni?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you ever used contraceptives?",
+          "swahili": "Je, umewahi kutumia uzazi wa mpango?"
+        },
+        "response": {
+          "english": "Yes",
+          "swahili": "Ndio"
+        }
+      },
+      {
+        "question": {
+          "english": "What kind of contraceptives have you used?",
+          "swahili": "Ni aina gani ya uzazi wa mpango uliotumia?"
+        },
+        "response": {
+          "english": "I was using the coil / IUD / loop.",
+          "swahili": "Nilikuwa natumia kifaa cha kuzuia mimba (coil/IUD)."
+        }
+      },
+      {
+        "question": {
+          "english": "How long did you use contraceptives?",
+          "swahili": "Ulitumia uzazi wa mpango kwa muda gani?"
+        },
+        "response": {
+          "english": "After my youngest was born, I started. Then I stopped close to when I stopped menstruating. I was maybe 48 years then.",
+          "swahili": "Nilianza baada ya mtoto wangu wa mwisho kuzaliwa. Nilipoanza kukoma hedhi, niliacha. Labda nilikuwa na miaka 48."
+        }
+      },
+      {
+        "question": {
+          "english": "Did you ever have any issues with irregular menstrual cycles?",
+          "swahili": "Je, umewahi kuwa na matatizo ya hedhi isiyo ya kawaida?"
+        },
+        "response": {
+          "english": "No, never.",
+          "swahili": "Hapana, sijawahi."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have hypertension / high blood pressure or diabetes / blood sugar issues?",
+          "swahili": "Je, una shinikizo la damu au kisukari?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you ever had any STDs? Any history of STDs, HIV/AIDS?",
+          "swahili": "Je, umewahi kuwa na magonjwa ya zinaa? Historia yoyote ya magonjwa ya zinaa au UKIMWI?"
+        },
+        "response": {
+          "english": "No, no doctor.",
+          "swahili": "Hapana, hapana daktari."
+        }
+      },
+      {
+        "question": {
+          "english": "What colour is the blood",
+          "swahili": "Damu ni rangi gani?"
+        },
+        "response": {
+          "english": "Bright red",
+          "swahili": "Nyekundu"
+        }
+      }
+    ]
+  },
+  {
+    "case_id": "10",
+    "Suspected_illness": "",
+    "red_flags": {
+      "Symptom duration": ">3 months",
+      "Possible cancer-related bleeding": true
+    },
+    "patient_background": {
+      "english": "Joseph is 58 years old and works as a trader. He lives with his wife and has adult children who visit occasionally. Joseph has always been in good health and has never had any major medical issues. He does not take any regular medications and rarely visits the doctor. However, he is now concerned about something unusual he has noticed in the past few weeks.",
+      "swahili": "Joseph ana umri wa miaka 58 na anafanya kazi kama mfanyabiashara. Anaishi na mke wake na ana watoto wazima ambao hutembelea mara kwa mara. Joseph amekuwa na afya njema kila wakati na hajawahi kuwa na maswala yoyote makubwa ya matibabu. Yeye hatumii dawa zozote za kawaida na mara chache humtembelea daktari. Hata hivyo, sasa ana wasiwasi kuhusu jambo lisilo la kawaida ambalo ameona katika wiki chache zilizopita."
+    },
+    "chief_complaint_history": {
+      "english": "One morning about four months ago, as Joseph finished urinating, he noticed there was bright red blood in his urine. He assumed it was minor. He was a little concerned but decided to ignore it. However, two weeks ago, he saw blood in his urine again, and just a day ago, it happened for the third time. He finally tells his wife, who urges him to seek medical attention. “It’s probably nothing serious,” Joseph reassures her, but deep down, he is worried. Joseph is not experiencing any pain when he urinates or elsewhere in his body. He has not had any fever or chills, dribbling of urine, or history of urinary retention. Occasionally, he has had to wake up once or twice at night to urinate, but he assumed it was due to drinking water late at night.",
+      "swahili": "Asubuhi moja yapata miezi minne iliyopita, Joseph alipomaliza kutumia choo, aliona kulikuwa na damu nyekundu kwenye mkojo wake. Alidhani ni ndogo. Alikuwa na wasiwasi kidogo lakini aliamua kupuuza. Hata hivyo, wiki mbili zilizopita, aliona damu kwenye mkojo wake tena, na siku moja tu iliyopita, ilitokea kwa mara ya tatu. Hatimaye anamwambia mke wake, ambaye anamsihi atafute matibabu. “Pengine si jambo zito,” Joseph anamhakikishia, lakini ndani kabisa, ana wasiwasi. Yusufu haoni maumivu yoyote anapokojoa au kwingineko mwilini mwake. Hajapata homa au baridi, kutokwa na mkojo, au historia ya kuhifadhi mkojo. Mara kwa mara, amelazimika kuamka mara moja au mbili usiku ili kukojoa, lakini alidhani ni kwa sababu ya maji ya kunywa usiku sana."
+    },
+    "medical_social_history": {
+      "english": "Joseph does not smoke. He has no known history of kidney disease, stones, or infections, but he recalls his father suffered from problems with passing urine later in life. Today, Joseph appears mildly anxious but calm. He is unsure if his symptoms are serious but has come to the health facility to “just check and be sure.”",
+      "swahili": "Yusufu havuti sigara. Hana historia inayojulikana ya ugonjwa wa figo, mawe, au maambukizi, lakini anakumbuka baba yake alikuwa na matatizo ya kupitisha mkojo baadaye maishani. Leo, Yusufu anaonekana kuwa na wasiwasi kidogo lakini mtulivu. Hana uhakika kama dalili zake ni mbaya lakini amefika kwenye kituo cha afya ili “kuangalia tu na kuwa na uhakika.”"
+    },
+    "opening_statement": {
+      "english": "I am a bit worried. I saw blood in my urine.",
+      "swahili": "Nina wasiwasi kidogo. Niliona damu kwenye mkojo wangu."
+    },
+    "recommended_questions": [
+      {
+        "question": {
+          "english": "When did you see blood in your urine?",
+          "swahili": "Uliona damu kwenye mkojo wako lini?"
+        },
+        "response": {
+          "english": "A day ago",
+          "swahili": "Siku moja iliyopita"
+        }
+      },
+      {
+        "question": {
+          "english": "How many times has this happened?",
+          "swahili": "Ni mara ngapi hii imefanyika?"
+        },
+        "response": {
+          "english": "Yesterday was the third time.",
+          "swahili": "Jana ilikua mara ya tatu."
+        }
+      },
+      {
+        "question": {
+          "english": "When was the first time it happened?",
+          "swahili": "Ni lini hii ilifanyika mara ya kwanza?"
+        },
+        "response": {
+          "english": "About 4 months ago.",
+          "swahili": "Karibu miezi minne iliyopota"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any pain when urinating?",
+          "swahili": "Je, unahisi uchungu wowote wakati wa kukojoa?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any pain in the loins or abdomen?",
+          "swahili": "Je, una maumivu yoyote kiunoni au tumboni?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have any pain in the lower back?",
+          "swahili": "Je, una maumivu yoyote kwenye mgongo wa chini?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you ever had kidney problems or a bladder infection?",
+          "swahili": "Je, umewahi kuwa na matatizo ya figo au maambukizi ya kibofu?"
+        },
+        "response": {
+          "english": "No, never.",
+          "swahili": "Hapana, Kamwe."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you ever had schistosomiasis / bilharzia?",
+          "swahili": "Je, umewahi kuwa na kichocho / bilharzia?"
+        },
+        "response": {
+          "english": "No, no doctor.",
+          "swahili": "Hapana, Hapana daktari"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have to rush to go to the bathroom?",
+          "swahili": "Je, unafaa kuharakisha Kwenda bafuni?"
+        },
+        "response": {
+          "english": "No, not really.",
+          "swahili": "Hapana, si kweli"
+        }
+      },
+      {
+        "question": {
+          "english": "Are you urinating more than usual?",
+          "swahili": "Je, Unakojoa sana kuliko kawaida?"
+        },
+        "response": {
+          "english": "At night, I am waking up occasionally to go to the bathroom. About 1-2 times.",
+          "swahili": "Usiku, ninaamka mara kwa mara kwenda bafuni. Karibu mara 1-2."
+        }
+      },
+      {
+        "question": {
+          "english": "Have you had any recent trauma or strong contact / force that might have caused this?",
+          "swahili": "Je, umekuwa na kiwewe cha hivi majuzi au mguso mkali /nguvu ambayo inaweza kusababisha hili?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you been losing weight?",
+          "swahili": "Je, umekua ukipunguza uzito?"
+        },
+        "response": {
+          "english": "No.",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Are you on any anticoagulation medicines?",
+          "swahili": "Je, uko kwenye dawa zozote za kuzuia mgando?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have episodes when you struggle to pass urine or feel like you don’t get it all out?",
+          "swahili": "Je, una vipindi unapotatizika kupitisha mkojo au kuhisi kama hauondoi yote?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have fever? Any chills?",
+          "swahili": "Je, una homa? Ubaridi wowote?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you ever had blood in your urine when you were younger?",
+          "swahili": "Je, umewahi kuwa na damu kwenye mkojo wako ulipokuwa mdogo?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Has anyone in your family had any urinary problems?",
+          "swahili": "Je, kuna mtu yeyote katika familia yako alikuwa na matatizo yoyote ya mkojo?"
+        },
+        "response": {
+          "english": "Yes, my father in late age had some problems passing urine.",
+          "swahili": "Ndiyo, baba yangu katika umri mdogo alikuwa na matatizo fulani ya kupitisha mkojo."
+        }
+      },
+      {
+        "question": {
+          "english": "Does anyone in your household or family have a history of similar symptoms?",
+          "swahili": "Je, kuna mtu yeyote katika kaya au familia yako aliye na historia ya dalili zinazofanana?"
+        },
+        "response": {
+          "english": "Yes, my father in late age had some problems passing urine.",
+          "swahili": "Ndiyo, baba yangu katika umri mdogo alikuwa na matatizo fulani ya kupitisha mkojo."
+        }
+      },
+      {
+        "question": {
+          "english": "Do you smoke?",
+          "swahili": "Je, unavuta sigara?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you drink alcohol?",
+          "swahili": "Je, unakunywa pombe?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Do you have hypertension / high blood pressure or diabetes / blood sugar issues?",
+          "swahili": "Je, una shinikizo la damu /shinikizo la damu au kisukari/maswala ya sukari ya damu?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      },
+      {
+        "question": {
+          "english": "Have you ever had any STDs? Any history of STDs?",
+          "swahili": "Je, umewahi kuwa na magonjwa ya zinaa? Historia yoyote ya magonjwa ya zinaa?"
+        },
+        "response": {
+          "english": "No",
+          "swahili": "Hapana"
+        }
+      }
+    ]
+  }
+]
