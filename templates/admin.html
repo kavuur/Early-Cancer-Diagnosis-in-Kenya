@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Admin Dashboard</h2>
+  <p class="text-muted">Welcome, {{ current_user.email }}</p>
+
+  <div id="admin-error" class="text-danger" style="display:none;"></div>
+
+  <div class="row">
+    <div class="col-md-3"><div class="card p-3"><h5>Users</h5><div id="kpi-users"></div></div></div>
+    <div class="col-md-3"><div class="card p-3"><h5>Conversations</h5><div id="kpi-convos"></div></div></div>
+    <div class="col-md-3"><div class="card p-3"><h5>Messages</h5><div id="kpi-messages"></div></div></div>
+    <div class="col-md-3"><div class="card p-3"><h5>Recommended Qs</h5><div id="kpi-reco"></div></div></div>
+  </div>
+
+  <hr />
+
+  <h4>Conversations per day (30d)</h4>
+  <canvas id="chart-convos"></canvas>
+
+  <h4 class="mt-4">Top Clinicians by Conversations</h4>
+  <table class="table table-sm" id="tbl-clinicians">
+    <thead><tr><th>Email</th><th>Conversations</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <h4 class="mt-4">All Conversations</h4>
+  <table class="table table-sm" id="tbl-convos">
+    <thead><tr><th>ID</th><th>Clinician</th><th>Created</th><th></th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <button id="load-more" class="btn btn-outline-secondary btn-sm">Load more</button>
+
+  <div id="conv-detail" class="mt-4"></div>
+</div>
+
+<!-- Global Symptoms -->
+<div class="card mb-3">
+  <div class="card-header">Symptoms (Global Tally)</div>
+  <div class="card-body">
+    <canvas id="chart-symptoms" height="220"></canvas>
+  </div>
+</div>
+
+<!-- Per‑Conversation Symptoms + Disease Likelihoods -->
+<div class="row">
+  <div class="col-md-7">
+    <div class="card mb-3">
+      <div class="card-header">Per Conversation — Top Symptoms</div>
+      <div class="card-body">
+        <table class="table table-sm" id="tbl-conv-symptoms">
+          <thead><tr><th>Clinician</th><th>Conversation</th><th>Top Symptoms</th><th></th></tr></thead>
+          <tbody id="tbl-conv-symptoms-body"><tr><td colspan="4" class="text-muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-5">
+    <div class="card mb-3">
+      <div class="card-header">Disease Likelihoods</div>
+      <div class="card-body" id="conv-like-box">
+        <p class="text-muted">Select a conversation to view estimated likelihoods.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,64 @@
+tasks:
+  - id: simulate_consultation
+    name: Simulated Cancer Screening Consultation
+    description: |
+      Runs a diagnostic session. The clinician uses retrieved case data from FAISS and multilingual questions (English & Swahili)
+      to interview the patient. If no similar cases are found, the clinician uses general medical knowledge to proceed.
+      The clinician should always ask questions in both English and Swahili.
+    expected_output: |
+      Provide a realistic *chat transcript* in turns:
+      "Clinician: ...", "Patient: ..."
+      Finish with **FINAL PLAN**: a 1-2 sentence summary of the next steps.
+    agents:
+      - clinician_agent
+      - patient_agent
+
+  - id: listen_and_summarize
+    name: Conversation Listener & Summarizer
+    description: |
+      The listener agent reviews the transcript and compares patient symptoms to similar FAISS cases and their known outcomes.
+      If no similar cases were found, listener evaluates based on clinician-patient interaction only.
+    expected_output: |
+      Provide a *structured bullet-point summary* with:
+      - Key Symptoms
+      - Suspected Cancer Types
+      - Red Flags
+      - Referral Recommendation
+      End with **SUMMARY DECISION**: 1 concise sentence with the recommended next step.
+    agents:
+      - listener_agent
+
+  - id: recommend_next_questions
+    name: Diagnostic Question Recommendation
+    description: |
+      The question recommender agent must suggest exactly ONE short, clear question (EN + SW) based on the most recent patient and clinician exchange. Format:
+      
+      English: ...
+      
+      Swahili: ...
+
+      Avoid listing multiple questions. Ensure the question directly continues the diagnostic flow based on previous symptoms.
+    expected_output: |
+      Provide ONE concise, high-yield diagnostic question formatted as:
+      English: ...
+      
+      Swahili: ...
+    agents:
+      - question_recommender_agent
+
+  - id: cancer_triage_decision
+    name: Cancer Triage and Referral Decision
+    description: |
+      Based on conversation history and matches to past FAISS cases with known diagnoses (if found), the clinician decides on next steps.
+      The decision should prioritize FAISS-retrieved suspected illnesses, with fallback to general medical reasoning when necessary.
+    expected_output: |
+      Provide a *bullet-point triage plan* with these sections:
+      - Immediate Referral criteria
+      - Lab Tests
+      - Imaging
+      - Biopsy
+      - Routine Monitoring
+      End with **FINAL RECOMMENDATION**: 1 short, conclusive sentence stating your decision for this patient.
+    agents:
+      - clinician_agent
+      - listener_agent

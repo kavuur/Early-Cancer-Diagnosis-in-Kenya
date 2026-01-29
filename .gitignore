@@ -1,0 +1,47 @@
+############################
+# Python / Virtualenv
+############################
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+
+############################
+# IDE / Editor
+############################
+.idea/
+.vscode/
+
+############################
+# Environment / Secrets
+############################
+.env
+.env.*
+
+############################
+# Databases / Indexes
+############################
+app.db
+*.db
+*.sqlite
+*.sqlite3
+medical_cases.index
+medical_cases_metadata.pkl
+
+############################
+# OS / Misc
+############################
+*.log
+*.DS_Store
+Thumbs.db
+
+############################
+# Markdown (docs)
+# Keep README.md, ignore others
+############################
+*.md
+!README.md
+
+

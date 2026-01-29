@@ -1,0 +1,37 @@
+/* ===== Mode theming ===== */
+#agentsConversation.mode-real {
+  --accent: #198754;
+  --accent-soft: #e8fff2;
+}
+#agentsConversation.mode-simulated {
+  --accent: #4169e1;
+  --accent-soft: #e8f0ff;
+}
+#agentsConversation .mode-badge {
+  background: var(--accent);
+  color: #fff;
+}
+#agentsConversation .mode-tip {
+  background: var(--accent-soft);
+  border: 1px solid rgba(0,0,0,0.05);
+  color: #0b2e13;
+}
+
+/* hide role selector whenever the container is in simulated mode */
+#agentsConversation.mode-simulated #roleSelector { display: none !important; }
+
+
+/* Transcript look */
+.transcript-box {
+  border: 1px solid #e5e7eb;
+  border-radius: .5rem;
+  padding: .75rem;
+  min-height: 260px;
+  max-height: 420px;
+  overflow: auto;
+  background: #fff;
+}
+
+/* Optional polish */
+#agentsConversation .card { border-radius: .6rem; }
+#agentsConversation .card-header { font-weight: 600; }
