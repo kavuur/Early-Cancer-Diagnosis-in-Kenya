@@ -1,6 +1,6 @@
 # app.py (Gemini-only STT) — UPDATED with Live "Unasked (end-only)" endpoints + per-session tracking
 
-from flask import Flask, render_template, request, jsonify, session, Response, stream_with_context
+from flask import Flask, render_template, request, jsonify, session, Response, stream_with_context, redirect, url_for
 import os
 import json
 import logging
@@ -25,7 +25,18 @@ from crew_runner import (
     build_listener_bundle,  # ✅ NEW (Listener summary + final plan for Live Stop)
 )
 
-from models import init_db, create_conversation, log_message
+from models import (
+    init_db,
+    create_conversation,
+    log_message,
+    list_conversations_for_user,
+    get_conversation_if_owned_by,
+    get_conversation_messages,
+    delete_conversation_if_owned_by,
+    list_patients_for_user,
+    create_patient,
+    get_patient,
+)
 from flask_sock import Sock
 
 # Auth/Admin
@@ -117,9 +128,20 @@ LIVE_STATE = {}  # (uid, cid) -> {"created_at": "...", "questions": {norm_q: {..
 
 
 def _ensure_conversation_id():
-    """Ensure session['id'] exists and conv list exists."""
-    if not session.get("id"):
-        session["id"] = create_conversation(owner_user_id=current_user.id)
+    """Ensure session['id'] exists, belongs to current user, and conv list exists."""
+    existing_cid = session.get("id")
+    # If we have a stored conversation id, verify it belongs to the current user
+    if existing_cid:
+        c = get_conversation_if_owned_by(existing_cid, current_user.id)
+        if c is None:
+            # Stale or wrong-owner session (e.g. after login or session carry-over): start fresh
+            session.pop("id", None)
+            session.pop("conv", None)
+            session.pop("patient_id", None)
+            existing_cid = None
+    if not existing_cid:
+        patient_id = session.get("patient_id")  # optional, set when starting new conv with patient
+        session["id"] = create_conversation(owner_user_id=current_user.id, patient_id=patient_id)
         session["conv"] = []
     if "conv" not in session:
         session["conv"] = []
@@ -562,21 +584,194 @@ def live_followup_chat():
 
 
 # -----------------------------------------------------------------------------
-# Reset conversation
+# Reset conversation (optionally with patient_id)
 # -----------------------------------------------------------------------------
 @csrf.exempt
 @app.route("/reset_conv", methods=["POST"])
 @login_required
 def reset_conv():
+    data = request.get_json(force=True, silent=True) or {}
+    patient_id = data.get("patient_id")  # optional
+    if patient_id is not None:
+        patient_id = int(patient_id)
     session["conv"] = []
-    cid = create_conversation(owner_user_id=current_user.id)
-    session["id"] = cid
-    # also reset the live plan for this user/session
+    # Clear live state for the *current* conversation before changing session["id"]
+    # (otherwise we would clear state for the new cid, leaving old conversation's state orphaned)
     try:
         _reset_live_state()
     except Exception:
         logger.exception("Failed to reset live state")
+    cid = create_conversation(owner_user_id=current_user.id, patient_id=patient_id)
+    session["id"] = cid
+    if patient_id is not None:
+        session["patient_id"] = patient_id
+    else:
+        session.pop("patient_id", None)
     return jsonify({"ok": True, "conversation_id": cid})
+
+
+# -----------------------------------------------------------------------------
+# History & My conversations API
+# -----------------------------------------------------------------------------
+def _patients_display_order():
+    """Single source of truth: patients for current user sorted by id (Patient 1 = smallest id)."""
+    patients = list_patients_for_user(current_user.id)
+    return sorted(patients, key=lambda p: p.id)
+
+
+def _patient_labels_for_current_user():
+    """Stable mapping patient_id -> 'Patient 1', 'Patient 2', ... (same order as dropdown)."""
+    ordered = _patients_display_order()
+    return {p.id: f"Patient {i + 1}" for i, p in enumerate(ordered)}
+
+
+@app.route("/api/my-conversations")
+@login_required
+def api_my_conversations():
+    """List current user's conversations (id, created_at, patient, message_count). Excludes empty conversations."""
+    convos = list_conversations_for_user(current_user.id)
+    plabels = _patient_labels_for_current_user()
+    out = []
+    for c in convos:
+        msgs = get_conversation_messages(c.id)
+        # Skip conversations with no messages (e.g. created on Reset but not yet used)
+        if not msgs:
+            continue
+        first_msg = msgs[0].message if msgs and msgs[0].message else ""
+        preview = (first_msg[:80] + "…") if len(first_msg) > 80 else first_msg
+        # Use conversation's patient_id (column is source of truth; fallback to relationship if needed)
+        pid = c.patient_id if c.patient_id is not None else (c.patient.id if getattr(c, "patient", None) else None)
+        patient_label = plabels.get(int(pid)) if pid is not None else None
+        if pid is not None and not patient_label:
+            patient_label = "Patient"
+        out.append({
+            "id": c.id,
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+            "patient_id": pid,
+            "patient_label": patient_label,
+            "message_count": len(msgs),
+            "preview": preview,
+        })
+    return jsonify({"ok": True, "conversations": out})
+
+
+@app.route("/api/conversations/<conversation_id>/messages")
+@login_required
+def api_conversation_messages(conversation_id):
+    """Messages for this conversation; 403 if not owned by current user."""
+    c = get_conversation_if_owned_by(conversation_id, current_user.id)
+    if c is None:
+        return jsonify({"ok": False, "error": "Not found or access denied"}), 403
+    msgs = get_conversation_messages(conversation_id)
+    plabels = _patient_labels_for_current_user()
+    out = [
+        {
+            "id": m.id,
+            "role": m.role,
+            "type": m.type or "message",
+            "message": m.message,
+            "timestamp": m.timestamp,
+            "created_at": m.created_at.isoformat() if m.created_at else None,
+        }
+        for m in msgs
+    ]
+    pid = c.patient_id if c.patient_id is not None else (c.patient.id if getattr(c, "patient", None) else None)
+    patient_label = plabels.get(int(pid)) if pid is not None else None
+    if pid is not None and not patient_label:
+        patient_label = "Patient"
+    return jsonify({
+        "ok": True,
+        "conversation_id": conversation_id,
+        "created_at": c.created_at.isoformat() if c.created_at else None,
+        "patient_id": pid,
+        "patient_label": patient_label,
+        "messages": out,
+    })
+
+
+@csrf.exempt
+@app.route("/api/conversations/<conversation_id>", methods=["DELETE"])
+@login_required
+def api_delete_conversation(conversation_id):
+    """Delete this conversation if owned by current user. Returns 404 if not found/not owned."""
+    deleted = delete_conversation_if_owned_by(conversation_id, current_user.id)
+    if not deleted:
+        return jsonify({"ok": False, "error": "Not found or access denied"}), 404
+    return jsonify({"ok": True})
+
+
+# -----------------------------------------------------------------------------
+# Session patient (sync dropdown selection so new conversations get patient_id)
+# -----------------------------------------------------------------------------
+@app.route("/api/session-patient", methods=["POST"])
+@login_required
+def api_session_patient():
+    """Set session['patient_id'] so the next conversation is linked to this patient."""
+    data = request.get_json(force=True, silent=True) or {}
+    pid = data.get("patient_id")
+    if pid is None:
+        session.pop("patient_id", None)
+    else:
+        try:
+            session["patient_id"] = int(pid)
+        except (TypeError, ValueError):
+            session.pop("patient_id", None)
+    return jsonify({"ok": True})
+
+
+# -----------------------------------------------------------------------------
+# New conversation (GET) for history "New conversation" link
+# -----------------------------------------------------------------------------
+@app.route("/new_conversation")
+@login_required
+def new_conversation():
+    """Create a fresh conversation and redirect to index."""
+    patient_id = request.args.get("patient_id")
+    if patient_id is not None and str(patient_id).strip() != "":
+        try:
+            patient_id = int(patient_id)
+        except (TypeError, ValueError):
+            patient_id = None
+    else:
+        patient_id = None
+    session["conv"] = []
+    try:
+        _reset_live_state()
+    except Exception:
+        logger.exception("Failed to reset live state")
+    cid = create_conversation(owner_user_id=current_user.id, patient_id=patient_id)
+    session["id"] = cid
+    if patient_id is not None:
+        session["patient_id"] = patient_id
+    else:
+        session.pop("patient_id", None)
+    return redirect(url_for("index"))
+
+
+# -----------------------------------------------------------------------------
+# Patients API (for clinician: list & create)
+# -----------------------------------------------------------------------------
+@app.route("/api/patients", methods=["GET", "POST"])
+@login_required
+def api_patients():
+    if request.method == "POST":
+        data = request.get_json(force=True, silent=True) or {}
+        identifier = (data.get("identifier") or data.get("display_name") or "").strip()
+        if not identifier:
+            # Auto-generate identifier: P001, P002, ... (next number for this clinician)
+            patients = list_patients_for_user(current_user.id)
+            n = len(patients) + 1
+            identifier = f"P{n:03d}"
+        display_name = (data.get("display_name") or "").strip() or None
+        pid = create_patient(identifier=identifier, clinician_id=current_user.id, display_name=display_name)
+        return jsonify({"ok": True, "patient_id": pid})
+    # Same order as history (single source of truth)
+    ordered = _patients_display_order()
+    out = [
+        {"id": p.id, "label": f"Patient {i+1}", "created_at": p.created_at.isoformat() if p.created_at else None}
+        for i, p in enumerate(ordered)
+    ]
+    return jsonify({"ok": True, "patients": out})
 
 
 # -----------------------------------------------------------------------------
@@ -585,6 +780,36 @@ def reset_conv():
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/history")
+@login_required
+def history_page():
+    """History list: my conversations (Date | Patient | Preview)."""
+    return render_template("history.html")
+
+
+@app.route("/history/<conversation_id>")
+@login_required
+def history_detail_page(conversation_id):
+    """Single conversation detail (messages). Access only if owned by current user."""
+    c = get_conversation_if_owned_by(conversation_id, current_user.id)
+    if c is None:
+        return "Not found or access denied", 404
+    msgs = get_conversation_messages(conversation_id)
+    plabels = _patient_labels_for_current_user()
+    pid = c.patient_id if c.patient_id is not None else (c.patient.id if getattr(c, "patient", None) else None)
+    patient_label = plabels.get(int(pid)) if pid is not None else None
+    if pid is not None and not patient_label:
+        patient_label = "Patient"
+    return render_template(
+        "history_detail.html",
+        conversation_id=conversation_id,
+        created_at=c.created_at,
+        patient_label=patient_label,
+        patient_id=pid,
+        messages=msgs,
+    )
 
 
 # (Kept as-is; you can remove if unused)

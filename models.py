@@ -2,7 +2,7 @@
 import os
 from datetime import datetime
 from sqlalchemy import create_engine, Column, String, Text, DateTime, ForeignKey, Integer
-from sqlalchemy.orm import sessionmaker, declarative_base, relationship, scoped_session
+from sqlalchemy.orm import sessionmaker, declarative_base, relationship, scoped_session, joinedload
 import uuid as _uuid
 
 # --- Config ---
@@ -19,6 +19,7 @@ class Conversation(Base):
     id = Column(String, primary_key=True)               # uuid string
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     owner_user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), index=True, nullable=True)
     messages = relationship(
         "Message",
         back_populates="conversation",
@@ -53,6 +54,7 @@ class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
     email = Column(String(255), unique=True, nullable=False, index=True)
+    username = Column(String(64), unique=True, nullable=True, index=True)  # user-chosen display name
     password_hash = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
     email_verified = Column(Boolean, default=False, nullable=False)
@@ -83,9 +85,52 @@ class ConversationOwner(Base):
     owner_user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
 
 
+class Patient(Base):
+    __tablename__ = "patients"
+    id = Column(Integer, primary_key=True)
+    identifier = Column(String(128), nullable=False)   # e.g. "P001", "Case 123"
+    display_name = Column(String(255), nullable=True) # optional label
+    clinician_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=True)  # owning clinician
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    conversations = relationship("Conversation", back_populates="patient", lazy="dynamic")
+
+
+# Conversation -> Patient relationship (patient_id already on Conversation)
+Conversation.patient = relationship("Patient", back_populates="conversations")
+
+
 # --- Init / helpers ---
+def _migrate_add_patient_fk():
+    """Ensure patients table exists and conversations.patient_id exists (for existing DBs)."""
+    from sqlalchemy import inspect, text
+    insp = inspect(engine)
+    if "patients" not in insp.get_table_names():
+        Base.metadata.tables["patients"].create(engine, checkfirst=True)
+    if "conversations" in insp.get_table_names():
+        cols = [c["name"] for c in insp.get_columns("conversations")]
+        if "patient_id" not in cols:
+            with engine.connect() as conn:
+                conn.execute(text("ALTER TABLE conversations ADD COLUMN patient_id INTEGER"))
+                conn.commit()
+
+
+def _migrate_add_user_username():
+    """Add users.username if missing (for existing DBs)."""
+    from sqlalchemy import inspect, text
+    insp = inspect(engine)
+    if "users" not in insp.get_table_names():
+        return
+    cols = [c["name"] for c in insp.get_columns("users")]
+    if "username" not in cols:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN username VARCHAR(64)"))
+            conn.commit()
+
+
 def init_db():
     Base.metadata.create_all(bind=engine)
+    _migrate_add_patient_fk()
+    _migrate_add_user_username()
     _seed_roles()
 
 def _seed_roles():
@@ -100,11 +145,11 @@ def _seed_roles():
         db.close()
 
 
-def create_conversation(owner_user_id: int | None = None) -> str:
+def create_conversation(owner_user_id: int | None = None, patient_id: int | None = None) -> str:
     db = SessionLocal()
     try:
         cid = str(_uuid.uuid4())
-        db.add(Conversation(id=cid, owner_user_id=owner_user_id))
+        db.add(Conversation(id=cid, owner_user_id=owner_user_id, patient_id=patient_id))
         db.commit()
         return cid
     finally:
@@ -133,6 +178,115 @@ def list_conversations():
         return db.query(Conversation).order_by(Conversation.created_at.desc()).all()
     finally:
         db.close()
+
+
+def list_conversations_for_user(user_id: int):
+    """Conversations owned by this clinician, newest first (with patient loaded)."""
+    db = SessionLocal()
+    try:
+        return (
+            db.query(Conversation)
+            .options(joinedload(Conversation.patient))
+            .filter(Conversation.owner_user_id == user_id)
+            .order_by(Conversation.created_at.desc())
+            .all()
+        )
+    finally:
+        db.close()
+
+
+def get_conversation_if_owned_by(conversation_id: str, user_id: int):
+    """Return conversation only if it belongs to this user (or None). Loads patient."""
+    db = SessionLocal()
+    try:
+        c = (
+            db.query(Conversation)
+            .options(joinedload(Conversation.patient))
+            .filter(
+                Conversation.id == conversation_id,
+                Conversation.owner_user_id == user_id,
+            )
+            .first()
+        )
+        return c
+    finally:
+        db.close()
+
+
+def update_conversation_patient(conversation_id: str, user_id: int, patient_id: int | None) -> bool:
+    """Set patient_id on this conversation if owned by user. Returns True if updated."""
+    db = SessionLocal()
+    try:
+        n = (
+            db.query(Conversation)
+            .filter(
+                Conversation.id == conversation_id,
+                Conversation.owner_user_id == user_id,
+            )
+            .update({Conversation.patient_id: patient_id}, synchronize_session=False)
+        )
+        db.commit()
+        return n > 0
+    finally:
+        db.close()
+
+
+def delete_conversation_if_owned_by(conversation_id: str, user_id: int) -> bool:
+    """Delete this conversation if owned by user (messages cascade). Returns True if deleted."""
+    db = SessionLocal()
+    try:
+        c = (
+            db.query(Conversation)
+            .filter(
+                Conversation.id == conversation_id,
+                Conversation.owner_user_id == user_id,
+            )
+            .first()
+        )
+        if c is None:
+            return False
+        db.delete(c)
+        db.commit()
+        return True
+    finally:
+        db.close()
+
+
+# --- Patient helpers ---
+def list_patients_for_user(clinician_id: int):
+    """Patients created by this clinician."""
+    db = SessionLocal()
+    try:
+        return (
+            db.query(Patient)
+            .filter(Patient.clinician_id == clinician_id)
+            .order_by(Patient.created_at.desc())
+            .all()
+        )
+    finally:
+        db.close()
+
+
+def create_patient(identifier: str, clinician_id: int | None = None, display_name: str | None = None) -> int:
+    """Create a patient; returns new patient id."""
+    db = SessionLocal()
+    try:
+        p = Patient(identifier=identifier, clinician_id=clinician_id, display_name=display_name)
+        db.add(p)
+        db.commit()
+        return p.id
+    finally:
+        db.close()
+
+
+def get_patient(patient_id: int):
+    """Return Patient by id or None."""
+    db = SessionLocal()
+    try:
+        return db.query(Patient).filter(Patient.id == patient_id).first()
+    finally:
+        db.close()
+
 
 def get_conversation_messages(conversation_id: str):
     db = SessionLocal()

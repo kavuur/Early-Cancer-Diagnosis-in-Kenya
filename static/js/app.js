@@ -57,42 +57,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById('resetBtn').addEventListener('click', async () => {
-    try {
-      // Reset the conversation (DB + session id)
-      const res1 = await fetch('/reset_conv', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': (window.CSRF_TOKEN || '') },
-        credentials: 'same-origin'
-      });
-      const data1 = await res1.json();
-
-      // Always also reset the live question plan
-      await fetch('/live/reset_plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': (window.CSRF_TOKEN || '') },
-        credentials: 'same-origin'
-      });
-
-      if (data1.ok) {
-        // Clear transcript UI
-        document.getElementById('agentChatTranscript').innerHTML = '';
-        document.getElementById('chatSuggestedQuestions').innerHTML = '';
-
-        // Clear live UI too
-        const liveTranscript = document.getElementById('liveTranscript');
-        if (liveTranscript) liveTranscript.innerHTML = '';
-        const liveSuggested = document.getElementById('liveSuggestedQuestions');
-        if (liveSuggested) liveSuggested.innerHTML = '';
-        const badge = document.getElementById('unasked-badge');
-        if (badge) badge.textContent = '0';
-
-        console.log('Conversation + live plan reset.', data1.conversation_id);
-      } else {
-        console.error('Reset failed:', data1);
-      }
-    } catch (err) {
-      console.error('Reset error:', err);
-    }
+    const patientSelect = document.getElementById('patientSelect');
+    const patientId = patientSelect && patientSelect.value ? patientSelect.value : null;
+    await resetConversation(patientId);
   });
 
   //----------------------------------------------------//
@@ -174,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Agent chat logic
-  document.getElementById('agentChatForm').onsubmit = (e) => {
+  document.getElementById('agentChatForm').onsubmit = async (e) => {
     e.preventDefault();
 
     const messageInput = document.getElementById('agentMessage');
@@ -182,10 +149,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const typingIndicator = document.getElementById('typingIndicator');
     const message = messageInput.value.trim();
     const language = document.getElementById('languageMode').value;
+    const patientSelect = document.getElementById('patientSelect');
 
     if (!message) {
       alert('Please enter a message!');
       return;
+    }
+
+    // Ensure session knows the selected patient for this conversation
+    if (patientSelect && patientSelect.value) {
+      await syncSessionPatient(patientSelect.value);
     }
 
     typingIndicator.style.display = 'block';
@@ -353,12 +326,12 @@ async function login(email, password, remember=true) {
   });
   return r.json();
 }
-async function signup(email, password) {
+async function signup(email, password, username) {
   const r = await fetch('/auth/signup', {
     method: 'POST',
     headers: authHeaders(),
     credentials: 'same-origin',
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify({ email, password, username: username || '' })
   });
   return r.json();
 }
@@ -379,14 +352,138 @@ function showAuth() {
 function showApp(user) {
   document.getElementById('auth-gate').style.display = 'none';
   document.getElementById('app-wrapper').style.display = '';
+  const name = user.username || (user.email && user.email.split('@')[0]) || 'User';
   document.getElementById('whoami').textContent =
-    `${user.email} — roles: ${user.roles.join(', ')}`;
+    `${name} — ${(user.roles || []).join(', ')}`;
+  loadPatients();
+}
+
+// --- Patients (optional for new conversation) ---
+async function syncSessionPatient(patientId) {
+  try {
+    const body = patientId
+      ? { patient_id: parseInt(patientId, 10) }
+      : {};
+    await fetch('/api/session-patient', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': (window.CSRF_TOKEN || '') },
+      credentials: 'same-origin',
+      body: JSON.stringify(body)
+    });
+  } catch (e) {
+    console.warn('Could not sync session patient:', e);
+  }
+}
+
+async function resetConversation(patientId) {
+  try {
+    const res1 = await fetch('/reset_conv', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': (window.CSRF_TOKEN || '') },
+      credentials: 'same-origin',
+      body: JSON.stringify(patientId ? { patient_id: parseInt(patientId, 10) } : {})
+    });
+    const data1 = await res1.json();
+
+    // Always also reset the live question plan
+    await fetch('/live/reset_plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': (window.CSRF_TOKEN || '') },
+      credentials: 'same-origin'
+    });
+
+    if (data1.ok) {
+      // Clear transcript UI
+      document.getElementById('agentChatTranscript').innerHTML = '';
+      document.getElementById('chatSuggestedQuestions').innerHTML = '';
+
+      // Clear live UI too
+      const liveTranscript = document.getElementById('liveTranscript');
+      if (liveTranscript) liveTranscript.innerHTML = '';
+      const liveSuggested = document.getElementById('liveSuggestedQuestions');
+      if (liveSuggested) liveSuggested.innerHTML = '';
+      const badge = document.getElementById('unasked-badge');
+      if (badge) badge.textContent = '0';
+
+      console.log('Conversation + live plan reset.', data1.conversation_id);
+    } else {
+      console.error('Reset failed:', data1);
+    }
+  } catch (err) {
+    console.error('Reset error:', err);
+  }
+}
+
+async function loadPatients() {
+  const sel = document.getElementById('patientSelect');
+  if (!sel) return;
+  const currentVal = sel.value;
+  sel.innerHTML = '';
+  try {
+    const r = await fetch('/api/patients', { credentials: 'same-origin' });
+    const data = await r.json();
+    if (data.ok && data.patients && data.patients.length > 0) {
+      data.patients.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.label || ('Patient ' + p.id);
+        sel.appendChild(opt);
+      });
+      if (currentVal) sel.value = currentVal;
+      else sel.value = data.patients[0].id;
+      await syncSessionPatient(sel.value || null);
+    } else {
+      const opt = document.createElement('option');
+      opt.disabled = true;
+      opt.textContent = 'No patients — add one';
+      sel.appendChild(opt);
+    }
+  } catch (e) {
+    console.warn('Could not load patients:', e);
+  }
+}
+
+function wireNewPatientButton() {
+  const btn = document.getElementById('newPatientBtn');
+  const sel = document.getElementById('patientSelect');
+  if (!btn || !sel) return;
+  btn.addEventListener('click', async () => {
+    try {
+      const r = await fetch('/api/patients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': (window.CSRF_TOKEN || '') },
+        credentials: 'same-origin',
+        body: JSON.stringify({})
+      });
+      const data = await r.json();
+      if (data.ok && data.patient_id) {
+        await loadPatients();
+        sel.value = String(data.patient_id);
+        await syncSessionPatient(sel.value);
+      } else {
+        alert(data.error || 'Failed to create patient');
+      }
+    } catch (e) {
+      alert('Network error: ' + e.message);
+    }
+  });
 }
 
 // --- Wire up forms on load ---
 window.addEventListener('DOMContentLoaded', async () => {
   await loadCsrf();
   const me = await getMe();
+
+  wireNewPatientButton();
+  const patientSelect = document.getElementById('patientSelect');
+  if (patientSelect) {
+    patientSelect.addEventListener('change', async () => {
+      const patientId = patientSelect.value || null;
+      await syncSessionPatient(patientId);
+      // Start a fresh conversation when patient changes
+      await resetConversation(patientId);
+    });
+  }
 
   if (me.authenticated) {
     showApp(me.user);
@@ -420,10 +517,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   const signupForm = document.getElementById('signup-form');
   signupForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const username = document.getElementById('signup-username')?.value?.trim() || '';
     const email = document.getElementById('signup-email').value.trim().toLowerCase();
     const password = document.getElementById('signup-password').value;
     try {
-      const res = await signup(email, password);
+      const res = await signup(email, password, username);
       if (res.ok) {
         // immediately log them in
         const res2 = await login(email, password);
@@ -584,7 +682,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // init + listen
   applyModeUI(chatModeEl.value);
-  chatModeEl.addEventListener('change', () => applyModeUI(chatModeEl.value));
+  chatModeEl.addEventListener('change', async () => {
+    applyModeUI(chatModeEl.value);
+    const patientSelect = document.getElementById('patientSelect');
+    const patientId = patientSelect && patientSelect.value ? patientSelect.value : null;
+    await resetConversation(patientId);
+  });
 });
 
 

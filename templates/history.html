@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}My Conversations | Medical Case Search{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4"><i class="fas fa-history me-2"></i>My Conversations</h2>
+  <p class="text-muted">Past conversations you own. Click a row to view messages.</p>
+
+  <div id="history-loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading…</span></div>
+    <p class="mt-2 text-muted">Loading conversations…</p>
+  </div>
+  <div id="history-error" class="alert alert-danger d-none" role="alert"></div>
+  <div id="history-empty" class="alert alert-info d-none" role="alert">No conversations yet. Start one from <a href="{{ url_for('index') }}">Search</a>.</div>
+
+  <div id="history-table-wrap" class="d-none">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Date</th>
+            <th>Patient</th>
+            <th>Messages</th>
+            <th>Preview</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="history-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const loading = document.getElementById('history-loading');
+  const errorEl = document.getElementById('history-error');
+  const emptyEl = document.getElementById('history-empty');
+  const tableWrap = document.getElementById('history-table-wrap');
+  const tbody = document.getElementById('history-tbody');
+
+  fetch('{{ url_for("api_my_conversations") }}', { credentials: 'same-origin' })
+    .then(r => r.json())
+    .then(data => {
+      loading.classList.add('d-none');
+      if (!data.ok) {
+        errorEl.textContent = data.error || 'Failed to load conversations';
+        errorEl.classList.remove('d-none');
+        return;
+      }
+      const convos = data.conversations || [];
+      if (convos.length === 0) {
+        emptyEl.classList.remove('d-none');
+        return;
+      }
+      tableWrap.classList.remove('d-none');
+      convos.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
+        const date = c.created_at ? new Date(c.created_at).toLocaleString() : '—';
+        const rawPatient = c.patient_label != null ? String(c.patient_label).trim() : '';
+        const patient = rawPatient ? rawPatient : '—';
+        const preview = (c.preview || '').substring(0, 60) + ((c.preview || '').length > 60 ? '…' : '');
+        const detailUrl = '/history/' + encodeURIComponent(c.id);
+        const actionsCell = '<td class="text-nowrap"><a href="' + detailUrl + '" class="btn btn-sm btn-outline-primary me-1">View</a><button type="button" class="btn btn-sm btn-outline-danger delete-conv" data-id="' + c.id + '" title="Delete"><i class="fas fa-trash-alt"></i></button></td>';
+        tr.innerHTML = '<td>' + date + '</td><td>' + patient + '</td><td>' + (c.message_count || 0) + '</td><td class="text-muted small">' + preview + '</td>' + actionsCell;
+        tr.addEventListener('click', function(e) {
+          if (!e.target.closest('a') && !e.target.closest('button.delete-conv')) window.location.href = detailUrl;
+        });
+        const delBtn = tr.querySelector('.delete-conv');
+        delBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          const id = delBtn.getAttribute('data-id');
+          if (!confirm('Delete this conversation? This cannot be undone.')) return;
+          fetch('/api/conversations/' + encodeURIComponent(id), {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: { 'X-CSRFToken': (window.CSRF_TOKEN || '') }
+          })
+            .then(r => r.json().catch(() => ({})))
+            .then(data => {
+              if (data.ok) {
+                tr.remove();
+                if (tbody.querySelectorAll('tr').length === 0) {
+                  tableWrap.classList.add('d-none');
+                  emptyEl.classList.remove('d-none');
+                }
+              } else {
+                alert(data.error || 'Could not delete');
+              }
+            })
+            .catch(() => alert('Network error'));
+        });
+        tbody.appendChild(tr);
+      });
+    })
+    .catch(err => {
+      loading.classList.add('d-none');
+      errorEl.textContent = 'Network error: ' + err.message;
+      errorEl.classList.remove('d-none');
+    });
+})();
+</script>
+{% endblock %}

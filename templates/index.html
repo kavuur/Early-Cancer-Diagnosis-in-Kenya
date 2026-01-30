@@ -16,8 +16,8 @@
     </div>
   </div>
 
-  <!-- Auth Gate -->
-  <div id="auth-gate" class="py-5">
+  <!-- Auth Gate: hidden when user is already logged in (avoids flash of login on nav) -->
+  <div id="auth-gate" class="py-5" {% if current_user.is_authenticated %}style="display:none;"{% endif %}>
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-sm-10 col-md-7 col-lg-5">
@@ -53,6 +53,11 @@
               <h4 class="card-title mb-3">Create your account</h4>
               <form id="signup-form">
                 <div class="mb-3">
+                  <label for="signup-username" class="form-label">Username</label>
+                  <input type="text" id="signup-username" class="form-control" autocomplete="username" minlength="2" maxlength="64" placeholder="How you want to be shown (e.g. Dr. Jane)" required>
+                  <div class="form-text">Letters, numbers, . _ - only. 2–64 characters.</div>
+                </div>
+                <div class="mb-3">
                   <label for="signup-email" class="form-label">Email</label>
                   <input type="email" id="signup-email" class="form-control" autocomplete="email" required>
                 </div>
@@ -74,7 +79,7 @@
     </div>
   </div>
 
-  <div id="app-wrapper" style="display:none;">
+  <div id="app-wrapper" {% if not current_user.is_authenticated %}style="display:none;"{% endif %}>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">Cancer Q-Recommender</a>
@@ -156,6 +161,12 @@
                 </select>
 
                 <span id="modeBadge" class="badge rounded-pill mode-badge">Real Actors</span>
+                <label for="patientSelect" class="form-label m-0">Patient (optional)</label>
+                <select id="patientSelect" class="form-select form-select-sm" style="width:auto;">
+                  <option value="">— None —</option>
+                  <!-- populated by JS from /api/patients -->
+                </select>
+                <button type="button" id="newPatientBtn" class="btn btn-outline-secondary btn-sm" title="Add new patient">+ Patient</button>
                 <button type="button" id="resetBtn" class="btn btn-outline-danger btn-sm">Reset Conversation</button>
               </div>
             </div>

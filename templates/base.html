@@ -28,36 +28,61 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('index') }}">
                             <i class="fas fa-search me-1"></i>Search
                         </a>
                     </li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('history_page') }}">
+                            <i class="fas fa-history me-1"></i>History
+                        </a>
+                    </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('health_check') }}">
                             <i class="fas fa-heart me-1"></i>Health
                         </a>
                     </li>
-                    <li class="nav-item">
                     {% if current_user.is_authenticated %}
                         {% for role in current_user.roles %}
                         {% if role.name == "admin" %}
-                            <a class="nav-link" href="{{ url_for('admin_page') }}">
-                            <i class="fas fa-user-shield me-1"></i>Admin Dashboard
-                            </a>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_page') }}">
+                            <i class="fas fa-user-shield me-1"></i>Admin
+                        </a>
+                    </li>
                         {% endif %}
                         {% endfor %}
                     {% endif %}
-                    </li>
-                    <li class="nav-item">
-                        {% if current_user.is_authenticated %}
-                        <button id="logout-btn" type="button" class="nav-link btn btn-link">
-                            <i class="fas fa-sign-out-alt me-1"></i>Log out
-                        </button>
-                        {% endif %}
+                </ul>
+                {% if current_user.is_authenticated %}
+                <ul class="navbar-nav navbar-nav-user">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center py-2" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="navbar-user-avatar"><i class="fas fa-user-circle"></i></span>
+                            <span class="navbar-user-name">{% if current_user.username %}{{ current_user.username }}{% elif current_user.email %}{{ current_user.email.split('@')[0] }}{% else %}User{% endif %}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                            <li class="dropdown-header text-muted small">
+                                Logged in as
+                            </li>
+                            <li class="px-3 py-2">
+                                <strong class="d-block">{% if current_user.username %}{{ current_user.username }}{% elif current_user.email %}{{ current_user.email.split('@')[0] }}{% else %}User{% endif %}</strong>
+                                {% for role in current_user.roles %}<span class="badge bg-primary me-1">{{ role.name }}</span>{% endfor %}
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a id="logout-btn" class="dropdown-item" href="{{ url_for('auth.logout_redirect') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Log out
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
+                {% endif %}
             </div>
         </div>
     </nav>
