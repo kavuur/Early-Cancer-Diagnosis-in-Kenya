@@ -23,12 +23,12 @@ venv/
 ############################
 # Databases / Indexes
 ############################
-app.db
-*.db
-*.sqlite
-*.sqlite3
-medical_cases.index
-medical_cases_metadata.pkl
+#app.db
+#*.db
+#*.sqlite
+#*.sqlite3
+#medical_cases.index
+#medical_cases_metadata.pkl
 
 ############################
 # OS / Misc
