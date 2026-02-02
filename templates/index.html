@@ -16,8 +16,9 @@
     </div>
   </div>
 
-  <!-- Auth Gate: hidden when user is already logged in (avoids flash of login on nav) -->
-  <div id="auth-gate" class="py-5" {% if current_user.is_authenticated %}style="display:none;"{% endif %}>
+  {% if not current_user.is_authenticated %}
+  <!-- Auth Gate: only in DOM when not logged in (avoids any overlay when logged in) -->
+  <div id="auth-gate" class="py-5">
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-sm-10 col-md-7 col-lg-5">
@@ -78,8 +79,9 @@
       </div>
     </div>
   </div>
-
-  <div id="app-wrapper" {% if not current_user.is_authenticated %}style="display:none;"{% endif %}>
+  {% else %}
+  <!-- App wrapper + main content: only in DOM when logged in -->
+  <div id="app-wrapper">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">Cancer Q-Recommender</a>
@@ -90,6 +92,7 @@
     </nav>
   </div>
 
+  {% endif %}
   {% if current_user.is_authenticated %}
   <!-- Search Section -->
   <div class="row mb-4">

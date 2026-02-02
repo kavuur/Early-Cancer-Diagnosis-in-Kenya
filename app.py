@@ -36,12 +36,13 @@ from models import (
     list_patients_for_user,
     create_patient,
     get_patient,
+    get_next_global_patient_identifier,
 )
 from flask_sock import Sock
 
 # Auth/Admin
 from auth import auth_bp, login_manager
-from admin import admin_bp
+from admin import admin_bp, delete_conversation as admin_delete_conversation
 
 # ✅ Gemini STT blueprint + WS routes
 from stt_gemini import stt_bp, register_ws_routes
@@ -71,6 +72,7 @@ sock = Sock(app)
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp)
+csrf.exempt(admin_delete_conversation)  # DELETE /admin/api/conversation/<id> — admin-only, no CSRF in fetch
 
 # -----------------------------------------------------------------------------
 # ✅ Gemini STT registration (Gemini-only)
@@ -758,10 +760,8 @@ def api_patients():
         data = request.get_json(force=True, silent=True) or {}
         identifier = (data.get("identifier") or data.get("display_name") or "").strip()
         if not identifier:
-            # Auto-generate identifier: P001, P002, ... (next number for this clinician)
-            patients = list_patients_for_user(current_user.id)
-            n = len(patients) + 1
-            identifier = f"P{n:03d}"
+            # Auto-generate identifier: next global P001, P002, ... (continues from latest in DB across clinicians)
+            identifier = get_next_global_patient_identifier()
         display_name = (data.get("display_name") or "").strip() or None
         pid = create_patient(identifier=identifier, clinician_id=current_user.id, display_name=display_name)
         return jsonify({"ok": True, "patient_id": pid})
@@ -780,6 +780,12 @@ def api_patients():
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/favicon.ico")
+def favicon():
+    """Avoid 404 when browser requests favicon."""
+    return "", 204
 
 
 @app.route("/history")

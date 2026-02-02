@@ -12,7 +12,10 @@ from models import (
     User,
     Role,
     user_roles,
-    ConversationOwner,
+    Patient,
+    create_patient,
+    get_next_global_patient_identifier,
+    delete_conversation_by_id,
 )
 
 # Optional: FAISS-driven disease likelihoods
@@ -29,6 +32,16 @@ def _require_admin():
 def admin_guard():
     if not _require_admin():
         return jsonify({"ok": False, "error": "Admin only"}), 403
+
+
+def _user_display_name(user) -> str:
+    """Return display name for admin: username or email prefix (no raw email)."""
+    if user is None:
+        return "—"
+    return (user.username or "").strip() or (
+        (user.email.split("@")[0] if user.email else "User")
+    )
+
 
 # --------------------------
 # Helpers: text cleaning & symptom extraction
@@ -142,15 +155,22 @@ def summary():
               .all()
         )
 
-        # Top clinicians by # of owned conversations
-        top_clinicians = (
-            db.query(User.email, func.count(ConversationOwner.conversation_id))
-              .join(ConversationOwner, ConversationOwner.owner_user_id == User.id)
-              .group_by(User.email)
-              .order_by(desc(func.count(ConversationOwner.conversation_id)))
+        # Top clinicians by # of conversations (Conversation.owner_user_id, not ConversationOwner)
+        top_clinician_rows = (
+            db.query(User, func.count(Conversation.id).label("cnt"))
+              .join(user_roles, user_roles.c.user_id == User.id)
+              .join(Role, Role.id == user_roles.c.role_id)
+              .filter(Role.name == "clinician")
+              .outerjoin(Conversation, Conversation.owner_user_id == User.id)
+              .group_by(User.id, User.email, User.username)
+              .order_by(desc(func.count(Conversation.id)))
               .limit(10)
               .all()
         )
+        top_clinicians = [
+            {"display_name": _user_display_name(u), "count": c}
+            for u, c in top_clinician_rows
+        ]
 
         return jsonify({
             "ok": True,
@@ -164,7 +184,7 @@ def summary():
             },
             "series": {
                 "conversations_per_day": [[str(d), c] for d, c in convs_per_day],
-                "top_clinicians": [{"email": e, "count": c} for e, c in top_clinicians],
+                "top_clinicians": top_clinicians,
             }
         })
     finally:
@@ -181,65 +201,150 @@ def clinicians():
 
     db = SessionLocal()
     try:
+        # Count conversations by Conversation.owner_user_id (not ConversationOwner table)
         rows = (
-            db.query(User.id, User.email, func.count(ConversationOwner.conversation_id).label("convos"))
+            db.query(User, func.count(Conversation.id).label("convos"))
               .join(user_roles, user_roles.c.user_id == User.id)
               .join(Role, Role.id == user_roles.c.role_id)
               .filter(Role.name == "clinician")
-              .outerjoin(ConversationOwner, ConversationOwner.owner_user_id == User.id)
-              .group_by(User.id, User.email)
+              .outerjoin(Conversation, Conversation.owner_user_id == User.id)
+              .group_by(User.id, User.email, User.username)
               .order_by(desc("convos"))
               .all()
         )
         return jsonify({"ok": True, "clinicians": [
-            {"id": i, "email": e, "conversations": c} for i, e, c in rows
+            {"id": u.id, "display_name": _user_display_name(u), "conversations": c}
+            for u, c in rows
         ]})
     finally:
         db.close()
 
 # --------------------------
-# Paginated conversations (includes owner email)
+# Paginated conversations (owner display name, patient label; optional clinician filter)
 # --------------------------
-# --- Paginated conversations (owner via conversations.owner_user_id) ---
 @admin_bp.get("/api/conversations")
 @login_required
 def conversations():
+    """Paginated list of all conversations with owner display name and patient label (admin-only)."""
     if not _require_admin():
         return admin_guard()
 
     page = int(request.args.get("page", 1))
     size = min(int(request.args.get("size", 20)), 100)
+    clinician_id = request.args.get("clinician_id", type=int)
     offset = (page - 1) * size
 
     db = SessionLocal()
     try:
-        total = db.query(Conversation).count()
+        q = db.query(Conversation)
+        if clinician_id is not None:
+            q = q.filter(Conversation.owner_user_id == clinician_id)
+        total = q.count()
 
         rows = (
             db.query(
                 Conversation.id,
                 Conversation.created_at,
-                User.email,                 # may be None
-                Conversation.owner_user_id  # may be None
+                User.email,
+                User.username,
+                Conversation.owner_user_id,
+                Conversation.patient_id,
+                func.count(Message.id).label("message_count"),
             )
             .outerjoin(User, User.id == Conversation.owner_user_id)
+            .outerjoin(Message, Message.conversation_id == Conversation.id)
+        )
+        if clinician_id is not None:
+            rows = rows.filter(Conversation.owner_user_id == clinician_id)
+        rows = (
+            rows.group_by(
+                Conversation.id,
+                Conversation.created_at,
+                User.email,
+                User.username,
+                Conversation.owner_user_id,
+                Conversation.patient_id,
+            )
             .order_by(Conversation.created_at.desc())
-            .offset(offset).limit(size)
+            .offset(offset)
+            .limit(size)
             .all()
         )
 
-        convs = [{
-            "id": cid,
-            "created_at": created.isoformat(),
-            # convenience field for legacy UI: prefer email, then ID, else None
-            "owner": email or (str(owner_id) if owner_id is not None else None),
-            "owner_email": email,
-            "owner_user_id": owner_id,
-        } for (cid, created, email, owner_id) in rows]
+        # Build per-clinician patient label maps so admin sees Patient 1, Patient 2, ...
+        owner_ids = {owner_id for (_cid, _created, _email, _username, owner_id, _pid, _mc) in rows if owner_id}
+        patient_labels_by_owner: dict[int, dict[int, str]] = {}
+        for oid in owner_ids:
+            patients = (
+                db.query(Patient)
+                  .filter(Patient.clinician_id == oid)
+                  .order_by(Patient.id.asc())
+                  .all()
+            )
+            patient_labels_by_owner[oid] = {
+                p.id: f"Patient {i + 1}" for i, p in enumerate(patients)
+            }
+
+        convs = []
+        for (cid, created, email, username, owner_id, patient_id, msg_count) in rows:
+            display_name = (username or "").strip() or (
+                (email.split("@")[0] if email else "User")
+            ) if (email or username) else (str(owner_id) if owner_id is not None else "—")
+            patient_label = "—"
+            if patient_id and owner_id:
+                labels_for_owner = patient_labels_by_owner.get(owner_id, {})
+                patient_label = labels_for_owner.get(patient_id) or "Patient"
+
+            convs.append({
+                "id": cid,
+                "created_at": created.isoformat(),
+                "owner_display_name": display_name,
+                "owner_user_id": owner_id,
+                "patient_id": patient_id,
+                "patient_label": patient_label,
+                "message_count": msg_count,
+            })
 
         return jsonify({"ok": True, "page": page, "size": size, "total": total, "conversations": convs})
     finally:
         db.close()
+
+
+@admin_bp.delete("/api/conversation/<cid>")
+@login_required
+def delete_conversation(cid):
+    """Delete a conversation (and its messages) as admin."""
+    if not _require_admin():
+        return admin_guard()
+    ok = delete_conversation_by_id(cid)
+    if not ok:
+        return jsonify({"ok": False, "error": "Not found"}), 404
+    return jsonify({"ok": True})
+
+
+# --------------------------
+# Admin: create patient (identifier continues from latest in DB)
+# --------------------------
+@admin_bp.post("/api/patients")
+@login_required
+def admin_create_patient():
+    """Create a patient; assign to a clinician. Identifier is next global P001, P002, ..."""
+    if not _require_admin():
+        return admin_guard()
+    data = request.get_json(force=True, silent=True) or {}
+    clinician_id = data.get("clinician_id")
+    if clinician_id is None:
+        return jsonify({"ok": False, "error": "clinician_id required"}), 400
+    try:
+        clinician_id = int(clinician_id)
+    except (TypeError, ValueError):
+        return jsonify({"ok": False, "error": "clinician_id must be an integer"}), 400
+    identifier = (data.get("identifier") or "").strip()
+    if not identifier:
+        identifier = get_next_global_patient_identifier()
+    display_name = (data.get("display_name") or "").strip() or None
+    pid = create_patient(identifier=identifier, clinician_id=clinician_id, display_name=display_name)
+    return jsonify({"ok": True, "patient_id": pid, "identifier": identifier})
 
 
 # --------------------------
@@ -293,27 +398,31 @@ def symptoms_api():
 
     db = SessionLocal()
     try:
-        # Pull all conversations + owners in one pass
+        # Pull all conversations + owners in one pass (display name, no email)
         convo_rows = (
             db.query(
                 Conversation.id,
                 Conversation.created_at,
                 User.email,
+                User.username,
                 Conversation.owner_user_id,
             )
             .outerjoin(User, User.id == Conversation.owner_user_id)
             .order_by(Conversation.created_at.desc())
             .all()
         )
-        conv_ids = [cid for (cid, _created, _email, _uid) in convo_rows]
+        conv_ids = [cid for (cid, _created, _email, _un, _uid) in convo_rows]
+
+        def _display(e, un, uid):
+            return (un or "").strip() or ((e.split("@")[0] if e else "User")) if (e or un) else (str(uid) if uid is not None else "—")
 
         owner_map = {
             cid: {
-                "email": email,
+                "display_name": _display(email, username, uid),
                 "id": uid,
                 "created_at": created.isoformat(),
             }
-            for (cid, created, email, uid) in convo_rows
+            for (cid, created, email, username, uid) in convo_rows
         }
 
         # No conversations yet
@@ -342,14 +451,10 @@ def symptoms_api():
         by_conv = []
         for cid in conv_ids:
             meta = owner_map.get(cid, {})
-            owner_email = meta.get("email")
-            owner_id = meta.get("id")
             by_conv.append({
                 "conversation_id": cid,
-                # convenience + explicit fields
-                "owner": owner_email or (str(owner_id) if owner_id is not None else ""),
-                "owner_email": owner_email,
-                "owner_user_id": owner_id,
+                "owner_display_name": meta.get("display_name", "—"),
+                "owner_user_id": meta.get("id"),
                 "created_at": meta.get("created_at"),
                 "symptoms": dict(per_conv[cid].most_common()),
             })

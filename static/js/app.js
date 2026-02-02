@@ -344,17 +344,23 @@ async function logout() {
   return r.json();
 }
 
-// --- UI toggles ---
+// --- UI toggles (auth-gate / app-wrapper only exist when not logged in / logged in respectively) ---
 function showAuth() {
-  document.getElementById('auth-gate').style.display = '';
-  document.getElementById('app-wrapper').style.display = 'none';
+  const gate = document.getElementById('auth-gate');
+  const wrapper = document.getElementById('app-wrapper');
+  if (gate) gate.style.display = '';
+  if (wrapper) wrapper.style.display = 'none';
 }
 function showApp(user) {
-  document.getElementById('auth-gate').style.display = 'none';
-  document.getElementById('app-wrapper').style.display = '';
-  const name = user.username || (user.email && user.email.split('@')[0]) || 'User';
-  document.getElementById('whoami').textContent =
-    `${name} — ${(user.roles || []).join(', ')}`;
+  const gate = document.getElementById('auth-gate');
+  const wrapper = document.getElementById('app-wrapper');
+  if (gate) gate.style.display = 'none';
+  if (wrapper) wrapper.style.display = '';
+  const whoami = document.getElementById('whoami');
+  if (whoami) {
+    const name = user.username || (user.email && user.email.split('@')[0]) || 'User';
+    whoami.textContent = `${name} — ${(user.roles || []).join(', ')}`;
+  }
   loadPatients();
 }
 
@@ -472,7 +478,12 @@ function wireNewPatientButton() {
 // --- Wire up forms on load ---
 window.addEventListener('DOMContentLoaded', async () => {
   await loadCsrf();
-  const me = await getMe();
+  let me;
+  try {
+    me = await getMe();
+  } catch (e) {
+    me = null;
+  }
 
   wireNewPatientButton();
   const patientSelect = document.getElementById('patientSelect');
@@ -485,11 +496,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  if (me.authenticated) {
+  // When logged in, auth-gate is not in DOM; when not, app-wrapper is not in DOM. Only toggle if both exist (SPA nav).
+  if (me && me.authenticated) {
     showApp(me.user);
-  } else {
+  } else if (me && me.authenticated === false) {
     showAuth();
   }
+  // If getMe failed: server already chose which branch to render; do nothing.
 
   // Login form
   const loginForm = document.getElementById('login-form');

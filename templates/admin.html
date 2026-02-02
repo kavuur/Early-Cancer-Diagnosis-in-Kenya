@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container mt-4">
   <h2>Admin Dashboard</h2>
-  <p class="text-muted">Welcome, {{ current_user.email }}</p>
+  <p class="text-muted">Welcome, {% if current_user.username %}{{ current_user.username }}{% elif current_user.email %}{{ current_user.email.split('@')[0] }}{% else %}Admin{% endif %}</p>
 
   <div id="admin-error" class="text-danger" style="display:none;"></div>
 
@@ -21,13 +21,19 @@
 
   <h4 class="mt-4">Top Clinicians by Conversations</h4>
   <table class="table table-sm" id="tbl-clinicians">
-    <thead><tr><th>Email</th><th>Conversations</th></tr></thead>
+    <thead><tr><th>Clinician</th><th>Conversations</th></tr></thead>
     <tbody></tbody>
   </table>
 
   <h4 class="mt-4">All Conversations</h4>
+  <p class="mb-2">
+    <label for="admin-clinician-filter" class="me-2">Filter by clinician:</label>
+    <select id="admin-clinician-filter" class="form-select form-select-sm d-inline-block" style="max-width: 220px;">
+      <option value="">All clinicians</option>
+    </select>
+  </p>
   <table class="table table-sm" id="tbl-convos">
-    <thead><tr><th>ID</th><th>Clinician</th><th>Created</th><th></th></tr></thead>
+    <thead><tr><th>ID</th><th>Clinician</th><th>Patient</th><th>Created</th><th>Messages</th><th>Actions</th></tr></thead>
     <tbody></tbody>
   </table>
   <button id="load-more" class="btn btn-outline-secondary btn-sm">Load more</button>
@@ -50,7 +56,7 @@
       <div class="card-header">Per Conversation — Top Symptoms</div>
       <div class="card-body">
         <table class="table table-sm" id="tbl-conv-symptoms">
-          <thead><tr><th>Clinician</th><th>Conversation</th><th>Top Symptoms</th><th></th></tr></thead>
+          <thead><tr><th>Clinician (display)</th><th>Conversation</th><th>Top Symptoms</th><th></th></tr></thead>
           <tbody id="tbl-conv-symptoms-body"><tr><td colspan="4" class="text-muted">Loading…</td></tr></tbody>
         </table>
       </div>
