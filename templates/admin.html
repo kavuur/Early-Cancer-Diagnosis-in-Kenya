@@ -1,71 +1,137 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+<style>
+  html, body {
+    height: auto !important;
+    overflow: auto !important;
+  }
+  body {
+    padding-bottom: 2rem;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-  <h2>Admin Dashboard</h2>
-  <p class="text-muted">Welcome, {{ current_user.email }}</p>
-
-  <div id="admin-error" class="text-danger" style="display:none;"></div>
-
-  <div class="row">
-    <div class="col-md-3"><div class="card p-3"><h5>Users</h5><div id="kpi-users"></div></div></div>
-    <div class="col-md-3"><div class="card p-3"><h5>Conversations</h5><div id="kpi-convos"></div></div></div>
-    <div class="col-md-3"><div class="card p-3"><h5>Messages</h5><div id="kpi-messages"></div></div></div>
-    <div class="col-md-3"><div class="card p-3"><h5>Recommended Qs</h5><div id="kpi-reco"></div></div></div>
+<div class="container-fluid mt-4 px-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-0">Admin Dashboard</h2>
+      <p class="text-muted mb-0">Welcome, {{ current_user.email }}</p>
+    </div>
+    <a href="{{ url_for('index') }}" class="btn btn-outline-success">
+      <i class="fas fa-arrow-left me-1"></i> Back to App
+    </a>
   </div>
 
-  <hr />
+  <div id="admin-error" class="alert alert-danger" style="display:none;"></div>
 
-  <h4>Conversations per day (30d)</h4>
-  <canvas id="chart-convos"></canvas>
-
-  <h4 class="mt-4">Top Clinicians by Conversations</h4>
-  <table class="table table-sm" id="tbl-clinicians">
-    <thead><tr><th>Email</th><th>Conversations</th></tr></thead>
-    <tbody></tbody>
-  </table>
-
-  <h4 class="mt-4">All Conversations</h4>
-  <table class="table table-sm" id="tbl-convos">
-    <thead><tr><th>ID</th><th>Clinician</th><th>Created</th><th></th></tr></thead>
-    <tbody></tbody>
-  </table>
-  <button id="load-more" class="btn btn-outline-secondary btn-sm">Load more</button>
-
-  <div id="conv-detail" class="mt-4"></div>
-</div>
-
-<!-- Global Symptoms -->
-<div class="card mb-3">
-  <div class="card-header">Symptoms (Global Tally)</div>
-  <div class="card-body">
-    <canvas id="chart-symptoms" height="220"></canvas>
-  </div>
-</div>
-
-<!-- Per‑Conversation Symptoms + Disease Likelihoods -->
-<div class="row">
-  <div class="col-md-7">
-    <div class="card mb-3">
-      <div class="card-header">Per Conversation — Top Symptoms</div>
-      <div class="card-body">
-        <table class="table table-sm" id="tbl-conv-symptoms">
-          <thead><tr><th>Clinician</th><th>Conversation</th><th>Top Symptoms</th><th></th></tr></thead>
-          <tbody id="tbl-conv-symptoms-body"><tr><td colspan="4" class="text-muted">Loading…</td></tr></tbody>
-        </table>
+  <!-- KPI Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2 text-muted">Users</h6>
+          <div id="kpi-users" class="fs-5 fw-semibold">Loading...</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2 text-muted">Conversations</h6>
+          <div id="kpi-convos" class="fs-5 fw-semibold">Loading...</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2 text-muted">Messages</h6>
+          <div id="kpi-messages" class="fs-5 fw-semibold">Loading...</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2 text-muted">Recommended Qs</h6>
+          <div id="kpi-reco" class="fs-5 fw-semibold">Loading...</div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="col-md-5">
-    <div class="card mb-3">
-      <div class="card-header">Disease Likelihoods</div>
-      <div class="card-body" id="conv-like-box">
-        <p class="text-muted">Select a conversation to view estimated likelihoods.</p>
+
+  <!-- Charts Row -->
+  <div class="row g-3 mb-4">
+    <div class="col-lg-7">
+      <div class="card h-100">
+        <div class="card-header">Conversations per Day (30d)</div>
+        <div class="card-body">
+          <canvas id="chart-convos" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card h-100">
+        <div class="card-header">Top Clinicians by Conversations</div>
+        <div class="card-body">
+          <table class="table table-sm table-hover mb-0" id="tbl-clinicians">
+            <thead><tr><th>Email</th><th>Conversations</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
+  <!-- Global Symptoms Chart -->
+  <div class="card mb-4">
+    <div class="card-header">Symptoms (Global Tally)</div>
+    <div class="card-body">
+      <canvas id="chart-symptoms" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- Per-Conversation Symptoms + Disease Likelihoods -->
+  <div class="row g-3 mb-4">
+    <div class="col-lg-7">
+      <div class="card h-100">
+        <div class="card-header">Per Conversation - Top Symptoms</div>
+        <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+          <table class="table table-sm table-hover" id="tbl-conv-symptoms">
+            <thead><tr><th>Clinician</th><th>Conversation</th><th>Top Symptoms</th><th></th></tr></thead>
+            <tbody id="tbl-conv-symptoms-body"><tr><td colspan="4" class="text-muted">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card h-100">
+        <div class="card-header">Disease Likelihoods</div>
+        <div class="card-body" id="conv-like-box">
+          <p class="text-muted">Select a conversation to view estimated likelihoods.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- All Conversations Table -->
+  <div class="card mb-4">
+    <div class="card-header">All Conversations</div>
+    <div class="card-body">
+      <table class="table table-sm table-hover" id="tbl-convos">
+        <thead><tr><th>ID</th><th>Clinician</th><th>Created</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <button id="load-more" class="btn btn-outline-secondary btn-sm">Load more</button>
+    </div>
+  </div>
+
+  <!-- Conversation Detail -->
+  <div id="conv-detail" class="mb-4"></div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ url_for('static', filename='js/admin.js') }}"></script>

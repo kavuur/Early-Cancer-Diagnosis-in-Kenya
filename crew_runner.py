@@ -548,7 +548,7 @@ def real_actor_chat_stepwise(initial_message: str, language_mode: str = 'bilingu
         transcript_lines = [f"{m.get('role', '')}: {m.get('message', '')}" for m in history]
         convo_text = "\n".join(transcript_lines)
 
-        listener_input = convo_text + "\n\nSummarize the conversation in two parts:\n**English Summary:**\n- ...\n**Swahili Summary:**\n- ..."
+        listener_input = convo_text + "\n\nSummarize the conversation in two parts:\n**English Summary:**\n ...\n**Swahili Summary:**\n ..."
         listener_summary = run_task(agents["listener_agent"], listener_input, "Listener Summary")
         yield sse_message("Listener", listener_summary, log_hook, session_id)
 
@@ -567,8 +567,9 @@ def real_actor_chat_stepwise(initial_message: str, language_mode: str = 'bilingu
 
     yield sse_message(speaker_role, initial_message, log_hook, session_id)
 
-    # After a Patient reply suggest next question
-    if speaker_role.lower() == "patient":
+    # Suggest next question after any message (patient or clinician)
+    lower_role = speaker_role.lower()
+    if lower_role in ("patient", "clinician"):
         context_lines = [f"{m.get('role')}: {m.get('message')}" for m in history]
         context_text = "\n".join(context_lines)
 

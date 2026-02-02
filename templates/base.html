@@ -11,110 +11,30 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <!-- Custom CSS -->
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}?v={{ range(10000, 99999) | random }}" rel="stylesheet">
 
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}">
-                <i class="fas fa-stethoscope me-2"></i>
-                Medical Case Search
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}">
-                            <i class="fas fa-search me-1"></i>Search
-                        </a>
-                    </li>
-                    {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('history_page') }}">
-                            <i class="fas fa-history me-1"></i>History
-                        </a>
-                    </li>
-                    {% endif %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('health_check') }}">
-                            <i class="fas fa-heart me-1"></i>Health
-                        </a>
-                    </li>
-                    {% if current_user.is_authenticated %}
-                        {% for role in current_user.roles %}
-                        {% if role.name == "admin" %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_page') }}">
-                            <i class="fas fa-user-shield me-1"></i>Admin
-                        </a>
-                    </li>
-                        {% endif %}
-                        {% endfor %}
-                    {% endif %}
-                </ul>
-                {% if current_user.is_authenticated %}
-                <ul class="navbar-nav navbar-nav-user">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center py-2" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="navbar-user-avatar"><i class="fas fa-user-circle"></i></span>
-                            <span class="navbar-user-name">{% if current_user.username %}{{ current_user.username }}{% elif current_user.email %}{{ current_user.email.split('@')[0] }}{% else %}User{% endif %}</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
-                            <li class="dropdown-header text-muted small">
-                                Logged in as
-                            </li>
-                            <li class="px-3 py-2">
-                                <strong class="d-block">{% if current_user.username %}{{ current_user.username }}{% elif current_user.email %}{{ current_user.email.split('@')[0] }}{% else %}User{% endif %}</strong>
-                                {% for role in current_user.roles %}<span class="badge bg-primary me-1">{{ role.name }}</span>{% endfor %}
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a id="logout-btn" class="dropdown-item" href="{{ url_for('auth.logout_redirect') }}">
-                                    <i class="fas fa-sign-out-alt me-2"></i>Log out
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
+    {% block content %}{% endblock %}
 
-    <!-- Main Content -->
-    <main class="container-fluid">
-        {% block content %}{% endblock %}
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5><i class="fas fa-stethoscope me-2"></i>Medical Case Search</h5>
-                    <p class="mb-0">AI-powered medical case similarity search system</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="mb-0">
-                        <i class="fas fa-code me-2"></i>
-                        Powered by #IamAPHRC
-                    </p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- JS Scripts at the end to ensure DOM is ready -->
+    <!-- JS Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/event-source-polyfill@1.0.24/eventsource.min.js"></script>
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Word Export -->
+    <script src="https://unpkg.com/docx@8.2.0/build/index.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <script>lucide.createIcons();</script>
+    <script src="{{ url_for('static', filename='js/app.js') }}?v={{ range(10000, 99999) | random }}"></script>
 
     {% block extra_js %}{% endblock %}
 </body>

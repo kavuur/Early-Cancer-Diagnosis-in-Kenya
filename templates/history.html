@@ -2,105 +2,1231 @@
 
 {% block title %}My Conversations | Medical Case Search{% endblock %}
 
+{% block extra_css %}
+<style>
+  /* Two-pane layout */
+  .history-layout {
+    display: flex;
+    height: calc(100vh - 50px);
+    margin-top: 50px;
+  }
+
+  /* Left sidebar - conversation list */
+  .history-sidebar {
+    width: 380px;
+    min-width: 320px;
+    max-width: 450px;
+    background: white;
+    border-right: 1px solid var(--gray-200, #e5e7eb);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-header {
+    padding: 1.25rem 1rem;
+    border-bottom: 1px solid var(--gray-100, #f3f4f6);
+  }
+
+  .sidebar-header h2 {
+    color: var(--primary-green, #7bc148);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  .sidebar-header p {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.8rem;
+    color: var(--gray-500, #6b7280);
+  }
+
+  .conversation-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+  }
+
+  .conversation-item {
+    padding: 0.875rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 0.25rem;
+    border: 1px solid transparent;
+  }
+
+  .conversation-item:hover {
+    background: var(--gray-50, #f9fafb);
+  }
+
+  .conversation-item.active {
+    background: var(--primary-green-bg, rgba(123, 193, 72, 0.1));
+    border-color: var(--primary-green, #7bc148);
+  }
+
+  .conv-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.375rem;
+  }
+
+  .conv-patient {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--gray-800, #1f2937);
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .conv-patient i {
+    width: 14px;
+    height: 14px;
+    color: var(--primary-green, #7bc148);
+  }
+
+  .conv-date {
+    font-size: 0.75rem;
+    color: var(--gray-400, #9ca3af);
+  }
+
+  .conv-preview {
+    font-size: 0.8rem;
+    color: var(--gray-500, #6b7280);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .conv-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--gray-400, #9ca3af);
+  }
+
+  .conv-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .conv-meta i {
+    width: 12px;
+    height: 12px;
+  }
+
+  .delete-conv-btn {
+    opacity: 0;
+    background: none;
+    border: none;
+    color: var(--gray-400, #9ca3af);
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+
+  .conversation-item:hover .delete-conv-btn {
+    opacity: 1;
+  }
+
+  .delete-conv-btn:hover {
+    color: #dc3545;
+    background: rgba(220, 53, 69, 0.1);
+  }
+
+  /* Right pane - conversation detail */
+  .history-main {
+    flex: 1;
+    background: var(--gray-50, #f9fafb);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .detail-placeholder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-400, #9ca3af);
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .detail-placeholder i {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 1rem;
+    color: var(--gray-300, #d1d5db);
+  }
+
+  .detail-placeholder h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--gray-500, #6b7280);
+  }
+
+  .detail-content {
+    padding: 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .detail-header h2 {
+    color: var(--primary-green, #7bc148);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  .detail-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.875rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .btn-action i {
+    width: 14px;
+    height: 14px;
+  }
+
+  .btn-new {
+    background: var(--primary-green, #7bc148);
+    color: white;
+  }
+
+  .btn-new:hover {
+    background: #6aab3d;
+    color: white;
+  }
+
+  .btn-delete {
+    background: transparent;
+    color: #dc3545;
+    border: 1px solid #dc3545;
+  }
+
+  .btn-delete:hover {
+    background: #dc3545;
+    color: white;
+  }
+
+  .info-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray-500, #6b7280);
+    font-size: 0.875rem;
+  }
+
+  .info-item i {
+    width: 16px;
+    height: 16px;
+    color: var(--gray-400, #9ca3af);
+  }
+
+  .info-item strong {
+    color: var(--gray-700, #374151);
+  }
+
+  .messages-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+
+  .messages-header {
+    background: var(--primary-green, #7bc148);
+    color: white;
+    padding: 0.875rem 1.25rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .messages-header i {
+    width: 18px;
+    height: 18px;
+  }
+
+  .messages-list {
+    max-height: calc(100vh - 320px);
+    overflow-y: auto;
+  }
+
+  .message-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--gray-100, #f3f4f6);
+  }
+
+  .message-item:last-child {
+    border-bottom: none;
+  }
+
+  .message-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .role-badge i {
+    width: 12px;
+    height: 12px;
+  }
+
+  .role-patient {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  .role-clinician {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .role-recommender {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .role-system {
+    background: var(--gray-100, #f3f4f6);
+    color: var(--gray-600, #4b5563);
+  }
+
+  .role-listener {
+    background: linear-gradient(135deg, rgba(123, 193, 72, 0.15), rgba(90, 158, 53, 0.15));
+    color: #166534;
+  }
+
+  .listener-message {
+    background: linear-gradient(135deg, rgba(123, 193, 72, 0.05), rgba(90, 158, 53, 0.03));
+    border-left: 3px solid var(--primary-green, #7bc148);
+  }
+
+  .listener-message .message-content {
+    line-height: 1.8;
+  }
+
+  .listener-message .message-content strong {
+    color: var(--gray-800, #1f2937);
+    display: block;
+    margin-top: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .listener-message .message-content strong:first-child {
+    margin-top: 0;
+  }
+
+  .message-time {
+    font-size: 0.75rem;
+    color: var(--gray-400, #9ca3af);
+  }
+
+  .message-content {
+    color: var(--gray-700, #374151);
+    line-height: 1.6;
+    font-size: 0.9rem;
+  }
+
+  .empty-messages {
+    text-align: center;
+    padding: 3rem;
+    color: var(--gray-500, #6b7280);
+  }
+
+  .empty-messages i {
+    width: 48px;
+    height: 48px;
+    color: var(--gray-300, #d1d5db);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Summary & Plan Card */
+  .summary-plan-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  .summary-plan-header {
+    background: linear-gradient(135deg, var(--primary-green, #7bc148), #5a9e35);
+    color: white;
+    padding: 0.875rem 1.25rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .summary-plan-header i {
+    width: 18px;
+    height: 18px;
+  }
+
+  .summary-plan-content {
+    padding: 1.25rem;
+  }
+
+  .summary-section {
+    margin-bottom: 1.25rem;
+  }
+
+  .summary-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .summary-section-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--gray-800, #1f2937);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .summary-section-title.english {
+    color: #1e40af;
+  }
+
+  .summary-section-title.swahili {
+    color: #7c3aed;
+  }
+
+  .summary-section-title.plan {
+    color: var(--primary-green, #7bc148);
+  }
+
+  .summary-section-title i {
+    width: 16px;
+    height: 16px;
+  }
+
+  .summary-text {
+    color: var(--gray-600, #4b5563);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    padding-left: 0.5rem;
+    border-left: 3px solid var(--gray-200, #e5e7eb);
+  }
+
+  .summary-text.english {
+    border-left-color: #93c5fd;
+  }
+
+  .summary-text.swahili {
+    border-left-color: #c4b5fd;
+  }
+
+  .plan-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .plan-steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid var(--gray-100, #f3f4f6);
+    font-size: 0.875rem;
+    color: var(--gray-700, #374151);
+    line-height: 1.5;
+  }
+
+  .plan-steps li:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .plan-steps li:first-child {
+    padding-top: 0;
+  }
+
+  .step-number {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    background: var(--primary-green-bg, rgba(123, 193, 72, 0.1));
+    color: var(--primary-green, #7bc148);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+  }
+
+  .step-content {
+    flex: 1;
+  }
+
+  .step-english {
+    color: var(--gray-700, #374151);
+  }
+
+  .step-swahili {
+    color: var(--gray-500, #6b7280);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+  }
+
+  .step-swahili em {
+    font-style: italic;
+  }
+
+  .summary-text.swahili em {
+    font-style: italic;
+  }
+
+  .no-summary {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--gray-400, #9ca3af);
+    font-size: 0.875rem;
+  }
+
+  .no-summary i {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 0.5rem;
+    color: var(--gray-300, #d1d5db);
+  }
+
+  /* Loading and error states */
+  .loading-state, .error-state, .empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--gray-200, #e5e7eb);
+    border-top-color: var(--primary-green, #7bc148);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .error-state i {
+    width: 48px;
+    height: 48px;
+    color: #dc3545;
+    margin-bottom: 0.75rem;
+  }
+
+  .empty-state i {
+    width: 48px;
+    height: 48px;
+    color: var(--gray-300, #d1d5db);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .history-layout {
+      flex-direction: column;
+    }
+
+    .history-sidebar {
+      width: 100%;
+      max-width: none;
+      height: 45vh;
+      border-right: none;
+      border-bottom: 1px solid var(--gray-200, #e5e7eb);
+    }
+
+    .history-main {
+      height: 55vh;
+    }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-  <h2 class="mb-4"><i class="fas fa-history me-2"></i>My Conversations</h2>
-  <p class="text-muted">Past conversations you own. Click a row to view messages.</p>
-
-  <div id="history-loading" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading…</span></div>
-    <p class="mt-2 text-muted">Loading conversations…</p>
+<!-- Top Menu Bar -->
+<div class="top-menu">
+  <div class="menu-left">
+    <div class="logo">
+      <i data-lucide="activity"></i>
+      <span>Cancer Dx</span>
+    </div>
+    <nav class="nav-links">
+      <a href="{{ url_for('index') }}" class="nav-link">
+        <i data-lucide="home"></i>
+        <span>Home</span>
+      </a>
+      <a href="{{ url_for('history_page') }}" class="nav-link active">
+        <i data-lucide="clock"></i>
+        <span>History</span>
+      </a>
+      {% if current_user.is_authenticated and current_user.is_admin %}
+      <a href="{{ url_for('admin_page') }}" class="nav-link">
+        <i data-lucide="shield"></i>
+        <span>Admin</span>
+      </a>
+      {% endif %}
+    </nav>
   </div>
-  <div id="history-error" class="alert alert-danger d-none" role="alert"></div>
-  <div id="history-empty" class="alert alert-info d-none" role="alert">No conversations yet. Start one from <a href="{{ url_for('index') }}">Search</a>.</div>
+  <div class="menu-right">
+    {% if current_user.is_authenticated %}
+    <div class="user-dropdown">
+      <button class="user-btn" id="userDropdownBtn">
+        <i data-lucide="user"></i>
+        <span>{{ current_user.email }}</span>
+        <i data-lucide="chevron-down"></i>
+      </button>
+      <div class="dropdown-menu" id="userDropdownMenu">
+        <a href="{{ url_for('auth.logout_redirect') }}" class="dropdown-item">
+          <i data-lucide="log-out"></i>
+          <span>Logout</span>
+        </a>
+      </div>
+    </div>
+    {% else %}
+    <a href="{{ url_for('index') }}" class="btn btn-login">
+      <i data-lucide="log-in"></i>
+      <span>Login</span>
+    </a>
+    {% endif %}
+  </div>
+</div>
 
-  <div id="history-table-wrap" class="d-none">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle">
-        <thead class="table-light">
-          <tr>
-            <th>Date</th>
-            <th>Patient</th>
-            <th>Messages</th>
-            <th>Preview</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="history-tbody"></tbody>
-      </table>
+<div class="history-layout">
+  <!-- Left Sidebar - Conversation List -->
+  <div class="history-sidebar">
+    <div class="sidebar-header">
+      <h2>
+        <i data-lucide="clock"></i>
+        My Conversations
+      </h2>
+      <p>Select a conversation to view details</p>
+    </div>
+
+    <div id="sidebar-loading" class="loading-state">
+      <div class="spinner"></div>
+      <p class="text-muted">Loading conversations...</p>
+    </div>
+
+    <div id="sidebar-error" class="error-state d-none">
+      <i data-lucide="alert-circle"></i>
+      <p id="sidebar-error-msg">Failed to load conversations</p>
+      <button onclick="location.reload()" class="btn-action btn-new mt-2">
+        <i data-lucide="refresh-cw"></i> Retry
+      </button>
+    </div>
+
+    <div id="sidebar-empty" class="empty-state d-none">
+      <i data-lucide="message-square"></i>
+      <h4>No conversations yet</h4>
+      <p class="text-muted">Start your first diagnostic conversation</p>
+      <a href="{{ url_for('index') }}" class="btn-action btn-new mt-2">
+        <i data-lucide="plus"></i> Start Conversation
+      </a>
+    </div>
+
+    <div id="conversation-list" class="conversation-list d-none"></div>
+  </div>
+
+  <!-- Right Pane - Conversation Detail -->
+  <div class="history-main">
+    <div id="detail-placeholder" class="detail-placeholder">
+      <i data-lucide="message-square-dashed"></i>
+      <h3>No conversation selected</h3>
+      <p>Select a conversation from the list to view its messages</p>
+    </div>
+
+    <div id="detail-loading" class="detail-placeholder d-none">
+      <div class="spinner"></div>
+      <p>Loading conversation...</p>
+    </div>
+
+    <div id="detail-error" class="detail-placeholder d-none">
+      <i data-lucide="alert-circle"></i>
+      <h3>Error loading conversation</h3>
+      <p id="detail-error-msg">Could not load conversation details</p>
+    </div>
+
+    <div id="detail-content" class="detail-content d-none">
+      <!-- Populated by JavaScript -->
     </div>
   </div>
 </div>
 
 <script>
 (function() {
-  const loading = document.getElementById('history-loading');
-  const errorEl = document.getElementById('history-error');
-  const emptyEl = document.getElementById('history-empty');
-  const tableWrap = document.getElementById('history-table-wrap');
-  const tbody = document.getElementById('history-tbody');
+  // Initialize Lucide icons
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 
+  // User dropdown toggle
+  const userBtn = document.getElementById('userDropdownBtn');
+  const userMenu = document.getElementById('userDropdownMenu');
+  if (userBtn && userMenu) {
+    userBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      userMenu.classList.toggle('show');
+    });
+    document.addEventListener('click', function() {
+      userMenu.classList.remove('show');
+    });
+  }
+
+  // Elements
+  const sidebarLoading = document.getElementById('sidebar-loading');
+  const sidebarError = document.getElementById('sidebar-error');
+  const sidebarErrorMsg = document.getElementById('sidebar-error-msg');
+  const sidebarEmpty = document.getElementById('sidebar-empty');
+  const conversationList = document.getElementById('conversation-list');
+
+  const detailPlaceholder = document.getElementById('detail-placeholder');
+  const detailLoading = document.getElementById('detail-loading');
+  const detailError = document.getElementById('detail-error');
+  const detailErrorMsg = document.getElementById('detail-error-msg');
+  const detailContent = document.getElementById('detail-content');
+
+  let conversations = [];
+  let selectedConvId = null;
+
+  // Load conversations
   fetch('{{ url_for("api_my_conversations") }}', { credentials: 'same-origin' })
     .then(r => r.json())
     .then(data => {
-      loading.classList.add('d-none');
+      sidebarLoading.classList.add('d-none');
+
       if (!data.ok) {
-        errorEl.textContent = data.error || 'Failed to load conversations';
-        errorEl.classList.remove('d-none');
+        sidebarErrorMsg.textContent = data.error || 'Failed to load conversations';
+        sidebarError.classList.remove('d-none');
         return;
       }
-      const convos = data.conversations || [];
-      if (convos.length === 0) {
-        emptyEl.classList.remove('d-none');
+
+      conversations = data.conversations || [];
+
+      if (conversations.length === 0) {
+        sidebarEmpty.classList.remove('d-none');
         return;
       }
-      tableWrap.classList.remove('d-none');
-      convos.forEach(c => {
-        const tr = document.createElement('tr');
-        tr.style.cursor = 'pointer';
-        const date = c.created_at ? new Date(c.created_at).toLocaleString() : '—';
-        const rawPatient = c.patient_label != null ? String(c.patient_label).trim() : '';
-        const patient = rawPatient ? rawPatient : '—';
-        const preview = (c.preview || '').substring(0, 60) + ((c.preview || '').length > 60 ? '…' : '');
-        const detailUrl = '/history/' + encodeURIComponent(c.id);
-        const actionsCell = '<td class="text-nowrap"><a href="' + detailUrl + '" class="btn btn-sm btn-outline-primary me-1">View</a><button type="button" class="btn btn-sm btn-outline-danger delete-conv" data-id="' + c.id + '" title="Delete"><i class="fas fa-trash-alt"></i></button></td>';
-        tr.innerHTML = '<td>' + date + '</td><td>' + patient + '</td><td>' + (c.message_count || 0) + '</td><td class="text-muted small">' + preview + '</td>' + actionsCell;
-        tr.addEventListener('click', function(e) {
-          if (!e.target.closest('a') && !e.target.closest('button.delete-conv')) window.location.href = detailUrl;
-        });
-        const delBtn = tr.querySelector('.delete-conv');
-        delBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          const id = delBtn.getAttribute('data-id');
-          if (!confirm('Delete this conversation? This cannot be undone.')) return;
-          fetch('/api/conversations/' + encodeURIComponent(id), {
-            method: 'DELETE',
-            credentials: 'same-origin',
-            headers: { 'X-CSRFToken': (window.CSRF_TOKEN || '') }
-          })
-            .then(r => r.json().catch(() => ({})))
-            .then(data => {
-              if (data.ok) {
-                tr.remove();
-                if (tbody.querySelectorAll('tr').length === 0) {
-                  tableWrap.classList.add('d-none');
-                  emptyEl.classList.remove('d-none');
-                }
-              } else {
-                alert(data.error || 'Could not delete');
-              }
-            })
-            .catch(() => alert('Network error'));
-        });
-        tbody.appendChild(tr);
-      });
+
+      conversationList.classList.remove('d-none');
+      renderConversationList();
     })
     .catch(err => {
-      loading.classList.add('d-none');
-      errorEl.textContent = 'Network error: ' + err.message;
-      errorEl.classList.remove('d-none');
+      sidebarLoading.classList.add('d-none');
+      sidebarErrorMsg.textContent = 'Network error: ' + err.message;
+      sidebarError.classList.remove('d-none');
     });
+
+  function renderConversationList() {
+    conversationList.innerHTML = '';
+
+    conversations.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'conversation-item' + (c.id === selectedConvId ? ' active' : '');
+      div.dataset.id = c.id;
+
+      const date = c.created_at ? new Date(c.created_at).toLocaleDateString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      }) : '—';
+
+      const rawPatient = c.patient_label != null ? String(c.patient_label).trim() : '';
+      const patient = rawPatient || 'Unknown Patient';
+      const preview = (c.preview || 'No messages yet').substring(0, 100) + ((c.preview || '').length > 100 ? '...' : '');
+
+      div.innerHTML = `
+        <div class="conv-header">
+          <span class="conv-patient">
+            <i data-lucide="user"></i>
+            ${escapeHtml(patient)}
+          </span>
+          <button type="button" class="delete-conv-btn" data-id="${c.id}" title="Delete conversation">
+            <i data-lucide="trash-2"></i>
+          </button>
+        </div>
+        <div class="conv-preview">${escapeHtml(preview)}</div>
+        <div class="conv-meta">
+          <span><i data-lucide="calendar"></i> ${date}</span>
+          <span><i data-lucide="message-circle"></i> ${c.message_count || 0} messages</span>
+        </div>
+      `;
+
+      // Click to select
+      div.addEventListener('click', function(e) {
+        if (!e.target.closest('.delete-conv-btn')) {
+          selectConversation(c.id);
+        }
+      });
+
+      // Delete button
+      const delBtn = div.querySelector('.delete-conv-btn');
+      delBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        deleteConversation(c.id, div);
+      });
+
+      conversationList.appendChild(div);
+    });
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  function selectConversation(convId) {
+    selectedConvId = convId;
+
+    // Update active state in list
+    document.querySelectorAll('.conversation-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.id === convId);
+    });
+
+    // Show loading
+    detailPlaceholder.classList.add('d-none');
+    detailError.classList.add('d-none');
+    detailContent.classList.add('d-none');
+    detailLoading.classList.remove('d-none');
+
+    // Fetch conversation details
+    fetch('/api/conversations/' + encodeURIComponent(convId) + '/messages', { credentials: 'same-origin' })
+      .then(r => r.json())
+      .then(data => {
+        detailLoading.classList.add('d-none');
+
+        if (!data.ok) {
+          detailErrorMsg.textContent = data.error || 'Failed to load conversation';
+          detailError.classList.remove('d-none');
+          return;
+        }
+
+        renderConversationDetail(convId, data);
+      })
+      .catch(err => {
+        detailLoading.classList.add('d-none');
+        detailErrorMsg.textContent = 'Network error: ' + err.message;
+        detailError.classList.remove('d-none');
+      });
+  }
+
+  // Parse summary/plan from Listener messages
+  function parseSummaryPlan(messages) {
+    // Find Listener messages that contain summary/plan
+    const listenerMsgs = messages.filter(m =>
+      m.role === 'Listener' ||
+      (m.message && (m.message.includes('**English Summary:**') || m.message.includes('**FINAL PLAN')))
+    );
+
+    if (listenerMsgs.length === 0) return null;
+
+    // Combine all listener content
+    const content = listenerMsgs.map(m => m.message).join('\n\n');
+
+    // Helper to clean extracted text - removes markdown and extra whitespace
+    function cleanText(text) {
+      return (text || '')
+        .replace(/\*\*[^*]+\*\*/g, '') // Remove any **bold** markers
+        .replace(/^[-•]\s*/gm, '') // Remove bullet points
+        .replace(/\n+/g, ' ')
+        .trim();
+    }
+
+    // Extract English Summary - stop at Swahili Summary, FINAL PLAN, or any other ** marker
+    let englishSummary = '';
+    const englishMatch = content.match(/\*\*English Summary:\*\*\s*([\s\S]*?)(?=\*\*Swahili|\*\*FINAL|\*\*[A-Z]|$)/i);
+    if (englishMatch) {
+      englishSummary = cleanText(englishMatch[1]);
+    }
+
+    // Extract Swahili Summary - stop at FINAL PLAN, English Summary, or any other ** marker
+    let swahiliSummary = '';
+    const swahiliMatch = content.match(/\*\*Swahili Summary:\*\*\s*([\s\S]*?)(?=\*\*FINAL|\*\*English|\*\*[A-Z]|$)/i);
+    if (swahiliMatch) {
+      swahiliSummary = cleanText(swahiliMatch[1]);
+    }
+
+    // Extract Final Plan steps - match **FINAL PLAN** or **FINAL PLAN:**
+    let planSteps = [];
+    const planMatch = content.match(/\*\*FINAL PLAN:?\*\*\s*([\s\S]*?)(?=\*\*English|\*\*Swahili|$)/i);
+    if (planMatch) {
+      const planText = planMatch[1].trim();
+      // Match steps like "- Step 1: ... / Swahili" or "- Step 1: ..."
+      const stepRegex = /[-•]\s*Step\s*(\d+):\s*([^/\n]+)(?:\s*\/\s*([^\n]+))?/gi;
+      let match;
+      while ((match = stepRegex.exec(planText)) !== null) {
+        planSteps.push({
+          number: match[1],
+          english: match[2].trim(),
+          swahili: match[3] ? match[3].trim() : ''
+        });
+      }
+
+      // If no steps matched, try simpler bullet format
+      if (planSteps.length === 0) {
+        const lines = planText.split('\n').filter(l => l.trim().match(/^[-•]/));
+        lines.forEach((line, idx) => {
+          const cleaned = line.replace(/^[-•]\s*/, '').trim();
+          // Skip if this looks like another section header
+          if (cleaned && !cleaned.match(/^\*\*/)) {
+            const parts = cleaned.split(/\s*\/\s*/);
+            planSteps.push({
+              number: (idx + 1).toString(),
+              english: parts[0] || cleaned,
+              swahili: parts[1] || ''
+            });
+          }
+        });
+      }
+    }
+
+    return {
+      englishSummary,
+      swahiliSummary,
+      planSteps
+    };
+  }
+
+  // Render summary/plan card
+  function renderSummaryPlanCard(summaryData) {
+    if (!summaryData || (!summaryData.englishSummary && !summaryData.swahiliSummary && summaryData.planSteps.length === 0)) {
+      return `
+        <div class="summary-plan-card">
+          <div class="summary-plan-header">
+            <i data-lucide="clipboard-list"></i>
+            Summary & Plan
+          </div>
+          <div class="no-summary">
+            <i data-lucide="file-question"></i>
+            <p>No summary available for this conversation.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    let sectionsHtml = '';
+
+    // English Summary
+    if (summaryData.englishSummary) {
+      sectionsHtml += `
+        <div class="summary-section">
+          <div class="summary-section-title english">
+            <strong>English Summary:</strong>
+          </div>
+          <div class="summary-text english">${escapeHtml(summaryData.englishSummary)}</div>
+        </div>
+      `;
+    }
+
+    // Swahili Summary
+    if (summaryData.swahiliSummary) {
+      sectionsHtml += `
+        <div class="summary-section">
+          <div class="summary-section-title swahili">
+            <strong>Swahili Summary:</strong>
+          </div>
+          <div class="summary-text swahili"><em>${escapeHtml(summaryData.swahiliSummary)}</em></div>
+        </div>
+      `;
+    }
+
+    // Final Plan Steps
+    if (summaryData.planSteps.length > 0) {
+      const stepsHtml = summaryData.planSteps.map(step => `
+        <li>
+          <span class="step-number">${escapeHtml(step.number)}</span>
+          <div class="step-content">
+            <div class="step-english">${escapeHtml(step.english)}</div>
+            ${step.swahili ? `<div class="step-swahili"><em>${escapeHtml(step.swahili)}</em></div>` : ''}
+          </div>
+        </li>
+      `).join('');
+
+      sectionsHtml += `
+        <div class="summary-section">
+          <div class="summary-section-title plan">
+            <strong>FINAL PLAN:</strong>
+          </div>
+          <ol class="plan-steps">${stepsHtml}</ol>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="summary-plan-card">
+        <div class="summary-plan-header">
+          <i data-lucide="clipboard-list"></i>
+          Summary & Plan
+        </div>
+        <div class="summary-plan-content">
+          ${sectionsHtml}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderConversationDetail(convId, data) {
+    const conv = conversations.find(c => c.id === convId);
+    const messages = data.messages || [];
+
+    const date = conv && conv.created_at ? new Date(conv.created_at).toLocaleString() : '—';
+    const patient = data.patient_label || (conv && conv.patient_label) || '—';
+    const patientId = data.patient_id || (conv && conv.patient_id) || '';
+
+    const newConvUrl = patientId
+      ? '{{ url_for("new_conversation") }}?patient_id=' + encodeURIComponent(patientId)
+      : '{{ url_for("new_conversation") }}';
+
+    // Parse summary and plan from Listener messages
+    const summaryData = parseSummaryPlan(messages);
+    const summaryPlanHtml = renderSummaryPlanCard(summaryData);
+
+    // Format Listener message content with bold headers and italics for Swahili
+    function formatListenerMessage(text) {
+      if (!text) return '—';
+
+      let formatted = escapeHtml(text);
+
+      // Bold the section headers
+      formatted = formatted.replace(/\*\*English Summary:\*\*/gi, '<strong>English Summary:</strong>');
+      formatted = formatted.replace(/\*\*Swahili Summary:\*\*/gi, '<strong>Swahili Summary:</strong>');
+      formatted = formatted.replace(/\*\*FINAL PLAN:?\*\*/gi, '<strong>FINAL PLAN:</strong>');
+
+      // Format steps: "- Step N: English / Swahili" -> formatted with italics for Swahili
+      formatted = formatted.replace(
+        /[-•]\s*Step\s*(\d+):\s*([^/\n]+?)(?:\s*\/\s*([^\n]+))?(?=\n|$)/gi,
+        (match, num, eng, swa) => {
+          const swaPart = swa ? `<br><em style="color:#6b7280;font-size:0.9em;margin-left:1.5rem;">${swa.trim()}</em>` : '';
+          return `<strong>${num}.</strong> ${eng.trim()}${swaPart}`;
+        }
+      );
+
+      // Convert newlines to <br>
+      formatted = formatted.replace(/\n/g, '<br>');
+
+      return formatted;
+    }
+
+    // Include all messages (Listener messages will be formatted specially)
+    const chatMessages = messages;
+    const actualChatCount = messages.filter(m => m.role !== 'Listener').length;
+
+    let messagesHtml = '';
+    if (chatMessages.length === 0) {
+      messagesHtml = `
+        <div class="empty-messages">
+          <i data-lucide="message-square-off"></i>
+          <p>No messages in this conversation.</p>
+        </div>
+      `;
+    } else {
+      messagesHtml = chatMessages.map(m => {
+        const isListener = m.role === 'Listener';
+        // Check if message contains summary/plan content (regardless of role)
+        const hasSummaryContent = m.message && (
+          m.message.includes('**English Summary:**') ||
+          m.message.includes('**Swahili Summary:**') ||
+          m.message.includes('**FINAL PLAN')
+        );
+
+        const roleClass = m.role === 'patient' ? 'role-patient'
+          : m.role === 'clinician' ? 'role-clinician'
+          : (m.role === 'Question Recommender' || m.type === 'question_recommender') ? 'role-recommender'
+          : isListener ? 'role-listener'
+          : 'role-system';
+
+        const roleIcon = m.role === 'patient' ? 'user'
+          : m.role === 'clinician' ? 'stethoscope'
+          : (m.role === 'Question Recommender' || m.type === 'question_recommender') ? 'lightbulb'
+          : isListener ? 'clipboard-list'
+          : 'bot';
+
+        const timestamp = m.timestamp || '';
+
+        // Format messages with summary/plan content specially
+        const messageContent = (isListener || hasSummaryContent)
+          ? formatListenerMessage(m.message)
+          : escapeHtml(m.message || '—');
+
+        return `
+          <div class="message-item${isListener ? ' listener-message' : ''}">
+            <div class="message-meta">
+              <span class="role-badge ${roleClass}">
+                <i data-lucide="${roleIcon}"></i>
+                ${escapeHtml(m.role || 'message')}
+              </span>
+              <span class="message-time">${escapeHtml(timestamp)}</span>
+            </div>
+            <div class="message-content">${messageContent}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    detailContent.innerHTML = `
+      <div class="detail-header">
+        <h2>
+          <i data-lucide="message-square"></i>
+          Conversation Details
+        </h2>
+        <div class="detail-actions">
+          <button type="button" class="btn-action btn-delete" id="deleteCurrentBtn">
+            <i data-lucide="trash-2"></i> Delete
+          </button>
+          <a href="${newConvUrl}" class="btn-action btn-new">
+            <i data-lucide="plus"></i> New Conversation
+          </a>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-item">
+          <i data-lucide="calendar"></i>
+          <strong>Started:</strong>
+          <span>${escapeHtml(date)}</span>
+        </div>
+        <div class="info-item">
+          <i data-lucide="user"></i>
+          <strong>Patient:</strong>
+          <span>${escapeHtml(patient)}</span>
+        </div>
+        <div class="info-item">
+          <i data-lucide="message-circle"></i>
+          <strong>Messages:</strong>
+          <span>${actualChatCount}</span>
+        </div>
+      </div>
+
+      ${summaryPlanHtml}
+
+      <div class="messages-card">
+        <div class="messages-header">
+          <i data-lucide="messages-square"></i>
+          Messages
+        </div>
+        <div class="messages-list">
+          ${messagesHtml}
+        </div>
+      </div>
+    `;
+
+    detailContent.classList.remove('d-none');
+
+    // Wire delete button
+    const deleteBtn = document.getElementById('deleteCurrentBtn');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', function() {
+        const item = document.querySelector('.conversation-item[data-id="' + convId + '"]');
+        deleteConversation(convId, item);
+      });
+    }
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  function deleteConversation(convId, listItemEl) {
+    if (!confirm('Delete this conversation? This cannot be undone.')) return;
+
+    fetch('/api/conversations/' + encodeURIComponent(convId), {
+      method: 'DELETE',
+      credentials: 'same-origin',
+      headers: { 'X-CSRFToken': (window.CSRF_TOKEN || '') }
+    })
+      .then(r => r.json().catch(() => ({})))
+      .then(data => {
+        if (data.ok) {
+          // Remove from array
+          conversations = conversations.filter(c => c.id !== convId);
+
+          // Remove from list
+          if (listItemEl) listItemEl.remove();
+
+          // If this was selected, clear detail
+          if (selectedConvId === convId) {
+            selectedConvId = null;
+            detailContent.classList.add('d-none');
+            detailPlaceholder.classList.remove('d-none');
+          }
+
+          // Show empty state if no more conversations
+          if (conversations.length === 0) {
+            conversationList.classList.add('d-none');
+            sidebarEmpty.classList.remove('d-none');
+          }
+        } else {
+          alert(data.error || 'Could not delete conversation');
+        }
+      })
+      .catch(() => alert('Network error'));
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+  }
 })();
 </script>
 {% endblock %}
