@@ -50,7 +50,7 @@ function renderTopCliniciansTable(sum) {
   tbodyClin.innerHTML = '';
   (sum.series?.top_clinicians || []).forEach(row => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${escapeHtml(row.email)}</td><td>${row.count}</td>`;
+    tr.innerHTML = `<td>${escapeHtml(row.display_name || row.email || '—')}</td><td>${row.count}</td>`;
     tbodyClin.appendChild(tr);
   });
 }
@@ -60,17 +60,20 @@ function renderConversationRows(conversations) {
   const tbody = document.querySelector('#tbl-convos tbody');
   if (!tbody) return;
   conversations.forEach(c => {
-    const ownerTxt = c.owner_email
-      ? c.owner_email
-      : (c.owner_user_id != null ? String(c.owner_user_id)
-      : (c.owner ?? '-'));
+    const ownerTxt = c.owner_display_name ?? c.owner_email ?? (c.owner_user_id != null ? String(c.owner_user_id) : '—');
+    const patientTxt = c.patient_label ?? (c.patient_id ? 'Patient' : '—');
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="text-truncate" style="max-width:260px">${escapeHtml(c.id)}</td>
       <td>${escapeHtml(String(ownerTxt))}</td>
+      <td>${escapeHtml(String(patientTxt))}</td>
       <td>${new Date(c.created_at).toLocaleString()}</td>
-      <td><button class="btn btn-sm btn-outline-primary" data-cid="${escapeHtml(c.id)}">View</button></td>
+      <td class="text-center">${c.message_count ?? 0}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary me-1" data-cid="${escapeHtml(c.id)}">View</button>
+        <button class="btn btn-sm btn-outline-danger" data-del="${escapeHtml(c.id)}">Delete</button>
+      </td>
     `;
     tbody.appendChild(tr);
   });
@@ -162,10 +165,7 @@ function renderPerConversationSymptoms(symData) {
   if (!tbody) return;
   tbody.innerHTML = '';
   (symData.by_conversation || []).forEach(row => {
-    const ownerTxt = row.owner_email
-      ? row.owner_email
-      : (row.owner_user_id != null ? String(row.owner_user_id)
-      : (row.owner ?? '—'));
+    const ownerTxt = row.owner_display_name ?? row.owner_email ?? (row.owner_user_id != null ? String(row.owner_user_id) : '—');
 
     const symList = Object.entries(row.symptoms || {}).slice(0, 5)
       .map(([s, c]) => `${escapeHtml(s)} (${c})`).join(', ') || '—';
@@ -209,14 +209,28 @@ async function fetchAndShowLikelihoods(cid) {
 }
 
 // ---- Paging state ----
-const convoPager = { page: 1, size: 20, loading: false, done: false };
+const convoPager = { page: 1, size: 20, loading: false, done: false, clinicianId: null };
 
-async function loadMoreConversations() {
-  if (convoPager.loading || convoPager.done) return;
+function getConversationsUrl() {
+  const params = new URLSearchParams({ page: convoPager.page, size: convoPager.size });
+  if (convoPager.clinicianId != null && convoPager.clinicianId !== '') {
+    params.set('clinician_id', convoPager.clinicianId);
+  }
+  return `/admin/api/conversations?${params.toString()}`;
+}
+
+async function loadMoreConversations(append) {
+  if (convoPager.loading) return;
+  if (append && convoPager.done) return;
+  if (!append) resetConversationsPager();
   convoPager.loading = true;
   try {
-    const j = await getJSON(`/admin/api/conversations?page=${convoPager.page}&size=${convoPager.size}`);
+    const j = await getJSON(getConversationsUrl());
     if (j.ok === false) throw new Error(j.error || 'Failed to load conversations');
+    if (!append) {
+      const tbody = document.querySelector('#tbl-convos tbody');
+      if (tbody) tbody.innerHTML = '';
+    }
     renderConversationRows(j.conversations || []);
     convoPager.page += 1;
 
@@ -234,10 +248,24 @@ async function loadMoreConversations() {
   }
 }
 
+function resetConversationsPager() {
+  convoPager.page = 1;
+  convoPager.done = false;
+  const btn = document.getElementById('load-more');
+  if (btn) btn.disabled = false;
+}
+
 // ---- Main init ----
 async function adminInit() {
   const err = document.getElementById('admin-error');
   try {
+    // CSRF token for DELETE
+    try {
+      const r = await fetch('/csrf-token', { credentials: 'same-origin' });
+      const j = await r.json();
+      if (j.csrfToken) window.CSRF_TOKEN = j.csrfToken;
+    } catch (_) {}
+
     // Summary/KPIs
     const sum = await getJSON('/admin/api/summary');
     if (sum.ok === false) throw new Error(sum.error || 'Summary failed');
@@ -246,8 +274,28 @@ async function adminInit() {
     renderConversationsPerDayChart(sum);
     renderTopCliniciansTable(sum);
 
+    // Clinicians dropdown for filter
+    const cliniciansRes = await getJSON('/admin/api/clinicians');
+    const clinicians = (cliniciansRes.ok && cliniciansRes.clinicians) ? cliniciansRes.clinicians : [];
+    const filterSelect = document.getElementById('admin-clinician-filter');
+    if (filterSelect) {
+      clinicians.forEach(cl => {
+        const opt = document.createElement('option');
+        opt.value = cl.id;
+        opt.textContent = (cl.display_name || cl.email || `User ${cl.id}`) + ` (${cl.conversations})`;
+        filterSelect.appendChild(opt);
+      });
+      filterSelect.addEventListener('change', () => {
+        convoPager.clinicianId = filterSelect.value === '' ? null : filterSelect.value;
+        resetConversationsPager();
+        const tbody = document.querySelector('#tbl-convos tbody');
+        if (tbody) tbody.innerHTML = '';
+        loadMoreConversations(false);
+      });
+    }
+
     // Conversations list
-    await loadMoreConversations();
+    await loadMoreConversations(false);
 
     // Symptoms data -> chart + per-conv table
     const sym = await getJSON('/admin/api/symptoms');
@@ -256,15 +304,41 @@ async function adminInit() {
     renderPerConversationSymptoms(sym);
 
     // Bind once
-    document.getElementById('load-more')?.addEventListener('click', loadMoreConversations);
+    document.getElementById('load-more')?.addEventListener('click', () => loadMoreConversations(true));
 
-    // Clicks in conversations table (View transcript / Likelihoods)
+    // Clicks in conversations table (View transcript / Delete)
     document.querySelector('#tbl-convos')?.addEventListener('click', async (e) => {
       const btnView = e.target.closest('button[data-cid]');
-      const btnLike = e.target.closest('button[data-like]');
+      const btnDel  = e.target.closest('button[data-del]');
       try {
-        if (btnView) await showConversation(btnView.getAttribute('data-cid'));
-        if (btnLike) await fetchAndShowLikelihoods(btnLike.getAttribute('data-like'));
+        if (btnView) {
+          await showConversation(btnView.getAttribute('data-cid'));
+        }
+        if (btnDel) {
+          const cid = btnDel.getAttribute('data-del');
+          if (!cid) return;
+          if (!confirm(`Delete conversation ${cid}? This cannot be undone.`)) return;
+          const r = await fetch(`/admin/api/conversation/${encodeURIComponent(cid)}`, {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: { 'X-CSRFToken': (window.CSRF_TOKEN || '') }
+          });
+          if (!r.ok) {
+            const txt = await r.text();
+            throw new Error(`Delete failed: ${txt}`);
+          }
+          const j = await r.json();
+          if (j.ok === false) {
+            throw new Error(j.error || 'Delete failed');
+          }
+          // Remove row
+          btnDel.closest('tr')?.remove();
+          // If this conversation was shown in detail, clear panel
+          const detail = document.getElementById('conv-detail');
+          if (detail && detail.textContent.includes(cid)) {
+            detail.innerHTML = '';
+          }
+        }
       } catch (ex) {
         if (err) { err.style.display = ''; err.textContent = ex.message; }
       }

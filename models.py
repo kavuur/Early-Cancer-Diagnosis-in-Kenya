@@ -1,5 +1,6 @@
 # models.py
 import os
+import re
 from datetime import datetime
 from sqlalchemy import create_engine, Column, String, Text, DateTime, ForeignKey, Integer
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship, scoped_session, joinedload
@@ -231,6 +232,20 @@ def update_conversation_patient(conversation_id: str, user_id: int, patient_id: 
         db.close()
 
 
+def delete_conversation_by_id(conversation_id: str) -> bool:
+    """Admin helper: delete a conversation (and its messages) regardless of owner."""
+    db = SessionLocal()
+    try:
+        c = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+        if c is None:
+            return False
+        db.delete(c)
+        db.commit()
+        return True
+    finally:
+        db.close()
+
+
 def delete_conversation_if_owned_by(conversation_id: str, user_id: int) -> bool:
     """Delete this conversation if owned by user (messages cascade). Returns True if deleted."""
     db = SessionLocal()
@@ -253,6 +268,26 @@ def delete_conversation_if_owned_by(conversation_id: str, user_id: int) -> bool:
 
 
 # --- Patient helpers ---
+_P_ID_RE = re.compile(r"^P(\d+)$", re.IGNORECASE)
+
+
+def get_next_global_patient_identifier() -> str:
+    """Next patient identifier (P001, P002, ...) from the latest in the DB, so counts continue globally across clinicians."""
+    db = SessionLocal()
+    try:
+        rows = db.query(Patient.identifier).all()
+        max_n = 0
+        for (ident,) in rows:
+            if not ident:
+                continue
+            m = _P_ID_RE.match(ident.strip())
+            if m:
+                max_n = max(max_n, int(m.group(1)))
+        return f"P{max_n + 1:03d}"
+    finally:
+        db.close()
+
+
 def list_patients_for_user(clinician_id: int):
     """Patients created by this clinician."""
     db = SessionLocal()

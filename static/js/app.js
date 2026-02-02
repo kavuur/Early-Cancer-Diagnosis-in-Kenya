@@ -1093,7 +1093,7 @@ async function startLive() {
   liveRecorder.addEventListener('dataavailable', (evt) => {
     if (!liveActive || !evt.data || !evt.data.size) return;
     if (liveWS?.readyState === WebSocket.OPEN) {
-      evt.data.arrayBuffer().then(buf => { try { liveWS.send(buf); } catch {} });
+      evt.data.arrayBuffer().then(buf => { try { liveWS.send(buf); } catch { } });
     }
   });
   liveRecorder.start(250);
@@ -1106,15 +1106,15 @@ async function startLive() {
 
 async function stopLive() {
   liveActive = false;
-  try { liveRecorder?.requestData?.(); } catch {}
+  try { liveRecorder?.requestData?.(); } catch { }
   await new Promise(r => setTimeout(r, 60));
   try {
     if (liveRecorder && liveRecorder.state !== 'inactive') {
       await new Promise(res => { liveRecorder.addEventListener('stop', res, { once: true }); liveRecorder.stop(); });
     }
-  } catch {}
-  try { liveMediaStream?.getTracks().forEach(t => t.stop()); } catch {}
-  try { liveWS?.close(); } catch {}
+  } catch { }
+  try { liveMediaStream?.getTracks().forEach(t => t.stop()); } catch { }
+  try { liveWS?.close(); } catch { }
 
   const startBtn = document.getElementById('startLiveBtn');
   const stopBtn = document.getElementById('stopLiveBtn');
