@@ -323,6 +323,170 @@ def delete_conversation(cid):
 
 
 # --------------------------
+# User Management
+# --------------------------
+@admin_bp.get("/api/users")
+@login_required
+def list_users():
+    """List all users with their roles."""
+    if not _require_admin():
+        return admin_guard()
+
+    db = SessionLocal()
+    try:
+        users = db.query(User).order_by(User.id.desc()).all()
+        result = []
+        for u in users:
+            result.append({
+                "id": u.id,
+                "email": u.email,
+                "username": u.username,
+                "display_name": _user_display_name(u),
+                "roles": [r.name for r in u.roles],
+                "created_at": u.created_at.isoformat() if hasattr(u, 'created_at') and u.created_at else None
+            })
+        return jsonify({"ok": True, "users": result})
+    finally:
+        db.close()
+
+
+@admin_bp.post("/api/users")
+@login_required
+def create_user():
+    """Create a new user with roles."""
+    if not _require_admin():
+        return admin_guard()
+
+    data = request.get_json(force=True, silent=True) or {}
+    email = (data.get("email") or "").strip()
+    username = (data.get("username") or "").strip()
+    password = (data.get("password") or "").strip()
+    role_names = data.get("roles") or []
+
+    if not email:
+        return jsonify({"ok": False, "error": "Email is required"}), 400
+    if not password:
+        return jsonify({"ok": False, "error": "Password is required"}), 400
+
+    db = SessionLocal()
+    try:
+        # Check if user already exists
+        existing = db.query(User).filter(User.email == email).first()
+        if existing:
+            return jsonify({"ok": False, "error": "User with this email already exists"}), 400
+
+        # Create user
+        from security import hash_password
+        new_user = User(
+            email=email,
+            username=username or None,
+            password_hash=hash_password(password)
+        )
+        db.add(new_user)
+        db.flush()
+
+        # Assign roles
+        for role_name in role_names:
+            role = db.query(Role).filter(Role.name == role_name).first()
+            if role:
+                new_user.roles.append(role)
+
+        db.commit()
+        return jsonify({
+            "ok": True,
+            "user_id": new_user.id,
+            "email": new_user.email
+        })
+    except Exception as e:
+        db.rollback()
+        return jsonify({"ok": False, "error": str(e)}), 500
+    finally:
+        db.close()
+
+
+@admin_bp.put("/api/users/<int:user_id>")
+@login_required
+def update_user(user_id):
+    """Update user roles."""
+    if not _require_admin():
+        return admin_guard()
+
+    data = request.get_json(force=True, silent=True) or {}
+    role_names = data.get("roles") or []
+    username = data.get("username")
+
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return jsonify({"ok": False, "error": "User not found"}), 404
+
+        # Update username if provided
+        if username is not None:
+            user.username = username.strip() or None
+
+        # Update roles
+        user.roles = []
+        for role_name in role_names:
+            role = db.query(Role).filter(Role.name == role_name).first()
+            if role:
+                user.roles.append(role)
+
+        db.commit()
+        return jsonify({"ok": True})
+    except Exception as e:
+        db.rollback()
+        return jsonify({"ok": False, "error": str(e)}), 500
+    finally:
+        db.close()
+
+
+@admin_bp.delete("/api/users/<int:user_id>")
+@login_required
+def delete_user(user_id):
+    """Delete a user."""
+    if not _require_admin():
+        return admin_guard()
+
+    # Prevent deleting yourself
+    if current_user.id == user_id:
+        return jsonify({"ok": False, "error": "Cannot delete your own account"}), 400
+
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return jsonify({"ok": False, "error": "User not found"}), 404
+
+        db.delete(user)
+        db.commit()
+        return jsonify({"ok": True})
+    except Exception as e:
+        db.rollback()
+        return jsonify({"ok": False, "error": str(e)}), 500
+    finally:
+        db.close()
+
+
+@admin_bp.get("/api/roles")
+@login_required
+def list_roles():
+    """List all available roles."""
+    if not _require_admin():
+        return admin_guard()
+
+    db = SessionLocal()
+    try:
+        roles = db.query(Role).all()
+        return jsonify({
+            "ok": True,
+            "roles": [{"id": r.id, "name": r.name} for r in roles]
+        })
+    finally:
+        db.close()
+
+
+# --------------------------
 # Admin: create patient (identifier continues from latest in DB)
 # --------------------------
 @admin_bp.post("/api/patients")

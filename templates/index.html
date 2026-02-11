@@ -1,774 +1,414 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-  <!-- Header Section -->
-  <div class="row mb-4">
-    <div class="col-lg-8 mx-auto text-center">
-      <h1 class="display-4 text-primary mb-3">
-        <i class="fas fa-user-md me-3"></i>
-        Medical Case Search
-      </h1>
-      <p class="lead text-muted">
-        Search for similar medical cases using AI-powered similarity matching.
-        Enter symptoms or patient descriptions to find relevant cases and suggested questions.
-      </p>
+<!-- Auth Gate -->
+<div id="auth-gate" class="auth-gate">
+  <div class="auth-card">
+    <!-- Error banner -->
+    <div id="auth-error" class="alert alert-danger d-none" role="alert"></div>
+
+    <!-- LOGIN CARD -->
+    <div id="login-card">
+      <h4>Welcome back</h4>
+      <form id="login-form">
+        <div class="mb-3">
+          <label for="login-email" class="form-label">Email</label>
+          <input type="email" id="login-email" class="form-control" autocomplete="username" required>
+        </div>
+        <div class="mb-3">
+          <label for="login-password" class="form-label">Password</label>
+          <input type="password" id="login-password" class="form-control" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Log in</button>
+      </form>
+      <div class="text-center mt-3">
+        <small class="text-muted">No account?</small>
+        <button class="btn btn-link p-0 align-baseline" data-action="show-signup">Create one</button>
+      </div>
+    </div>
+
+    <!-- SIGNUP CARD (hidden by default) -->
+    <div id="signup-card" class="d-none">
+      <h4>Create your account</h4>
+      <form id="signup-form">
+        <div class="mb-3">
+          <label for="signup-username" class="form-label">Username</label>
+          <input type="text" id="signup-username" class="form-control" autocomplete="username" minlength="2"
+            maxlength="64" placeholder="How you want to be shown (e.g. Dr. Jane)" required>
+          <div class="form-text">Letters, numbers, . _ - only. 2-64 characters.</div>
+        </div>
+        <div class="mb-3">
+          <label for="signup-email" class="form-label">Email</label>
+          <input type="email" id="signup-email" class="form-control" autocomplete="email" required>
+        </div>
+        <div class="mb-3">
+          <label for="signup-password" class="form-label">Password</label>
+          <input type="password" id="signup-password" class="form-control" autocomplete="new-password" required>
+        </div>
+        <button type="submit" class="btn btn-success w-100">Sign up</button>
+      </form>
+      <div class="text-center mt-3">
+        <small class="text-muted">Already have an account?</small>
+        <button class="btn btn-link p-0 align-baseline" data-action="show-login">Log in</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if current_user.is_authenticated %}
+<!-- Top Menu Bar -->
+<nav class="top-menu-bar">
+  <div class="menu-brand">
+    <i data-lucide="activity" style="width:20px;height:20px;color:var(--primary-green)"></i>
+    <span>Early Cancer Diagnosis</span>
+  </div>
+  <div class="menu-right">
+    <a href="{{ url_for('history_page') }}" class="nav-link-custom">
+      <i data-lucide="history" style="width:14px;height:14px"></i>
+      History
+    </a>
+    {% for role in current_user.roles %}
+    {% if role.name == "admin" %}
+    <a href="{{ url_for('admin_page') }}" class="admin-link">
+      <i data-lucide="settings" style="width:14px;height:14px"></i>
+      Admin
+    </a>
+    {% endif %}
+    {% endfor %}
+    <span class="user-info" id="whoami">
+      <i data-lucide="user" style="width:14px;height:14px"></i>
+      {% if current_user.username %}{{ current_user.username }}{% elif current_user.email %}{{ current_user.email.split('@')[0] }}{% else %}User{% endif %}
+    </span>
+    <button id="logout-btn" class="logout-btn">
+      <i data-lucide="log-out" style="width:14px;height:14px"></i>
+      Log out
+    </button>
+  </div>
+</nav>
+
+<!-- Main App Container -->
+<div id="app-container" class="app-container">
+
+  <!-- Left Panel -->
+  <div class="panel panel-left custom-scrollbar" id="panel-left" style="width: 340px;">
+    <div class="panel-content">
+
+      <!-- Header -->
+      <div class="panel-header">
+        <div class="panel-header-icon">
+          <i data-lucide="stethoscope"></i>
+        </div>
+        <div class="panel-header-text">
+          <h1>Medical Case Search</h1>
+          <p>AI-powered matching</p>
+        </div>
+      </div>
+
+      <!-- Search Section -->
+      <div class="space-y">
+        <div class="section-label">
+          <i data-lucide="sparkles" class="orange"></i>
+          Cancer Q-Recommender
+        </div>
+
+        <div class="search-input-wrapper">
+          <i data-lucide="search"></i>
+          <input type="text" id="searchQuery" class="search-input" placeholder="Enter symptoms...">
+        </div>
+
+        <div class="search-row">
+          <select id="maxResults" class="custom-select">
+            <option value="5">5 Results</option>
+            <option value="10">10 Results</option>
+          </select>
+          <button type="button" id="searchBtn" class="btn-green">
+            <i data-lucide="search"></i>
+            Search
+          </button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Conversation Controls -->
+      <div class="space-y">
+        <div class="controls-row">
+          <span class="section-label" style="margin-bottom:0">
+            <i data-lucide="file-text" class="green"></i>
+            Agents Conversation
+          </span>
+          <button type="button" id="resetBtn" class="btn-orange-outline">
+            <i data-lucide="refresh-cw" style="width:10px;height:10px"></i>
+            Reset
+          </button>
+        </div>
+
+        <!-- Mode & Language Settings -->
+        <div class="controls-row-inline">
+          <select id="chatMode" class="custom-select custom-select-small">
+            <option value="real">Real Actors</option>
+            <option value="simulated">Simulated</option>
+            <option value="live">Live (Mic)</option>
+          </select>
+          <select id="languageMode" class="custom-select custom-select-small">
+            <option value="bilingual">EN & SW</option>
+            <option value="english">English Only</option>
+            <option value="swahili">Swahili Only</option>
+          </select>
+        </div>
+
+        <!-- Patient Selector -->
+        <div class="controls-row-inline">
+          <select id="patientSelect" class="custom-select custom-select-small" style="flex:1">
+            <option value="">-- No Patient --</option>
+          </select>
+          <button type="button" id="newPatientBtn" class="btn-orange-outline">
+            <i data-lucide="plus" style="width:10px;height:10px"></i>
+            Patient
+          </button>
+        </div>
+
+        <!-- Turn-based Pane -->
+        <div id="turnPane">
+          <!-- Role Toggle -->
+          <div id="roleSelector" class="controls-row">
+            <label style="font-size:0.75rem;color:var(--gray-600)">Speaking as:</label>
+            <div class="role-toggle">
+              <button type="button" id="roleClinicianBtn" class="active-clinician"><i data-lucide="stethoscope" style="width:14px;height:14px"></i> Clinician</button>
+              <button type="button" id="rolePatientBtn"><i data-lucide="user" style="width:14px;height:14px"></i> Patient</button>
+            </div>
+          </div>
+
+          <!-- Suggestion Box -->
+          <div id="suggestionBox" class="suggestion-box hidden">
+            <button class="close-btn" id="closeSuggestion">
+              <i data-lucide="x" style="width:12px;height:12px"></i>
+            </button>
+            <div class="suggestion-content">
+              <i data-lucide="lightbulb"></i>
+              <div>
+                <p class="suggestion-label">Suggested:</p>
+                <p class="suggestion-text" id="suggestionText">Have you noticed any shortness of breath?</p>
+                <button class="suggestion-use" id="useSuggestion">Use this &rarr;</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat Input -->
+          <div id="chatInputWrapper" class="chat-input-wrapper clinician">
+            <div class="chat-input-inner">
+              <div class="chat-input-label">
+                <span class="role clinician" id="inputRoleLabel">Clinician</span>
+                <span class="typing">is typing...</span>
+              </div>
+              <input type="text" id="agentMessage" class="chat-input-field" placeholder="Ask the patient a question...">
+              <div class="chat-input-actions">
+                <button type="button" id="recordAudioBtn" class="btn-voice">
+                  <i data-lucide="mic" style="width:16px;height:16px"></i>
+                  <span>Voice</span>
+                </button>
+                <button type="button" id="sendBtn" class="btn-send clinician">
+                  <i data-lucide="send" style="width:16px;height:16px"></i>
+                  <span>Send</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Mode Pane -->
+        <div id="livePane" class="hidden">
+          <div class="info-box">
+            <i data-lucide="info"></i>
+            <p>Speak and get continuous recommendations. Press Stop to end; use Finalize for summary/plan.</p>
+          </div>
+
+          <div class="controls-row">
+            <h3 style="font-size:0.875rem;font-weight:600;color:var(--gray-700);margin:0">Live Transcription</h3>
+            <span class="mode-badge">Mic Mode</span>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem">
+            <label style="font-size:0.75rem;color:var(--gray-600)">Recommendations:</label>
+            <select id="liveRecoMode" class="custom-select custom-select-small" style="flex:1">
+              <option value="normal">Normal</option>
+              <option value="unasked">Unasked (End-only)</option>
+            </select>
+          </div>
+
+          <div class="info-box">
+            <i data-lucide="info"></i>
+            <p>Speak normally. You'll see partials while you speak; finals after short pauses.</p>
+          </div>
+
+          <div class="live-controls">
+            <button type="button" id="startLiveBtn" class="btn-start-live">
+              <span>&#9654;</span> Start Live
+            </button>
+            <button type="button" id="stopLiveBtn" class="btn-stop-live" disabled>
+              <span>&#9632;</span> Stop
+            </button>
+          </div>
+          <div id="liveStatus" style="font-size:0.75rem;color:var(--gray-500);min-height:1.2em;margin-top:4px;text-align:center"></div>
+
+          <div>
+            <label style="font-size:0.75rem;font-weight:500;color:var(--gray-600);display:block;margin-bottom:6px">Live Line</label>
+            <div id="liveLineBox" class="live-line-box">
+              <div id="liveIndicator" class="live-indicator hidden">
+                <span class="dot ping"></span>
+                <span class="dot"></span>
+              </div>
+              <p id="liveMessage" class="live-line-text">Partials appear here.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Final Plan Button -->
+        <button type="button" id="finalizeBtn" class="btn-orange" style="width:100%">
+          <i data-lucide="file-text" style="width:12px;height:12px"></i>
+          Summarize & Final Plan
+        </button>
+      </div>
+
+      <!-- Footer -->
+      <div class="panel-footer">
+        <span>Medical Case Search</span>
+        <span class="brand">#IamAPHRC</span>
+      </div>
     </div>
   </div>
 
-  {% if not current_user.is_authenticated %}
-  <!-- Auth Gate: only in DOM when not logged in (avoids any overlay when logged in) -->
-  <div id="auth-gate" class="py-5">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-sm-10 col-md-7 col-lg-5">
+  <!-- Resize Handle Left -->
+  <div class="resize-handle" id="resize-left">
+    <i data-lucide="grip-vertical" style="width:14px;height:14px"></i>
+  </div>
 
-          <!-- Error banner -->
-          <div id="auth-error" class="alert alert-danger d-none" role="alert"></div>
+  <!-- Center Panel - Transcript -->
+  <div class="panel panel-center custom-scrollbar" id="panel-center">
+    <div class="panel-content">
+      <!-- Transcript Header -->
+      <div class="transcript-header">
+        <h2>
+          <i data-lucide="file-text"></i>
+          Transcript
+        </h2>
+        <span class="transcript-count" id="messageCount">0 messages</span>
+      </div>
 
-          <!-- LOGIN CARD -->
-          <div id="login-card" class="card shadow-sm">
-            <div class="card-body p-4">
-              <h4 class="card-title mb-3">Welcome back</h4>
-              <form id="login-form">
-                <div class="mb-3">
-                  <label for="login-email" class="form-label">Email</label>
-                  <input type="email" id="login-email" class="form-control" autocomplete="username" required>
-                </div>
-                <div class="mb-3">
-                  <label for="login-password" class="form-label">Password</label>
-                  <input type="password" id="login-password" class="form-control" autocomplete="current-password"
-                    required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Log in</button>
-              </form>
-              <div class="text-center mt-3">
-                <small class="text-muted">No account?</small>
-                <button class="btn btn-link p-0 align-baseline" data-action="show-signup">Create one</button>
-              </div>
-            </div>
-          </div>
+      <!-- Transcript Messages -->
+      <div id="agentChatTranscript" class="transcript-messages">
+        <!-- Messages will be inserted here -->
+      </div>
 
-          <!-- SIGNUP CARD (hidden by default) -->
-          <div id="signup-card" class="card shadow-sm d-none mt-3 mt-md-4">
-            <div class="card-body p-4">
-              <h4 class="card-title mb-3">Create your account</h4>
-              <form id="signup-form">
-                <div class="mb-3">
-                  <label for="signup-username" class="form-label">Username</label>
-                  <input type="text" id="signup-username" class="form-control" autocomplete="username" minlength="2"
-                    maxlength="64" placeholder="How you want to be shown (e.g. Dr. Jane)" required>
-                  <div class="form-text">Letters, numbers, . _ - only. 2–64 characters.</div>
-                </div>
-                <div class="mb-3">
-                  <label for="signup-email" class="form-label">Email</label>
-                  <input type="email" id="signup-email" class="form-control" autocomplete="email" required>
-                </div>
-                <div class="mb-3">
-                  <label for="signup-password" class="form-label">Password</label>
-                  <input type="password" id="signup-password" class="form-control" autocomplete="new-password" required>
-                </div>
-                <button type="submit" class="btn btn-success w-100">Sign up</button>
-              </form>
-              <div class="text-center mt-3">
-                <small class="text-muted">Already have an account?</small>
-                <button class="btn btn-link p-0 align-baseline" data-action="show-login">Log in</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- LOGIN CARD -->
-          <div id="login-card">
-            <h4>Welcome back</h4>
-            <form id="login-form">
-              <div class="mb-3">
-                <label for="login-email" class="form-label">Email</label>
-                <input type="email" id="login-email" class="form-control" autocomplete="username" required>
-              </div>
-          </div>
+      <!-- Typing Indicator -->
+      <div id="typingIndicator" class="typing-indicator hidden">
+        <span class="typing-icon clinician" id="typingIcon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
+        </span>
+        <span class="typing-role clinician" id="typingRole">Clinician</span>
+        <span class="typing-text">is typing</span>
+        <div class="typing-dots">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
         </div>
       </div>
-      {% else %}
-      <!-- App wrapper + main content: only in DOM when logged in -->
-      <div id="app-wrapper">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-          <div class="container-fluid">
-            <a class="navbar-brand" href="#">Cancer Q-Recommender</a>
-            <div class="d-flex ms-auto align-items-center gap-3">
-              <span id="whoami" class="navbar-text text-muted"></span>
-            </div>
-          </div>
-        </nav>
+
+      <!-- Suggested Questions (moved to suggestionBox below role toggle) -->
+      <div class="suggested-box hidden">
+        <div class="suggested-box-header">
+          <i data-lucide="lightbulb"></i>
+          <span>Suggested Questions</span>
+        </div>
+        <ul id="chatSuggestedQuestions" class="suggested-questions">
+          <!-- Questions will be inserted here -->
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resize Handle Right -->
+  <div class="resize-handle hidden" id="resize-right">
+    <i data-lucide="grip-vertical" style="width:14px;height:14px"></i>
+  </div>
+
+  <!-- Right Panel - Summary -->
+  <div class="panel panel-right custom-scrollbar hidden" id="panel-right" style="width: 300px;">
+    <div class="panel-content">
+      <!-- Summary Header -->
+      <div class="transcript-header">
+        <h2>
+          <i data-lucide="clipboard-list"></i>
+          Summary & Plan
+        </h2>
+        <button type="button" id="closeSummary" style="background:none;border:none;color:var(--gray-400);cursor:pointer">
+          <i data-lucide="x" style="width:14px;height:14px"></i>
+        </button>
       </div>
 
-      {% endif %}
-      {% if current_user.is_authenticated %}
-      <!-- Search Section -->
-      <div class="row mb-4">
-        <div class="col-lg-15 mx-auto">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <form id="searchForm">
-                <div class="row">
-                  <div class="col-md-8">
-                    <div class="form-group">
-                      <label for="searchQuery" class="form-label">
-                        <i class="fas fa-search me-2"></i>Search Query
-                      </label>
-                      <input type="text" class="form-control form-control-lg" id="searchQuery"
-                        placeholder="Enter symptoms or patient description..." required>
-                      <div class="form-text">
-                        Example: "finger pain stiffness morning" or "breathing difficulty night cough"
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label for="maxResults" class="form-label">Max Results</label>
-                      <select class="form-select" id="maxResults">
-                        <option value="3">3 Results</option>
-                        <option value="5" selected>5 Results</option>
-                        <option value="8">8 Results</option>
-                        <option value="10">10 Results</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
+      <!-- Summary Content -->
+      <div id="summaryContent">
+        <div class="summary-section orange">
+          <h3><span>&#128100;</span> Conversation Summary</h3>
+          <p id="patientSummary">Click "Summarize & Final Plan" to generate a summary based on the conversation.</p>
+        </div>
 
-                <div class="row mt-3">
-                  <div class="col-md-6">
-                    <button type="submit" class="btn btn-primary btn-lg w-100">
-                      <i class="fas fa-search me-2"></i>Search
-                    </button>
-                  </div>
-                </div>
-              </form>
-
-              <!-- Conversation Container -->
-              <div class="container mt-5" id="agentsConversation">
-
-                <!-- Header controls (Mode + Language + Reset) -->
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
-                  <h2 class="m-0">Agents Conversation</h2>
-
-                  <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <label for="chatMode" class="form-label m-0">Mode</label>
-                    <select id="chatMode" class="form-select form-select-sm" style="width:auto;">
-                      <option value="real" selected>Real Actors</option>
-                      <option value="simulated">Simulated</option>
-                      <option value="live">Live (Mic)</option>
-                    </select>
-
-                    <!-- Single language selector used by both panes -->
-                    <label for="languageMode" class="form-label m-0">Language</label>
-                    <select id="languageMode" class="form-select form-select-sm" style="width:auto;">
-                      <option value="bilingual" selected>English &amp; Swahili</option>
-                      <option value="english">English Only</option>
-                      <option value="swahili">Swahili Only</option>
-                    </select>
-
-                    <span id="modeBadge" class="badge rounded-pill mode-badge">Real Actors</span>
-                    <label for="patientSelect" class="form-label m-0">Patient (optional)</label>
-                    <select id="patientSelect" class="form-select form-select-sm" style="width:auto;">
-                      <option value="">— None —</option>
-                      <!-- populated by JS from /api/patients -->
-                    </select>
-                    <button type="button" id="newPatientBtn" class="btn btn-outline-secondary btn-sm"
-                      title="Add new patient">+ Patient</button>
-                    <button type="button" id="resetBtn" class="btn btn-outline-danger btn-sm">Reset
-                      Conversation</button>
-                  </div>
-                </div>
-
-                <!-- Mode tip -->
-                <div class="alert p-2 mb-3 mode-tip" role="alert">
-                  <i class="fas fa-info-circle me-2"></i>
-                  <span id="modeTipText">Turn-based chat: alternate between Clinician and Patient.</span>
-                </div>
-
-                <!-- ===== Turn-based Pane ===== -->
-                <div id="turnPane">
-                  <!-- Role selector -->
-                  <div id="roleSelector" class="mb-2 d-flex align-items-center gap-2">
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Role selector">
-                      <button type="button" id="roleClinicianBtn" class="btn btn-primary">Clinician</button>
-                      <button type="button" id="rolePatientBtn" class="btn btn-secondary">Patient</button>
-                    </div>
-                    <span id="currentRoleDisplay" class="text-muted">(Current: Clinician)</span>
-                  </div>
-
-                  <!-- Chat form (turn-based) -->
-                  <form id="agentChatForm" class="card shadow-sm">
-                    <div class="card-body">
-                      <div class="row g-2 align-items-end">
-                        <div class="col-md-9">
-                          <label for="agentMessage" class="form-label">Message</label>
-                          <input type="text" id="agentMessage" class="form-control"
-                            placeholder="Say something to the doctor..." required>
-                        </div>
-
-                        <div class="col-md-3">
-                          <div class="row g-2">
-                            <div class="col-6">
-                              <button type="button" id="recordAudioBtn"
-                                class="btn btn-outline-secondary btn-sm w-100 text-truncate" title="Record Voice Note">
-                                🎤 Voice Note
-                              </button>
-                            </div>
-                            <div class="col-6">
-                              <button type="submit" class="btn btn-success btn-sm w-100">
-                                Send
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <audio id="recordedAudio" class="mt-2 w-100" controls style="display:none;"></audio>
-                      <div id="typingIndicator" class="text-muted fst-italic mt-2" style="display:none;">Typing...</div>
-                    </div>
-                  </form>
-
-                  <!-- Transcript -->
-                  <div class="card shadow-sm mt-3">
-                    <div class="card-header bg-light"><strong>Transcript</strong></div>
-                    <div class="card-body p-3">
-                      <div id="agentChatTranscript" class="transcript-box"></div>
-                    </div>
-                  </div>
-
-                  <!-- Suggested Questions -->
-                  <div class="card shadow-sm mt-3">
-                    <div class="card-header bg-light"><strong>Suggested Questions</strong></div>
-                    <div class="card-body p-2">
-                      <ul id="chatSuggestedQuestions" class="mb-0"></ul>
-                    </div>
-                  </div>
-
-                  <div class="d-flex justify-content-end mt-3">
-                    <button type="button" id="finalizeBtn" class="btn btn-outline-primary">
-                      Summarize &amp; Final Plan
-                    </button>
-                  </div>
-                </div>
-                <!-- ===== Live (Mic) Pane ===== -->
-                <div id="livePane" style="display:none;">
-                  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
-                    <h2 class="m-0">Live Transcription</h2>
-                    <span class="badge rounded-pill bg-secondary">Mic Mode</span>
-                  </div>
-
-                  <!-- Sub-mode selector -->
-                  <div class="mb-2 d-flex align-items-center gap-2">
-                    <label for="liveRecoMode" class="form-label m-0">Recommendations:</label>
-                    <select id="liveRecoMode" class="form-select form-select-sm" style="max-width: 280px;">
-                      <option value="normal" selected>Normal</option>
-                      <option value="unasked">Unasked (end-only)</option>
-                    </select>
-                  </div>
-
-                  <div class="alert p-2 mb-3" role="alert">
-                    <i class="fas fa-info-circle me-2"></i>
-                    Speak normally. You’ll see partials while you speak; finals after short pauses.
-                  </div>
-
-                  <div id="liveBar" class="d-flex gap-2 align-items-center mb-2">
-                    <button id="startLiveBtn" type="button" class="btn btn-sm btn-primary">▶ Start Live</button>
-                    <button id="stopLiveBtn" type="button" class="btn btn-sm btn-danger" disabled>■ Stop</button>
-                    <span id="liveStatus" class="ms-2 text-muted"></span>
-                  </div>
-
-                  <!-- STT degraded banner (shown when Gemini is overloaded / fallback is used) -->
-                  <div id="sttDegradedBanner" class="alert alert-warning py-2 px-3 mb-3" style="display:none;">
-                    <strong>STT degraded:</strong> <span id="sttDegradedText">Transcription may be delayed.</span>
-                  </div>
-
-                </div>
-
-                <!-- Live line (partials) -->
-                <div class="card shadow-sm mb-3">
-                  <div class="card-header bg-light"><strong>Live Line</strong></div>
-                  <div class="card-body">
-                    <div id="liveMessage" class="form-control" style="min-height:52px;"></div>
-                    <small class="text-muted">Partials appear here.</small>
-                  </div>
-                </div>
-
-                <!-- Transcript (finals) -->
-                <div class="card shadow-sm mb-3">
-                  <div class="card-header bg-light"><strong>Transcript (Finals)</strong></div>
-                  <div class="card-body p-3">
-                    <div id="liveTranscript" class="transcript-box"></div>
-                  </div>
-                </div>
-
-                <!-- ✅ Listener Summary + Final Plan (shown after STOP) -->
-                <div class="card shadow-sm mb-3" id="livePostStopCard" style="display:none;">
-                  <div class="card-header bg-light d-flex align-items-center justify-content-between">
-                    <strong>Listener Summary &amp; Final Plan</strong>
-                    <small class="text-muted" id="livePostStopTs"></small>
-                  </div>
-                  <div class="card-body">
-                    <div id="liveListenerOutput" class="small"></div>
-                  </div>
-                </div>
-
-                <!-- Suggested questions during Live + Unasked access -->
-                <div class="card shadow-sm mb-3">
-                  <div class="card-header bg-light d-flex align-items-center justify-content-between gap-2">
-                    <strong>Suggested Questions</strong>
-                    <div class="d-flex align-items-center gap-2">
-                      <button id="show-unasked-btn" type="button" class="btn btn-sm btn-outline-secondary">
-                        Unasked <span class="badge bg-secondary ms-1" id="unasked-badge">0</span>
-                      </button>
-                      <button id="clear-suggested-btn" type="button" class="btn btn-sm btn-outline-danger">
-                        Clear Suggested
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="card-body p-2">
-                    <ul id="liveSuggestedQuestions" class="mb-0"></ul>
-                  </div>
-                </div>
-
-                <!-- ✅ Optional follow-up chatbot (appears after STOP) -->
-                <div class="card shadow-sm mb-3" id="liveFollowupCard" style="display:none;">
-                  <div class="card-header bg-light d-flex align-items-center justify-content-between gap-2">
-                    <strong>Ask the Assistant (Follow-up)</strong>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="toggleFollowupBtn">Hide</button>
-                  </div>
-                  <div class="card-body" id="liveFollowupBody">
-                    <div class="text-muted small mb-2">
-                      Ask for clarification on the Listener Final Plan or the Unasked Questions, using the context of
-                      this just-ended conversation.
-                    </div>
-                    <div id="liveFollowupTranscript" class="transcript-box" style="min-height:140px;"></div>
-
-                    <form id="liveFollowupForm" class="mt-2">
-                      <div class="row g-2 align-items-end">
-                        <div class="col-md-10">
-                          <label class="form-label" for="liveFollowupInput">Your question</label>
-                          <input id="liveFollowupInput" type="text" class="form-control"
-                            placeholder="e.g., Why is colonoscopy prioritized? What should I ask next?"
-                            autocomplete="off" />
-                        </div>
-                        <div class="col-md-2">
-                          <button id="liveFollowupSend" type="submit" class="btn btn-success w-100">Send</button>
-                        </div>
-                      </div>
-                      <div class="form-text">This assistant uses the transcript + listener summary/plan + unasked
-                        questions from the most recent Live session.</div>
-                    </form>
-                    <div class="text-center mt-3">
-                      <small class="text-muted">No account?</small>
-                      <button class="btn btn-link p-0 align-baseline" data-action="show-signup">Create one</button>
-                    </div>
-                  </div>
-
-                  <!-- SIGNUP CARD (hidden by default) -->
-                  <div id="signup-card" class="d-none">
-                    <h4>Create your account</h4>
-                    <form id="signup-form">
-                      <div class="mb-3">
-                        <label for="signup-username" class="form-label">Username</label>
-                        <input type="text" id="signup-username" class="form-control" autocomplete="username"
-                          minlength="2" maxlength="64" placeholder="How you want to be shown (e.g. Dr. Jane)" required>
-                        <div class="form-text">Letters, numbers, . _ - only. 2-64 characters.</div>
-                      </div>
-                      <div class="mb-3">
-                        <label for="signup-email" class="form-label">Email</label>
-                        <input type="email" id="signup-email" class="form-control" autocomplete="email" required>
-                      </div>
-                      <div class="mb-3">
-                        <label for="signup-password" class="form-label">Password</label>
-                        <input type="password" id="signup-password" class="form-control" autocomplete="new-password"
-                          required>
-                      </div>
-                      <button type="submit" class="btn btn-success w-100">Sign up</button>
-                    </form>
-                    <div class="text-center mt-3">
-                      <small class="text-muted">Already have an account?</small>
-                      <button class="btn btn-link p-0 align-baseline" data-action="show-login">Log in</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {% if current_user.is_authenticated %}
-              <!-- Top Menu Bar -->
-              <nav class="top-menu-bar">
-                <div class="menu-brand">
-                  <i data-lucide="activity" style="width:20px;height:20px;color:var(--primary-green)"></i>
-                  <span>Early Cancer Diagnosis</span>
-                </div>
-                <div class="menu-right">
-                  <a href="{{ url_for('history_page') }}" class="nav-link-custom">
-                    <i data-lucide="history" style="width:14px;height:14px"></i>
-                    History
-                  </a>
-                  {% for role in current_user.roles %}
-                  {% if role.name == "admin" %}
-                  <a href="{{ url_for('admin_page') }}" class="admin-link">
-                    <i data-lucide="settings" style="width:14px;height:14px"></i>
-                    Admin
-                  </a>
-                  {% endif %}
-                  {% endfor %}
-                  <span class="user-info" id="whoami">
-                    <i data-lucide="user" style="width:14px;height:14px"></i>
-                    {% if current_user.username %}{{ current_user.username }}{% elif current_user.email %}{{
-                    current_user.email.split('@')[0] }}{% else %}User{% endif %}
-                  </span>
-                  <button id="logout-btn" class="logout-btn">
-                    <i data-lucide="log-out" style="width:14px;height:14px"></i>
-                    Log out
-                  </button>
-                </div>
-              </nav>
-
-              <!-- Main App Container -->
-              <div id="app-container" class="app-container">
-
-                <!-- Left Panel -->
-                <div class="panel panel-left custom-scrollbar" id="panel-left" style="width: 340px;">
-                  <div class="panel-content">
-
-                    <!-- Header -->
-                    <div class="panel-header">
-                      <div class="panel-header-icon">
-                        <i data-lucide="stethoscope"></i>
-                      </div>
-                      <div class="panel-header-text">
-                        <h1>Medical Case Search</h1>
-                        <p>AI-powered matching</p>
-                      </div>
-                    </div>
-
-                    <!-- Search Section -->
-                    <div class="space-y">
-                      <div class="section-label">
-                        <i data-lucide="sparkles" class="orange"></i>
-                        Cancer Q-Recommender
-                      </div>
-
-                      <div class="search-input-wrapper">
-                        <i data-lucide="search"></i>
-                        <input type="text" id="searchQuery" class="search-input" placeholder="Enter symptoms...">
-                      </div>
-
-                      <div class="search-row">
-                        <select id="maxResults" class="custom-select">
-                          <option value="5">5 Results</option>
-                          <option value="10">10 Results</option>
-                        </select>
-                        <button type="button" id="searchBtn" class="btn-green">
-                          <i data-lucide="search"></i>
-                          Search
-                        </button>
-                      </div>
-                    </div>
-
-                    <div class="divider"></div>
-
-                    <!-- Conversation Controls -->
-                    <div class="space-y">
-                      <div class="controls-row">
-                        <span class="section-label" style="margin-bottom:0">
-                          <i data-lucide="file-text" class="green"></i>
-                          Agents Conversation
-                        </span>
-                        <button type="button" id="resetBtn" class="btn-orange-outline">
-                          <i data-lucide="refresh-cw" style="width:10px;height:10px"></i>
-                          Reset
-                        </button>
-                      </div>
-
-                      <!-- Mode & Language Settings -->
-                      <div class="controls-row-inline">
-                        <select id="chatMode" class="custom-select custom-select-small">
-                          <option value="real">Real Actors</option>
-                          <option value="simulated">Simulated</option>
-                          <option value="live">Live (Mic)</option>
-                        </select>
-                        <select id="languageMode" class="custom-select custom-select-small">
-                          <option value="bilingual">EN & SW</option>
-                          <option value="english">English Only</option>
-                          <option value="swahili">Swahili Only</option>
-                        </select>
-                      </div>
-
-                      <!-- Patient Selector -->
-                      <div class="controls-row-inline">
-                        <select id="patientSelect" class="custom-select custom-select-small" style="flex:1">
-                          <option value="">-- No Patient --</option>
-                        </select>
-                        <button type="button" id="newPatientBtn" class="btn-orange-outline">
-                          <i data-lucide="plus" style="width:10px;height:10px"></i>
-                          Patient
-                        </button>
-                      </div>
-
-                      <!-- Turn-based Pane -->
-                      <div id="turnPane">
-                        <!-- Role Toggle -->
-                        <div id="roleSelector" class="controls-row">
-                          <label style="font-size:0.75rem;color:var(--gray-600)">Speaking as:</label>
-                          <div class="role-toggle">
-                            <button type="button" id="roleClinicianBtn" class="active-clinician"><i
-                                data-lucide="stethoscope" style="width:14px;height:14px"></i> Clinician</button>
-                            <button type="button" id="rolePatientBtn"><i data-lucide="user"
-                                style="width:14px;height:14px"></i>
-                              Patient</button>
-                          </div>
-                        </div>
-
-                        <!-- Suggestion Box -->
-                        <div id="suggestionBox" class="suggestion-box hidden">
-                          <button class="close-btn" id="closeSuggestion">
-                            <i data-lucide="x" style="width:12px;height:12px"></i>
-                          </button>
-                          <div class="suggestion-content">
-                            <i data-lucide="lightbulb"></i>
-                            <div>
-                              <p class="suggestion-label">Suggested:</p>
-                              <p class="suggestion-text" id="suggestionText">Have you noticed any shortness of breath?
-                              </p>
-                              <button class="suggestion-use" id="useSuggestion">Use this &rarr;</button>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Chat Input -->
-                        <div id="chatInputWrapper" class="chat-input-wrapper clinician">
-                          <div class="chat-input-inner">
-                            <div class="chat-input-label">
-                              <span class="role clinician" id="inputRoleLabel">Clinician</span>
-                              <span class="typing">is typing...</span>
-                            </div>
-                            <input type="text" id="agentMessage" class="chat-input-field"
-                              placeholder="Ask the patient a question...">
-                            <div class="chat-input-actions">
-                              <button type="button" id="recordAudioBtn" class="btn-voice">
-                                <i data-lucide="mic" style="width:16px;height:16px"></i>
-                                <span>Voice</span>
-                              </button>
-                              <button type="button" id="sendBtn" class="btn-send clinician">
-                                <i data-lucide="send" style="width:16px;height:16px"></i>
-                                <span>Send</span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Live Mode Pane -->
-                      <div id="livePane" class="hidden">
-                        <div class="info-box">
-                          <i data-lucide="info"></i>
-                          <p>Speak and get continuous recommendations. Press Stop to end; use Finalize for summary/plan.
-                          </p>
-                        </div>
-
-                        <div class="controls-row">
-                          <h3 style="font-size:0.875rem;font-weight:600;color:var(--gray-700);margin:0">Live
-                            Transcription</h3>
-                          <span class="mode-badge">Mic Mode</span>
-                        </div>
-
-                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem">
-                          <label style="font-size:0.75rem;color:var(--gray-600)">Recommendations:</label>
-                          <select id="liveRecoMode" class="custom-select custom-select-small" style="flex:1">
-                            <option value="normal">Normal</option>
-                            <option value="unasked">Unasked (End-only)</option>
-                          </select>
-                        </div>
-
-                        <div class="info-box">
-                          <i data-lucide="info"></i>
-                          <p>Speak normally. You'll see partials while you speak; finals after short pauses.</p>
-                        </div>
-
-                        <div class="live-controls">
-                          <button type="button" id="startLiveBtn" class="btn-start-live">
-                            <span>&#9654;</span> Start Live
-                          </button>
-                          <button type="button" id="stopLiveBtn" class="btn-stop-live" disabled>
-                            <span>&#9632;</span> Stop
-                          </button>
-                        </div>
-
-                        <div>
-                          <label
-                            style="font-size:0.75rem;font-weight:500;color:var(--gray-600);display:block;margin-bottom:6px">Live
-                            Line</label>
-                          <div id="liveLineBox" class="live-line-box">
-                            <div id="liveIndicator" class="live-indicator hidden">
-                              <span class="dot ping"></span>
-                              <span class="dot"></span>
-                            </div>
-                            <p id="liveMessage" class="live-line-text">Partials appear here.</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Final Plan Button -->
-                      <button type="button" id="finalizeBtn" class="btn-orange" style="width:100%">
-                        <i data-lucide="file-text" style="width:12px;height:12px"></i>
-                        Summarize & Final Plan
-                      </button>
-                    </div>
-
-                    <!-- Footer -->
-                    <div class="panel-footer">
-                      <span>Medical Case Search</span>
-                      <span class="brand">#IamAPHRC</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Resize Handle Left -->
-                <div class="resize-handle" id="resize-left">
-                  <i data-lucide="grip-vertical" style="width:14px;height:14px"></i>
-                </div>
-
-                <!-- Center Panel - Transcript -->
-                <div class="panel panel-center custom-scrollbar" id="panel-center">
-                  <div class="panel-content">
-                    <!-- Transcript Header -->
-                    <div class="transcript-header">
-                      <h2>
-                        <i data-lucide="file-text"></i>
-                        Transcript
-                      </h2>
-                      <span class="transcript-count" id="messageCount">0 messages</span>
-                    </div>
-
-                    <!-- Transcript Messages -->
-                    <div id="agentChatTranscript" class="transcript-messages">
-                      <!-- Messages will be inserted here -->
-                    </div>
-
-                    <!-- Typing Indicator -->
-                    <div id="typingIndicator" class="typing-indicator hidden">
-                      <span class="typing-icon clinician" id="typingIcon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path
-                            d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3" />
-                          <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4" />
-                          <circle cx="20" cy="10" r="2" />
-                        </svg>
-                      </span>
-                      <span class="typing-role clinician" id="typingRole">Clinician</span>
-                      <span class="typing-text">is typing</span>
-                      <div class="typing-dots">
-                        <div class="dot"></div>
-                        <div class="dot"></div>
-                        <div class="dot"></div>
-                      </div>
-                    </div>
-
-                    <!-- Suggested Questions (moved to suggestionBox below role toggle) -->
-                    <div class="suggested-box hidden">
-                      <div class="suggested-box-header">
-                        <i data-lucide="lightbulb"></i>
-                        <span>Suggested Questions</span>
-                      </div>
-                      <ul id="chatSuggestedQuestions" class="suggested-questions">
-                        <!-- Questions will be inserted here -->
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Resize Handle Right -->
-                <div class="resize-handle hidden" id="resize-right">
-                  <i data-lucide="grip-vertical" style="width:14px;height:14px"></i>
-                </div>
-
-                <!-- Right Panel - Summary -->
-                <div class="panel panel-right custom-scrollbar hidden" id="panel-right" style="width: 300px;">
-                  <div class="panel-content">
-                    <!-- Summary Header -->
-                    <div class="transcript-header">
-                      <h2>
-                        <i data-lucide="clipboard-list"></i>
-                        Summary & Plan
-                      </h2>
-                      <button type="button" id="closeSummary"
-                        style="background:none;border:none;color:var(--gray-400);cursor:pointer">
-                        <i data-lucide="x" style="width:14px;height:14px"></i>
-                      </button>
-                    </div>
-
-                    <!-- Summary Content -->
-                    <div id="summaryContent">
-                      <div class="summary-section orange">
-                        <h3><span>&#128100;</span> Conversation Summary</h3>
-                        <p id="patientSummary">Click "Summarize & Final Plan" to generate a summary based on the
-                          conversation.</p>
-                      </div>
-
-                      <!--<div class="summary-section orange">
-          <h3><i data-lucide="alert-circle" class="orange"></i> Key Findings</h3>
-          <ul id="keyFindings">
-            <li><span class="bullet">&bull;</span> Awaiting conversation data...</li>
+        <div class="summary-section green">
+          <h3><i data-lucide="check-circle" class="green"></i> Final Plan</h3>
+          <ul id="recommendedPlan">
+            <li><span class="check">&#10003;</span> Awaiting recommendations...</li>
           </ul>
-        </div>-->
+        </div>
 
-                      <!-- <div class="summary-section gray">
-          <h3>Differential Diagnosis</h3>
-          <ol id="differentialDiagnosis">
-            <li><span class="num">1.</span> Pending analysis...</li>
-          </ol>
-        </div>-->
+        <div class="summary-section gray">
+          <h3>Follow-up Instructions</h3>
+          <p id="followUp">Follow-up details will appear here after analysis.</p>
+        </div>
 
-                      <div class="summary-section green">
-                        <h3><i data-lucide="check-circle" class="green"></i> Final Plan</h3>
-                        <ul id="recommendedPlan">
-                          <li><span class="check">&#10003;</span> Awaiting recommendations...</li>
-                        </ul>
-                      </div>
+        <div class="action-buttons">
+          <button id="exportPdfBtn" class="btn-outline">
+            <i data-lucide="file-text" style="width:14px;height:14px"></i>
+            Export PDF
+          </button>
+          <button id="exportWordBtn" class="btn-green">
+            <i data-lucide="file-down" style="width:14px;height:14px"></i>
+            Export Word
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-                      <div class="summary-section gray">
-                        <h3>Follow-up Instructions</h3>
-                        <p id="followUp">Follow-up details will appear here after analysis.</p>
-                      </div>
+</div>
+{% endif %}
 
-                      <div class="action-buttons">
-                        <button id="exportPdfBtn" class="btn-outline">
-                          <i data-lucide="file-text" style="width:14px;height:14px"></i>
-                          Export PDF
-                        </button>
-                        <button id="exportWordBtn" class="btn-green">
-                          <i data-lucide="file-down" style="width:14px;height:14px"></i>
-                          Export Word
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+<!-- Unasked Questions Modal -->
+<div class="modal fade" id="unaskedModal" tabindex="-1" aria-labelledby="unaskedModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header" style="background:linear-gradient(135deg,#fff7ed,#fff);border-bottom:2px solid #f97316">
+        <h5 class="modal-title" id="unaskedModalLabel" style="display:flex;align-items:center;gap:8px;color:#f97316;font-weight:700">
+          <i data-lucide="help-circle" style="width:18px;height:18px"></i>
+          Unasked Questions
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="padding:1.25rem">
+        <p style="font-size:0.82rem;color:#6b7280;margin-bottom:1rem">
+          These are the most relevant questions that were not covered during the consultation, ranked by diagnostic importance.
+        </p>
+        <div id="unasked-list"></div>
+      </div>
+      <div class="modal-footer" style="border-top:1px solid #f3f4f6">
+        <button class="btn btn-light" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-warning" style="background:#f97316;border:none;color:#fff" onclick="document.getElementById('panel-right')?.classList.remove('hidden');document.getElementById('resize-right')?.classList.remove('hidden');bootstrap?.Modal?.getOrCreateInstance(document.getElementById('unaskedModal'))?.hide()">
+          View in Summary Panel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
-              </div>
-              {% endif %}
-
-              <!-- Unasked Questions Modal -->
-              <div class="modal fade" id="unaskedModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-scrollable">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title">Unasked Questions</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body" id="unasked-list"></div>
-                    <div class="modal-footer">
-                      <button class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Audio Element -->
-              <audio id="recordedAudio" class="hidden" controls></audio>
-              {% endblock %}
+<!-- Audio Element -->
+<audio id="recordedAudio" class="hidden" controls></audio>
+{% endblock %}

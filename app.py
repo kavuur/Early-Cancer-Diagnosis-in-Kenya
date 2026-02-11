@@ -20,9 +20,9 @@ from crew_runner import (
     simulate_agent_chat_stepwise,
     real_actor_chat_stepwise,
     live_transcription_stream,
-    rank_questions_for_unasked,  # ✅ NEW
-    normalize_text,  # ✅ NEW
-    build_listener_bundle,  # ✅ NEW (Listener summary + final plan for Live Stop)
+    rank_questions_for_unasked,
+    normalize_text,
+    build_listener_bundle,
 )
 
 from models import (
@@ -44,7 +44,7 @@ from flask_sock import Sock
 from auth import auth_bp, login_manager
 from admin import admin_bp, delete_conversation as admin_delete_conversation
 
-# ✅ Gemini STT blueprint + WS routes
+# Gemini STT blueprint + WS routes
 from stt_gemini import stt_bp, register_ws_routes
 
 load_dotenv()
@@ -72,14 +72,14 @@ sock = Sock(app)
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp)
-csrf.exempt(admin_delete_conversation)  # DELETE /admin/api/conversation/<id> — admin-only, no CSRF in fetch
+csrf.exempt(admin_delete_conversation)
 
 # -----------------------------------------------------------------------------
-# ✅ Gemini STT registration (Gemini-only)
+# Gemini STT registration (Gemini-only)
 # -----------------------------------------------------------------------------
 app.register_blueprint(stt_bp)  # POST /transcribe_audio
-csrf.exempt(stt_bp)  # keep old behavior: allow JS uploads without CSRF header
-register_ws_routes(sock)  # WS /ws/stt
+csrf.exempt(stt_bp)             # allow JS uploads without CSRF header
+register_ws_routes(sock)        # WS /ws/stt
 
 
 # -----------------------------------------------------------------------------
@@ -126,23 +126,27 @@ def initialize_faiss():
 # Keyed by (user_id, conversation_id)
 # -----------------------------------------------------------------------------
 LIVE_STATE_LOCK = RLock()
-LIVE_STATE = {}  # (uid, cid) -> {"created_at": "...", "questions": {norm_q: {...}}, "asked": set(), "history": []}
+LIVE_STATE = {}  # (uid, cid) -> {
+#   "created_at": "...",
+#   "questions": {norm_q: {...}},
+#   "history": [],
+#   "last_reco_ts": 0.0   # FIX #4: server-side throttle timestamp
+# }
 
 
 def _ensure_conversation_id():
     """Ensure session['id'] exists, belongs to current user, and conv list exists."""
     existing_cid = session.get("id")
-    # If we have a stored conversation id, verify it belongs to the current user
     if existing_cid:
         c = get_conversation_if_owned_by(existing_cid, current_user.id)
         if c is None:
-            # Stale or wrong-owner session (e.g. after login or session carry-over): start fresh
+            # Stale or wrong-owner session: start fresh
             session.pop("id", None)
             session.pop("conv", None)
             session.pop("patient_id", None)
             existing_cid = None
     if not existing_cid:
-        patient_id = session.get("patient_id")  # optional, set when starting new conv with patient
+        patient_id = session.get("patient_id")
         session["id"] = create_conversation(owner_user_id=current_user.id, patient_id=patient_id)
         session["conv"] = []
     if "conv" not in session:
@@ -150,28 +154,42 @@ def _ensure_conversation_id():
     return session["id"]
 
 
+# FIX #6: _live_key() no longer calls _ensure_conversation_id() (which did a
+# DB write). It now reads the existing session cid without side effects.
+# Callers that genuinely need a conversation id should call
+# _ensure_conversation_id() explicitly first.
 def _live_key():
-    cid = _ensure_conversation_id()
+    cid = session.get("id")
+    if not cid:
+        return None  # caller must handle gracefully
 
-    # Flask-Login safe user id (string)
-    uid = current_user.get_id()  # usually a string already
+    uid = current_user.get_id()
     if uid is None:
         uid = str(getattr(current_user, "id", "anon"))
 
-    # conversation id might be UUID string or int; normalize to string
     return (str(uid), str(cid))
 
 
 def _get_or_create_live_state():
     key = _live_key()
+    if key is None:
+        # No conversation in session yet — return a throwaway dict rather than
+        # silently triggering a DB write.
+        return {
+            "created_at": datetime.utcnow().isoformat(),
+            "questions": {},
+            "history": [],
+            "last_reco_ts": 0.0,
+        }
     with LIVE_STATE_LOCK:
         st = LIVE_STATE.get(key)
         if not st:
             st = {
                 "created_at": datetime.utcnow().isoformat(),
                 "questions": {},
-                # norm_q -> {"question": original, "score": float|None, "added_at": "...", "asked": bool}
-                "history": [],  # list of {"role":..., "message":...}
+                "history": [],
+                # FIX #4: initialise throttle timestamp
+                "last_reco_ts": 0.0,
             }
             LIVE_STATE[key] = st
         return st
@@ -179,6 +197,8 @@ def _get_or_create_live_state():
 
 def _reset_live_state():
     key = _live_key()
+    if key is None:
+        return
     with LIVE_STATE_LOCK:
         LIVE_STATE.pop(key, None)
 
@@ -191,7 +211,6 @@ def _append_live_history(role: str, message: str):
         return
     with LIVE_STATE_LOCK:
         st["history"].append({"role": role, "message": msg, "ts": datetime.utcnow().isoformat()})
-        # Keep it from growing unbounded
         if len(st["history"]) > 400:
             st["history"] = st["history"][-300:]
 
@@ -213,28 +232,28 @@ def agent_chat_stream():
     if not message:
         return jsonify({"error": "No message provided"}), 400
 
-    # Ensure conversation id
+    # Ensure conversation id (DB write only happens here, not in _live_key)
     sid = _ensure_conversation_id()
 
-    # Append turn to transcript (client session)
     conv = session.get("conv", [])
     conv.append({"role": role, "message": message})
     session["conv"] = conv
 
-    # Also keep server-side history for live scoring (per session/user)
     try:
         _append_live_history(role, message)
     except Exception:
         logger.exception("Failed to append live history")
 
-    # Persist hook to DB
     def log_hook(session_id, role_, message_, timestamp_, type_="message"):
         try:
             log_message(session_id, role_, message_, timestamp_, type_)
         except Exception:
             logger.exception("DB log failed")
 
-    # Pick the streaming generator
+    # FIX #4: Pass live_state and lock to live_transcription_stream so the
+    # throttle uses real server-side timestamps instead of broken client history.
+    live_st = _get_or_create_live_state()
+
     if mode == "simulated":
         generator = simulate_agent_chat_stepwise(
             unquote(message),
@@ -250,6 +269,8 @@ def agent_chat_stream():
             conversation_history=conv,
             log_hook=log_hook,
             session_id=sid,
+            live_state=live_st,
+            live_state_lock=LIVE_STATE_LOCK,
         )
     else:
         generator = real_actor_chat_stepwise(
@@ -265,19 +286,21 @@ def agent_chat_stream():
 
 
 # -----------------------------------------------------------------------------
-# ✅ LIVE endpoints for "Unasked (end-only)"
+# LIVE endpoints for "Unasked (end-only)"
+# FIX #5: @csrf.exempt must be applied AFTER @app.route (closer to the function)
+# so Flask-WTF marks the registered view function, not the raw callable.
 # -----------------------------------------------------------------------------
-@csrf.exempt
 @app.route("/live/reset_plan", methods=["POST"])
 @login_required
+@csrf.exempt
 def live_reset_plan():
     _reset_live_state()
     return jsonify({"ok": True})
 
 
-@csrf.exempt
 @app.route("/live/plan", methods=["POST"])
 @login_required
+@csrf.exempt
 def live_plan():
     """
     Store recommended questions for the current live session.
@@ -303,7 +326,7 @@ def live_plan():
             if nq not in st["questions"]:
                 st["questions"][nq] = {
                     "question": q,
-                    "score": None,  # filled when scoring at end
+                    "score": None,
                     "added_at": now,
                     "asked": False,
                 }
@@ -312,9 +335,9 @@ def live_plan():
     return jsonify({"ok": True, "added": added, "total": len(st["questions"])})
 
 
-@csrf.exempt
 @app.route("/live/mark_asked", methods=["POST"])
 @login_required
+@csrf.exempt
 def live_mark_asked():
     """
     Mark recommended questions as asked based on a piece of FINAL transcript text.
@@ -329,10 +352,6 @@ def live_mark_asked():
     matched = 0
 
     norm_final = normalize_text(final_text)
-
-    # lightweight matching:
-    # - exact substring match on normalized
-    # - token overlap threshold for short questions
     final_tokens = set(norm_final.split())
 
     with LIVE_STATE_LOCK:
@@ -340,20 +359,17 @@ def live_mark_asked():
             if qobj.get("asked"):
                 continue
 
-            # exact/substr match
             if nq and nq in norm_final:
                 qobj["asked"] = True
                 matched += 1
                 continue
 
-            # token overlap (helps when clinician paraphrases)
             q_tokens = set(nq.split())
             if not q_tokens:
                 continue
             overlap = len(q_tokens & final_tokens)
             ratio = overlap / max(1, min(len(q_tokens), len(final_tokens)))
 
-            # Threshold tuned to avoid false positives
             if overlap >= 3 and ratio >= 0.55:
                 qobj["asked"] = True
                 matched += 1
@@ -374,8 +390,6 @@ def live_unasked():
 
     with LIVE_STATE_LOCK:
         questions = [qobj["question"] for qobj in st["questions"].values() if not qobj.get("asked")]
-        # Also build conversation text for ranking
-        # Prefer server-side history; fallback to session conv
         history = st.get("history") or []
         if not history:
             history = session.get("conv", [])
@@ -383,7 +397,6 @@ def live_unasked():
 
     ranked = rank_questions_for_unasked(convo_text=convo_text, questions=questions, language_mode=language)
 
-    # persist scores back into state (optional, so subsequent calls are stable)
     with LIVE_STATE_LOCK:
         for item in ranked:
             q = (item.get("question") or "").strip()
@@ -391,15 +404,14 @@ def live_unasked():
             if nq in st["questions"]:
                 st["questions"][nq]["score"] = item.get("score")
 
-    # Ensure sorted desc
     ranked.sort(key=lambda x: float(x.get("score", 0.0)), reverse=True)
 
     return jsonify({"unasked": ranked})
 
 
-@csrf.exempt
 @app.route("/live/stop_bundle", methods=["POST"])
 @login_required
+@csrf.exempt
 def live_stop_bundle():
     """
     Called once when Live Mic STOP is clicked.
@@ -421,14 +433,12 @@ def live_stop_bundle():
             history = session.get("conv", [])
         convo_text = "\n".join([f"{m.get('role', '')}: {m.get('message', '')}" for m in history])
 
-    # 1) Listener summary + final plan (single formatted block)
     try:
         listener_output = build_listener_bundle(convo_text, language_mode=language)
     except Exception:
         logger.exception("Failed to build listener bundle")
         listener_output = "Listener:\n**English Summary:**\n- —\n\n**Swahili Summary:**\n- —\n\n**FINAL PLAN:**\n- Step 1: —"
 
-    # 2) Unasked questions (same logic as /live/unasked)
     with LIVE_STATE_LOCK:
         questions = [qobj["question"] for qobj in st["questions"].values() if not qobj.get("asked")]
 
@@ -443,7 +453,6 @@ def live_stop_bundle():
 
     ranked.sort(key=lambda x: float(x.get("score", 0.0)), reverse=True)
 
-    # Store post-stop context for optional follow-up chatbot
     try:
         with LIVE_STATE_LOCK:
             st["post_stop"] = {
@@ -466,11 +475,11 @@ def live_stop_bundle():
 
 
 # -----------------------------------------------------------------------------
-# ✅ Optional clinician follow-up chatbot (Live only)
+# Optional clinician follow-up chatbot (Live only)
 # -----------------------------------------------------------------------------
-@csrf.exempt
 @app.route("/live/followup_chat", methods=["POST"])
 @login_required
+@csrf.exempt
 def live_followup_chat():
     """Clinician can ask follow-up questions about the Listener FINAL PLAN / Unasked questions.
 
@@ -498,12 +507,10 @@ def live_followup_chat():
         unasked = post.get("unasked") or []
         follow_hist = st.get("followup") or []
 
-    # If user asks before STOP / no context saved, fall back to session transcript
     if not convo_text:
         conv = session.get("conv", [])
         convo_text = "\n".join([f"{m.get('role', '')}: {m.get('message', '')}" for m in conv])
 
-    # Build a compact context string
     unasked_lines = []
     for i, it in enumerate(unasked[:20], start=1):
         if isinstance(it, str):
@@ -523,7 +530,6 @@ def live_followup_chat():
                 unasked_lines.append(f"{i}. {q}")
 
     followup_snips = []
-    # Keep last ~8 turns for continuity
     for turn in follow_hist[-8:]:
         r = (turn.get("role") or "").strip().lower()
         m = (turn.get("message") or "").strip()
@@ -538,7 +544,6 @@ def live_followup_chat():
         "Do NOT invent patient facts. "
     )
 
-    lang_note = ""
     if lang == "swahili":
         lang_note = "Respond in Swahili."
     elif lang == "english":
@@ -547,12 +552,11 @@ def live_followup_chat():
         lang_note = "Respond in English (you may add brief Swahili clarifications if helpful)."
 
     context_block = (
-            f"\n\n=== SESSION TRANSCRIPT (most recent) ===\n{convo_text[-12000:]}\n"
-            f"\n=== LISTENER SUMMARY + FINAL PLAN ===\n{listener_output}\n"
-            f"\n=== UNASKED QUESTIONS (ranked) ===\n" + "\n".join(unasked_lines)
+        f"\n\n=== SESSION TRANSCRIPT (most recent) ===\n{convo_text[-12000:]}\n"
+        f"\n=== LISTENER SUMMARY + FINAL PLAN ===\n{listener_output}\n"
+        f"\n=== UNASKED QUESTIONS (ranked) ===\n" + "\n".join(unasked_lines)
     )
 
-    # Compose messages for ChatOpenAI
     messages = [
         {"role": "system", "content": system_msg + " " + lang_note + context_block},
     ]
@@ -570,7 +574,6 @@ def live_followup_chat():
         logger.exception("Follow-up chat failed")
         return jsonify({"error": "Failed to generate follow-up response"}), 500
 
-    # Save follow-up turn
     try:
         with LIVE_STATE_LOCK:
             st.setdefault("followup", []).append(
@@ -588,17 +591,15 @@ def live_followup_chat():
 # -----------------------------------------------------------------------------
 # Reset conversation (optionally with patient_id)
 # -----------------------------------------------------------------------------
-@csrf.exempt
 @app.route("/reset_conv", methods=["POST"])
 @login_required
+@csrf.exempt
 def reset_conv():
     data = request.get_json(force=True, silent=True) or {}
-    patient_id = data.get("patient_id")  # optional
+    patient_id = data.get("patient_id")
     if patient_id is not None:
         patient_id = int(patient_id)
     session["conv"] = []
-    # Clear live state for the *current* conversation before changing session["id"]
-    # (otherwise we would clear state for the new cid, leaving old conversation's state orphaned)
     try:
         _reset_live_state()
     except Exception:
@@ -616,13 +617,13 @@ def reset_conv():
 # History & My conversations API
 # -----------------------------------------------------------------------------
 def _patients_display_order():
-    """Single source of truth: patients for current user sorted by id (Patient 1 = smallest id)."""
+    """Single source of truth: patients for current user sorted by id."""
     patients = list_patients_for_user(current_user.id)
     return sorted(patients, key=lambda p: p.id)
 
 
 def _patient_labels_for_current_user():
-    """Stable mapping patient_id -> 'Patient 1', 'Patient 2', ... (same order as dropdown)."""
+    """Stable mapping patient_id -> 'Patient 1', 'Patient 2', ..."""
     ordered = _patients_display_order()
     return {p.id: f"Patient {i + 1}" for i, p in enumerate(ordered)}
 
@@ -630,18 +631,16 @@ def _patient_labels_for_current_user():
 @app.route("/api/my-conversations")
 @login_required
 def api_my_conversations():
-    """List current user's conversations (id, created_at, patient, message_count). Excludes empty conversations."""
+    """List current user's conversations. Excludes empty conversations."""
     convos = list_conversations_for_user(current_user.id)
     plabels = _patient_labels_for_current_user()
     out = []
     for c in convos:
         msgs = get_conversation_messages(c.id)
-        # Skip conversations with no messages (e.g. created on Reset but not yet used)
         if not msgs:
             continue
         first_msg = msgs[0].message if msgs and msgs[0].message else ""
         preview = (first_msg[:80] + "…") if len(first_msg) > 80 else first_msg
-        # Use conversation's patient_id (column is source of truth; fallback to relationship if needed)
         pid = c.patient_id if c.patient_id is not None else (c.patient.id if getattr(c, "patient", None) else None)
         patient_label = plabels.get(int(pid)) if pid is not None else None
         if pid is not None and not patient_label:
@@ -691,11 +690,11 @@ def api_conversation_messages(conversation_id):
     })
 
 
-@csrf.exempt
 @app.route("/api/conversations/<conversation_id>", methods=["DELETE"])
 @login_required
+@csrf.exempt
 def api_delete_conversation(conversation_id):
-    """Delete this conversation if owned by current user. Returns 404 if not found/not owned."""
+    """Delete this conversation if owned by current user."""
     deleted = delete_conversation_if_owned_by(conversation_id, current_user.id)
     if not deleted:
         return jsonify({"ok": False, "error": "Not found or access denied"}), 404
@@ -703,7 +702,7 @@ def api_delete_conversation(conversation_id):
 
 
 # -----------------------------------------------------------------------------
-# Session patient (sync dropdown selection so new conversations get patient_id)
+# Session patient
 # -----------------------------------------------------------------------------
 @app.route("/api/session-patient", methods=["POST"])
 @login_required
@@ -722,7 +721,7 @@ def api_session_patient():
 
 
 # -----------------------------------------------------------------------------
-# New conversation (GET) for history "New conversation" link
+# New conversation (GET)
 # -----------------------------------------------------------------------------
 @app.route("/new_conversation")
 @login_required
@@ -751,7 +750,7 @@ def new_conversation():
 
 
 # -----------------------------------------------------------------------------
-# Patients API (for clinician: list & create)
+# Patients API
 # -----------------------------------------------------------------------------
 @app.route("/api/patients", methods=["GET", "POST"])
 @login_required
@@ -760,12 +759,10 @@ def api_patients():
         data = request.get_json(force=True, silent=True) or {}
         identifier = (data.get("identifier") or data.get("display_name") or "").strip()
         if not identifier:
-            # Auto-generate identifier: next global P001, P002, ... (continues from latest in DB across clinicians)
             identifier = get_next_global_patient_identifier()
         display_name = (data.get("display_name") or "").strip() or None
         pid = create_patient(identifier=identifier, clinician_id=current_user.id, display_name=display_name)
         return jsonify({"ok": True, "patient_id": pid})
-    # Same order as history (single source of truth)
     ordered = _patients_display_order()
     out = [
         {"id": p.id, "label": f"Patient {i+1}", "created_at": p.created_at.isoformat() if p.created_at else None}
@@ -784,21 +781,18 @@ def index():
 
 @app.route("/favicon.ico")
 def favicon():
-    """Avoid 404 when browser requests favicon."""
     return "", 204
 
 
 @app.route("/history")
 @login_required
 def history_page():
-    """History list: my conversations (Date | Patient | Preview)."""
     return render_template("history.html")
 
 
 @app.route("/history/<conversation_id>")
 @login_required
 def history_detail_page(conversation_id):
-    """Single conversation detail (messages). Access only if owned by current user."""
     c = get_conversation_if_owned_by(conversation_id, current_user.id)
     if c is None:
         return "Not found or access denied", 404
@@ -818,7 +812,6 @@ def history_detail_page(conversation_id):
     )
 
 
-# (Kept as-is; you can remove if unused)
 @app.route("/agent_chat", methods=["POST"])
 def agent_chat():
     try:
@@ -843,8 +836,8 @@ def agent_chat():
 # -----------------------------------------------------------------------------
 # FAISS search endpoints
 # -----------------------------------------------------------------------------
-@csrf.exempt
 @app.route("/search", methods=["POST"])
+@csrf.exempt
 def search():
     try:
         data = request.get_json() or {}

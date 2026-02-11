@@ -2,8 +2,14 @@
 import os
 import re
 from datetime import datetime
-from sqlalchemy import create_engine, Column, String, Text, DateTime, ForeignKey, Integer
-from sqlalchemy.orm import sessionmaker, declarative_base, relationship, scoped_session, joinedload
+from sqlalchemy import (
+    create_engine, Column, String, Text, DateTime,
+    ForeignKey, Integer, Boolean, Table, UniqueConstraint
+)
+from sqlalchemy.orm import (
+    sessionmaker, declarative_base, relationship,
+    scoped_session, joinedload
+)
 import uuid as _uuid
 
 # --- Config ---
@@ -14,35 +20,7 @@ engine = create_engine(DB_URL, echo=False, future=True)
 SessionLocal = scoped_session(sessionmaker(bind=engine, autoflush=False, autocommit=False))
 Base = declarative_base()
 
-# --- Models ---
-class Conversation(Base):
-    __tablename__ = "conversations"
-    id = Column(String, primary_key=True)               # uuid string
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    owner_user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=True)
-    patient_id = Column(Integer, ForeignKey("patients.id"), index=True, nullable=True)
-    messages = relationship(
-        "Message",
-        back_populates="conversation",
-        cascade="all, delete-orphan",
-        order_by="Message.created_at.asc()",
-    )
-
-class Message(Base):
-    __tablename__ = "messages"
-    id = Column(String, primary_key=True)               # uuid string
-    conversation_id = Column(String, ForeignKey("conversations.id"), index=True, nullable=False)
-    role = Column(String, index=True)                   # patient|clinician|listener|Question Recommender
-    type = Column(String, default="message")            # message|question_recommender
-    message = Column(Text, nullable=True)
-    timestamp = Column(String, nullable=True)           # keep your "HH:MM:SS"
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-
-    conversation = relationship("Conversation", back_populates="messages")
-
-    # --- ADD: Auth models ---
-from sqlalchemy import Integer, Boolean, Table, UniqueConstraint
-
+# --- Auth join table (defined before models that reference it) ---
 user_roles = Table(
     "user_roles",
     Base.metadata,
@@ -51,11 +29,74 @@ user_roles = Table(
     UniqueConstraint("user_id", "role_id", name="uq_user_role"),
 )
 
+
+# --- Models ---
+
+class Patient(Base):
+    """
+    Declared before Conversation so the FK reference and inline relationship
+    work without any post-declaration patching.
+    """
+    __tablename__ = "patients"
+    id = Column(Integer, primary_key=True)
+    identifier = Column(String(128), nullable=False)    # e.g. "P001", "Case 123"
+    display_name = Column(String(255), nullable=True)   # optional label
+    clinician_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    # FIX #7: replaced deprecated lazy="dynamic" with lazy="select".
+    # SQLAlchemy 2.x removed support for lazy="dynamic"; "select" gives the
+    # same lazy-loading behaviour without the deprecation warning.
+    conversations = relationship(
+        "Conversation",
+        back_populates="patient",
+        lazy="select",
+    )
+
+
+class Conversation(Base):
+    __tablename__ = "conversations"
+    id = Column(String, primary_key=True)               # uuid string
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    owner_user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), index=True, nullable=True)
+
+    messages = relationship(
+        "Message",
+        back_populates="conversation",
+        cascade="all, delete-orphan",
+        order_by="Message.created_at.asc()",
+    )
+
+    # FIX #7: relationship is now declared inline, not monkey-patched after the
+    # class definition. This avoids SQLAlchemy mapper-configuration warnings
+    # and ensures the back_populates contract is established at class-definition
+    # time rather than at first-use time.
+    patient = relationship(
+        "Patient",
+        back_populates="conversations",
+        lazy="select",
+    )
+
+
+class Message(Base):
+    __tablename__ = "messages"
+    id = Column(String, primary_key=True)               # uuid string
+    conversation_id = Column(String, ForeignKey("conversations.id"), index=True, nullable=False)
+    role = Column(String, index=True)                   # patient|clinician|listener|Question Recommender
+    type = Column(String, default="message")            # message|question_recommender
+    message = Column(Text, nullable=True)
+    timestamp = Column(String, nullable=True)           # "HH:MM:SS"
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    conversation = relationship("Conversation", back_populates="messages")
+
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
     email = Column(String(255), unique=True, nullable=False, index=True)
-    username = Column(String(64), unique=True, nullable=True, index=True)  # user-chosen display name
+    username = Column(String(64), unique=True, nullable=True, index=True)
     password_hash = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
     email_verified = Column(Boolean, default=False, nullable=False)
@@ -73,11 +114,13 @@ class User(Base):
     def has_role(self, name: str) -> bool:
         return any(r.name == name for r in self.roles)
 
+
 class Role(Base):
     __tablename__ = "roles"
     id = Column(Integer, primary_key=True)
     name = Column(String(32), unique=True, nullable=False)  # "clinician", "admin"
     users = relationship("User", secondary=user_roles, back_populates="roles")
+
 
 class ConversationOwner(Base):
     __tablename__ = "conversation_owners"
@@ -86,21 +129,8 @@ class ConversationOwner(Base):
     owner_user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
 
 
-class Patient(Base):
-    __tablename__ = "patients"
-    id = Column(Integer, primary_key=True)
-    identifier = Column(String(128), nullable=False)   # e.g. "P001", "Case 123"
-    display_name = Column(String(255), nullable=True) # optional label
-    clinician_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=True)  # owning clinician
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    conversations = relationship("Conversation", back_populates="patient", lazy="dynamic")
-
-
-# Conversation -> Patient relationship (patient_id already on Conversation)
-Conversation.patient = relationship("Patient", back_populates="conversations")
-
-
 # --- Init / helpers ---
+
 def _migrate_add_patient_fk():
     """Ensure patients table exists and conversations.patient_id exists (for existing DBs)."""
     from sqlalchemy import inspect, text
@@ -134,6 +164,7 @@ def init_db():
     _migrate_add_user_username()
     _seed_roles()
 
+
 def _seed_roles():
     db = SessionLocal()
     try:
@@ -156,6 +187,7 @@ def create_conversation(owner_user_id: int | None = None, patient_id: int | None
     finally:
         db.close()
 
+
 def log_message(conversation_id: str, role: str, message: str, timestamp: str, type_: str = "message"):
     """Insert a single message row."""
     db = SessionLocal()
@@ -171,6 +203,7 @@ def log_message(conversation_id: str, role: str, message: str, timestamp: str, t
         db.commit()
     finally:
         db.close()
+
 
 # admin helpers
 def list_conversations():
@@ -272,7 +305,7 @@ _P_ID_RE = re.compile(r"^P(\d+)$", re.IGNORECASE)
 
 
 def get_next_global_patient_identifier() -> str:
-    """Next patient identifier (P001, P002, ...) from the latest in the DB, so counts continue globally across clinicians."""
+    """Next patient identifier (P001, P002, ...) counting from latest in DB."""
     db = SessionLocal()
     try:
         rows = db.query(Patient.identifier).all()
@@ -328,9 +361,9 @@ def get_conversation_messages(conversation_id: str):
     try:
         return (
             db.query(Message)
-              .filter(Message.conversation_id == conversation_id)
-              .order_by(Message.created_at.asc())
-              .all()
+            .filter(Message.conversation_id == conversation_id)
+            .order_by(Message.created_at.asc())
+            .all()
         )
     finally:
         db.close()

@@ -2,146 +2,556 @@
 
 {% block extra_css %}
 <style>
-  html,
-  body {
+  :root {
+    --admin-primary: #7bc148;
+    --admin-primary-light: #c8e6a5;
+    --admin-secondary: #f97316;
+    --admin-bg: #f9fafb;
+    --admin-border: #e5e7eb;
+    --admin-text: #1f2937;
+    --admin-text-light: #6b7280;
+  }
+
+  html, body {
     height: auto !important;
     overflow: auto !important;
+    background: var(--admin-bg);
   }
 
   body {
     padding-bottom: 2rem;
   }
+
+  .admin-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+
+  /* Header Section */
+  .admin-header {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .admin-header h2 {
+    margin: 0;
+    font-size: 1.75rem;
+    color: var(--admin-text);
+    font-weight: 600;
+  }
+
+  .admin-header .subtitle {
+    color: var(--admin-text-light);
+    margin: 0.25rem 0 0;
+    font-size: 0.95rem;
+  }
+
+  /* Tab Navigation */
+  .admin-tabs {
+    display: flex;
+    gap: 0.5rem;
+    background: white;
+    border-radius: 12px;
+    padding: 0.75rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+  }
+
+  .admin-tab {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    color: var(--admin-text-light);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-size: 0.95rem;
+  }
+
+  .admin-tab:hover {
+    background: var(--admin-bg);
+    color: var(--admin-text);
+  }
+
+  .admin-tab.active {
+    background: var(--admin-primary);
+    color: white;
+  }
+
+  /* Tab Content */
+  .tab-content-panel {
+    display: none;
+  }
+
+  .tab-content-panel.active {
+    display: block;
+  }
+
+  /* KPI Cards */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .kpi-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .kpi-card .kpi-label {
+    color: var(--admin-text-light);
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .kpi-card .kpi-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--admin-text);
+    margin-bottom: 0.25rem;
+  }
+
+  .kpi-card .kpi-subtitle {
+    font-size: 0.825rem;
+    color: var(--admin-text-light);
+  }
+
+  .kpi-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .kpi-icon.users { background: #dbeafe; color: #1e40af; }
+  .kpi-icon.conversations { background: #d1fae5; color: #047857; }
+  .kpi-icon.messages { background: #fce7f3; color: #9f1239; }
+  .kpi-icon.questions { background: #fef3c7; color: #92400e; }
+
+  /* Chart Cards */
+  .chart-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+  }
+
+  .chart-card h5 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--admin-text);
+    margin-bottom: 1rem;
+  }
+
+  .chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Data Table Styles */
+  .data-table-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .data-table-card h5 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--admin-text);
+    margin-bottom: 1rem;
+  }
+
+  .table-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .table-filters .form-control,
+  .table-filters .form-select {
+    max-width: 250px;
+  }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .admin-table thead {
+    background: var(--admin-bg);
+  }
+
+  .admin-table th {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--admin-text);
+    border-bottom: 2px solid var(--admin-border);
+  }
+
+  .admin-table td {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--admin-border);
+    color: var(--admin-text);
+  }
+
+  .admin-table tbody tr:hover {
+    background: var(--admin-bg);
+  }
+
+  /* Buttons */
+  .btn-admin-primary {
+    background: var(--admin-primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-admin-primary:hover {
+    background: #6ba83d;
+    transform: translateY(-1px);
+  }
+
+  .btn-admin-secondary {
+    background: white;
+    color: var(--admin-text);
+    border: 1px solid var(--admin-border);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-admin-secondary:hover {
+    background: var(--admin-bg);
+  }
+
+  .btn-admin-danger {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 0.375rem 0.875rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-admin-danger:hover {
+    background: #b91c1c;
+  }
+
+  .btn-admin-sm {
+    padding: 0.375rem 0.875rem;
+    font-size: 0.85rem;
+  }
+
+  /* Status badges */
+  .status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .status-badge.active { background: #d1fae5; color: #047857; }
+  .status-badge.inactive { background: #fee2e2; color: #991b1b; }
+
+  /* Alert/Error */
+  .admin-alert {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: none;
+  }
+
+  .admin-alert.show {
+    display: block;
+  }
+
+  /* Loading State */
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    display: none;
+  }
+
+  .loading-overlay.show {
+    display: flex;
+  }
+
+  .spinner {
+    border: 3px solid var(--admin-border);
+    border-top-color: var(--admin-primary);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Modal */
+  .admin-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  }
+
+  .admin-modal.show {
+    display: flex;
+  }
+
+  .admin-modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .admin-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .admin-modal-header h5 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--admin-text-light);
+  }
+
+  /* Form elements */
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--admin-text);
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--admin-border);
+    border-radius: 6px;
+    font-size: 0.95rem;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px rgba(123, 193, 72, 0.1);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .admin-container {
+      padding: 1rem;
+    }
+
+    .admin-tabs {
+      overflow-x: auto;
+    }
+
+    .kpi-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .chart-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .table-filters {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .table-filters .form-control,
+    .table-filters .form-select {
+      max-width: 100%;
+    }
+  }
+
+  /* Scrollable table container */
+  .table-container {
+    overflow-x: auto;
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--admin-text-light);
+  }
+
+  .empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2>Admin Dashboard</h2>
-  <p class="text-muted">Welcome, {% if current_user.username %}{{ current_user.username }}{% elif current_user.email
-    %}{{ current_user.email.split('@')[0] }}{% else %}Admin{% endif %}</p>
-
-  <div id="admin-error" class="text-danger" style="display:none;"></div>
-
-  <div class="row">
-    <div class="col-md-3">
-      <div class="card p-3">
-        <h5>Users</h5>
-        <div id="kpi-users"></div>
+<div class="admin-container">
+  <!-- Header -->
+  <div class="admin-header">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h2>🎯 Admin Dashboard</h2>
+        <p class="subtitle">Welcome back, {% if current_user.username %}{{ current_user.username }}{% elif current_user.email %}{{ current_user.email.split('@')[0] }}{% else %}Admin{% endif %}</p>
       </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card p-3">
-        <h5>Conversations</h5>
-        <div id="kpi-convos"></div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card p-3">
-        <h5>Messages</h5>
-        <div id="kpi-messages"></div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card p-3">
-        <h5>Recommended Qs</h5>
-        <div id="kpi-reco"></div>
+      <div style="display: flex; gap: 0.75rem;">
+        <a href="/history" class="btn-admin-secondary" style="text-decoration: none;">
+          📋 History
+        </a>
+        <a href="/" class="btn-admin-secondary" style="text-decoration: none;">
+          ← Back to App
+        </a>
       </div>
     </div>
   </div>
 
-  <div id="admin-error" class="alert alert-danger" style="display:none;"></div>
-
-  <h4>Conversations per day (30d)</h4>
-  <canvas id="chart-convos"></canvas>
-
-  <h4 class="mt-4">Top Clinicians by Conversations</h4>
-  <table class="table table-sm" id="tbl-clinicians">
-    <thead>
-      <tr>
-        <th>Clinician</th>
-        <th>Conversations</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <h4 class="mt-4">All Conversations</h4>
-  <p class="mb-2">
-    <label for="admin-clinician-filter" class="me-2">Filter by clinician:</label>
-    <select id="admin-clinician-filter" class="form-select form-select-sm d-inline-block" style="max-width: 220px;">
-      <option value="">All clinicians</option>
-    </select>
-  </p>
-  <table class="table table-sm" id="tbl-convos">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Clinician</th>
-        <th>Patient</th>
-        <th>Created</th>
-        <th>Messages</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <button id="load-more" class="btn btn-outline-secondary btn-sm">Load more</button>
-
-  <div id="conv-detail" class="mt-4"></div>
-</div>
-
-<!-- Global Symptoms -->
-<div class="card mb-3">
-  <div class="card-header">Symptoms (Global Tally)</div>
-  <div class="card-body">
-    <canvas id="chart-symptoms" height="220"></canvas>
+  <!-- Alert -->
+  <div id="admin-alert" class="admin-alert">
+    <span id="admin-alert-text"></span>
   </div>
-</div>
 
-<!-- Per‑Conversation Symptoms + Disease Likelihoods -->
-<div class="row">
-  <div class="col-md-7">
-    <div class="card mb-3">
-      <div class="card-header">Per Conversation — Top Symptoms</div>
-      <div class="card-body">
-        <table class="table table-sm" id="tbl-conv-symptoms">
-          <thead>
-            <tr>
-              <th>Clinician (display)</th>
-              <th>Conversation</th>
-              <th>Top Symptoms</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tbl-conv-symptoms-body">
-            <tr>
-              <td colspan="4" class="text-muted">Loading…</td>
-            </tr>
-          </tbody>
-        </table>
+  <!-- Tab Navigation -->
+  <div class="admin-tabs">
+    <button class="admin-tab active" data-tab="overview">📊 Overview</button>
+    <button class="admin-tab" data-tab="conversations">💬 Conversations</button>
+    <button class="admin-tab" data-tab="clinicians">👨‍⚕️ Clinicians</button>
+    <button class="admin-tab" data-tab="patients">🧑‍🤝‍🧑 Patients</button>
+    <button class="admin-tab" data-tab="analytics">📈 Analytics</button>
+    <button class="admin-tab" data-tab="users">👥 Users</button>
+  </div>
+
+  <!-- Overview Tab -->
+  <div id="tab-overview" class="tab-content-panel active">
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon users">👥</div>
+        <div class="kpi-label">Total Users</div>
+        <div class="kpi-value" id="kpi-total-users">—</div>
+        <div class="kpi-subtitle" id="kpi-users-breakdown">—</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon conversations">💬</div>
+        <div class="kpi-label">Conversations</div>
+        <div class="kpi-value" id="kpi-total-convos">—</div>
+        <div class="kpi-subtitle">Total consultations</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon messages">💭</div>
+        <div class="kpi-label">Messages</div>
+        <div class="kpi-value" id="kpi-total-messages">—</div>
+        <div class="kpi-subtitle" id="kpi-messages-breakdown">—</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon questions">❓</div>
+        <div class="kpi-label">AI Questions</div>
+        <div class="kpi-value" id="kpi-reco-questions">—</div>
+        <div class="kpi-subtitle">Recommended by system</div>
       </div>
     </div>
-  </div>
 
-  <!-- Charts Row -->
-  <div class="row g-3 mb-4">
-    <div class="col-lg-7">
-      <div class="card h-100">
-        <div class="card-header">Conversations per Day (30d)</div>
-        <div class="card-body">
-          <canvas id="chart-convos" height="200"></canvas>
+    <!-- Charts Row -->
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h5>📅 Conversations Trend (Last 30 Days)</h5>
+        <div style="height: 200px; position: relative;">
+          <canvas id="chart-convos"></canvas>
         </div>
       </div>
-    </div>
-    <div class="col-lg-5">
-      <div class="card h-100">
-        <div class="card-header">Top Clinicians by Conversations</div>
-        <div class="card-body">
-          <table class="table table-sm table-hover mb-0" id="tbl-clinicians">
+      <div class="chart-card">
+        <h5>👨‍⚕️ Top Clinicians by Activity</h5>
+        <div class="table-container">
+          <table class="admin-table" id="tbl-top-clinicians">
             <thead>
               <tr>
-                <th>Email</th>
-                <th>Conversations</th>
+                <th>Clinician</th>
+                <th style="text-align: right;">Conversations</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -151,69 +561,275 @@
     </div>
   </div>
 
-  <!-- Global Symptoms Chart -->
-  <div class="card mb-4">
-    <div class="card-header">Symptoms (Global Tally)</div>
-    <div class="card-body">
-      <canvas id="chart-symptoms" height="220"></canvas>
+  <!-- Conversations Tab -->
+  <div id="tab-conversations" class="tab-content-panel">
+    <div class="data-table-card">
+      <h5>💬 All Conversations</h5>
+
+      <!-- Filters -->
+      <div class="table-filters">
+        <select id="filter-clinician" class="form-select">
+          <option value="">All Clinicians</option>
+        </select>
+        <input type="text" id="search-conversation" class="form-control" placeholder="Search by ID, clinician, or patient...">
+      </div>
+
+      <!-- Table -->
+      <div class="table-container">
+        <table class="admin-table" id="tbl-convos">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Clinician</th>
+              <th>Patient</th>
+              <th>Created</th>
+              <th style="text-align: center;">Messages</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- Load More -->
+      <div style="text-align: center; margin-top: 1rem;">
+        <button id="load-more-convos" class="btn-admin-secondary">Load More</button>
+      </div>
+    </div>
+
+    <!-- Conversation Detail Modal -->
+    <div id="modal-conversation" class="admin-modal">
+      <div class="admin-modal-content">
+        <div class="admin-modal-header">
+          <h5>Conversation Details</h5>
+          <button class="modal-close" onclick="closeModal('modal-conversation')">&times;</button>
+        </div>
+        <div id="conversation-detail-body"></div>
+      </div>
     </div>
   </div>
 
-  <!-- Per-Conversation Symptoms + Disease Likelihoods -->
-  <div class="row g-3 mb-4">
-    <div class="col-lg-7">
-      <div class="card h-100">
-        <div class="card-header">Per Conversation - Top Symptoms</div>
-        <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-          <table class="table table-sm table-hover" id="tbl-conv-symptoms">
+  <!-- Users Tab -->
+  <div id="tab-users" class="tab-content-panel">
+    <div class="data-table-card">
+      <h5>👥 User Management</h5>
+
+      <div style="margin-bottom: 1rem;">
+        <button class="btn-admin-primary" onclick="openCreateUserModal()">+ Create New User</button>
+      </div>
+
+      <div class="table-container">
+        <table class="admin-table" id="tbl-users">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Email</th>
+              <th>Username</th>
+              <th>Roles</th>
+              <th>Created</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div id="modal-create-user" class="admin-modal">
+      <div class="admin-modal-content">
+        <div class="admin-modal-header">
+          <h5>Create New User</h5>
+          <button class="modal-close" onclick="closeModal('modal-create-user')">&times;</button>
+        </div>
+        <form id="form-create-user" onsubmit="handleCreateUser(event)">
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" name="email" class="form-control" required placeholder="user@example.com">
+          </div>
+          <div class="form-group">
+            <label>Username (optional)</label>
+            <input type="text" name="username" class="form-control" placeholder="Display name">
+          </div>
+          <div class="form-group">
+            <label>Password *</label>
+            <input type="password" name="password" class="form-control" required placeholder="Minimum 8 characters">
+          </div>
+          <div class="form-group">
+            <label>Roles</label>
+            <div id="user-roles-checkboxes" style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <!-- Roles will be populated dynamically -->
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+            <button type="button" class="btn-admin-secondary" onclick="closeModal('modal-create-user')">Cancel</button>
+            <button type="submit" class="btn-admin-primary">Create User</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="modal-edit-user" class="admin-modal">
+      <div class="admin-modal-content">
+        <div class="admin-modal-header">
+          <h5>Edit User</h5>
+          <button class="modal-close" onclick="closeModal('modal-edit-user')">&times;</button>
+        </div>
+        <form id="form-edit-user" onsubmit="handleEditUser(event)">
+          <input type="hidden" name="user_id" id="edit-user-id">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="edit-user-email" class="form-control" disabled>
+          </div>
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" id="edit-user-username" class="form-control" placeholder="Display name">
+          </div>
+          <div class="form-group">
+            <label>Roles</label>
+            <div id="edit-user-roles-checkboxes" style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <!-- Roles will be populated dynamically -->
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+            <button type="button" class="btn-admin-secondary" onclick="closeModal('modal-edit-user')">Cancel</button>
+            <button type="submit" class="btn-admin-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clinicians Tab -->
+  <div id="tab-clinicians" class="tab-content-panel">
+    <div class="data-table-card">
+      <h5>👨‍⚕️ Clinician Management</h5>
+
+      <div class="table-container">
+        <table class="admin-table" id="tbl-clinicians">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Display Name</th>
+              <th>Email</th>
+              <th style="text-align: center;">Conversations</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Patients Tab -->
+  <div id="tab-patients" class="tab-content-panel">
+    <div class="data-table-card">
+      <h5>🧑‍🤝‍🧑 Patient Management</h5>
+
+      <div style="margin-bottom: 1rem;">
+        <button class="btn-admin-primary" onclick="openCreatePatientModal()">+ Create New Patient</button>
+      </div>
+
+      <div class="table-container">
+        <table class="admin-table" id="tbl-patients">
+          <thead>
+            <tr>
+              <th>Identifier</th>
+              <th>Display Name</th>
+              <th>Assigned Clinician</th>
+              <th>Created</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="5" class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <p>Patient management coming soon</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Create Patient Modal -->
+    <div id="modal-create-patient" class="admin-modal">
+      <div class="admin-modal-content">
+        <div class="admin-modal-header">
+          <h5>Create New Patient</h5>
+          <button class="modal-close" onclick="closeModal('modal-create-patient')">&times;</button>
+        </div>
+        <form id="form-create-patient" onsubmit="handleCreatePatient(event)">
+          <div class="form-group">
+            <label>Identifier (auto-generated if empty)</label>
+            <input type="text" name="identifier" class="form-control" placeholder="e.g., P001">
+          </div>
+          <div class="form-group">
+            <label>Display Name (optional)</label>
+            <input type="text" name="display_name" class="form-control" placeholder="e.g., Patient A">
+          </div>
+          <div class="form-group">
+            <label>Assign to Clinician</label>
+            <select name="clinician_id" class="form-select" required id="patient-clinician-select">
+              <option value="">Select a clinician</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+            <button type="button" class="btn-admin-secondary" onclick="closeModal('modal-create-patient')">Cancel</button>
+            <button type="submit" class="btn-admin-primary">Create Patient</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytics Tab -->
+  <div id="tab-analytics" class="tab-content-panel">
+    <!-- Symptoms Section -->
+    <div class="chart-card" style="margin-bottom: 1.5rem;">
+      <h5>🏥 Global Symptom Distribution</h5>
+      <div style="height: 400px; position: relative;">
+        <canvas id="chart-symptoms"></canvas>
+      </div>
+    </div>
+
+    <!-- Per-Conversation Analysis -->
+    <div class="chart-grid">
+      <div class="data-table-card">
+        <h5>📋 Symptoms by Conversation</h5>
+        <div style="max-height: 500px; overflow-y: auto;">
+          <table class="admin-table" id="tbl-conv-symptoms">
             <thead>
               <tr>
-                <th>Clinician</th>
                 <th>Conversation</th>
                 <th>Top Symptoms</th>
-                <th></th>
+                <th style="text-align: right;">Actions</th>
               </tr>
             </thead>
-            <tbody id="tbl-conv-symptoms-body">
-              <tr>
-                <td colspan="4" class="text-muted">Loading...</td>
-              </tr>
-            </tbody>
+            <tbody></tbody>
           </table>
         </div>
       </div>
-    </div>
-    <div class="col-lg-5">
-      <div class="card h-100">
-        <div class="card-header">Disease Likelihoods</div>
-        <div class="card-body" id="conv-like-box">
-          <p class="text-muted">Select a conversation to view estimated likelihoods.</p>
+
+      <div class="chart-card">
+        <h5>🔬 Disease Likelihood Analysis</h5>
+        <div id="disease-likelihood-panel">
+          <div class="empty-state">
+            <div class="empty-state-icon">🔍</div>
+            <p>Select a conversation to view disease likelihoods</p>
+          </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- All Conversations Table -->
-  <div class="card mb-4">
-    <div class="card-header">All Conversations</div>
-    <div class="card-body">
-      <table class="table table-sm table-hover" id="tbl-convos">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Clinician</th>
-            <th>Created</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <button id="load-more" class="btn btn-outline-secondary btn-sm">Load more</button>
-    </div>
-  </div>
-
-  <!-- Conversation Detail -->
-  <div id="conv-detail" class="mb-4"></div>
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="loading-overlay">
+  <div class="spinner"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

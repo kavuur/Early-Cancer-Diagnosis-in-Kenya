@@ -3,6 +3,7 @@ from crewai import Agent, Task
 from langchain_openai import ChatOpenAI
 from helper import get_openai_api_key
 
+
 def load_llm():
     """
     Load the LLM with the OpenAI key.
@@ -15,6 +16,7 @@ def load_llm():
         model="gpt-4o",
         openai_api_key=api_key
     )
+
 
 def load_agents_from_yaml(yaml_path, llm):
     """
@@ -29,7 +31,9 @@ def load_agents_from_yaml(yaml_path, llm):
             name=a['id'],
             role=a.get('role', ''),
             goal=a.get('description', ''),
-            backstory='',
+            # FIX #2: Read backstory from YAML instead of hardcoding empty string.
+            # Agents rely on backstory for contextual behaviour in CrewAI.
+            backstory=a.get('backstory', ''),
             tools=[],
             llm=llm,
             verbose=True
@@ -37,47 +41,13 @@ def load_agents_from_yaml(yaml_path, llm):
         agent_dict[a['id']] = agent_obj
     return agent_dict
 
-# def load_tasks_from_yaml(yaml_path, agent_dict):
-#     """
-#     Returns a list of Task objects.
-#     For each YAML task with multiple agents, creates one Task per agent.
-#     """
-#     with open(yaml_path, 'r') as f:
-#         data = yaml.safe_load(f)
-#
-#     tasks = []
-#     for t in data.get('tasks', []):
-#         agent_ids = t.get('agents', [])
-#         if not agent_ids:
-#             # No agents listed
-#             task_obj = Task(
-#                 name=f"{t['name']} - {agent_id}",
-#                 description=t['description'],
-#                 expected_output=t.get('expected_output', 'Detailed answer expected.'),
-#                 agent=agent_dict[agent_id]
-#             )
-#
-#             tasks.append(task_obj)
-#         else:
-#             for agent_id in agent_ids:
-#                 if agent_id in agent_dict:
-#                     task_obj = Task(
-#                         name=f"{t['name']} - {agent_id}",
-#                         description=t['description'],
-#                         expected_output=t.get('expected_output', 'Detailed answer expected.'),
-#                         agent=agent_dict[agent_id]
-#                     )
-#
-#                     tasks.append(task_obj)
-#                 else:
-#                     print(f"Warning: Agent id '{agent_id}' not found in agents.yaml")
-#     return tasks
+
 def load_tasks_from_yaml(yaml_path, agent_dict):
     """
     Returns a list of Task objects.
-    For each YAML task with multiple agents, creates one Task per agentpip install --upgrade langchain
-.
+    For each YAML task with multiple agents, creates one Task per agent.
     """
+    # FIX #1: Removed stray terminal command that was embedded in the old docstring.
     with open(yaml_path, 'r') as f:
         data = yaml.safe_load(f)
 
@@ -108,4 +78,3 @@ def load_tasks_from_yaml(yaml_path, agent_dict):
                 else:
                     print(f"Warning: Agent id '{agent_id}' not found in agents.yaml")
     return tasks
-

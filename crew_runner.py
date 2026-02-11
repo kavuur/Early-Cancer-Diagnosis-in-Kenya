@@ -1,8 +1,20 @@
+# ---------------------------------------------------------------------------
+# FIX: Disable CrewAI telemetry BEFORE importing crewai.
+# Without this, every crew.kickoff() spawns a background thread that tries
+# to POST traces to telemetry.crewai.com. When that host is unreachable the
+# thread blocks for ~30 s then dumps a giant ConnectTimeout traceback to the
+# log. Setting both env-vars covers older and newer CrewAI versions.
+# ---------------------------------------------------------------------------
+import os
+os.environ.setdefault("CREWAI_TELEMETRY", "false")
+os.environ.setdefault("OTEL_SDK_DISABLED", "true")
+
 from crewai import Crew, Task
 from agent_loader import load_llm, load_agents_from_yaml, load_tasks_from_yaml
 from datetime import datetime
 import json
 import re
+import time
 import logging
 from typing import List, Dict, Any
 from difflib import SequenceMatcher
@@ -14,9 +26,25 @@ logger = logging.getLogger(__name__)
 AGENT_PATH = 'config/agents.yaml'
 TASK_PATH = 'config/tasks.yaml'
 
-# Load FAISS once
-faiss_system = MedicalCaseFAISS()
-faiss_system.load_index('medical_cases.index', 'medical_cases_metadata.pkl')
+# ---------------------------------------------------------------------------
+# FIX #3: Lazy FAISS initialization — do NOT load at module import time.
+# Previously the top-level `faiss_system.load_index(...)` call caused the
+# entire app to crash on startup if the index files were missing, and it
+# also hardcoded the paths instead of reading from env/config.
+# ---------------------------------------------------------------------------
+_faiss_system = None
+
+
+def _get_faiss() -> MedicalCaseFAISS:
+    """Return the shared FAISS instance, initializing it on first call."""
+    global _faiss_system
+    if _faiss_system is None:
+        idx_path = os.getenv("FAISS_INDEX_PATH", "medical_cases.index")
+        meta_path = os.getenv("FAISS_METADATA_PATH", "medical_cases_metadata.pkl")
+        _faiss_system = MedicalCaseFAISS()
+        _faiss_system.load_index(idx_path, meta_path)
+        logger.info(f"FAISS loaded in crew_runner: index={idx_path}, meta={meta_path}")
+    return _faiss_system
 
 
 # ---------------------------- NEW: Listener bundle (Live Stop) ----------------------------
@@ -120,14 +148,12 @@ def questions_are_similar(q1: str, q2: str, threshold: float = 0.75) -> bool:
     2. Sequence similarity
     Returns True if they're likely asking the same thing.
     """
-    # Normalize both questions
     norm1 = normalize_text(q1)
     norm2 = normalize_text(q2)
 
     if not norm1 or not norm2:
         return False
 
-    # Token-based similarity
     tokens1 = set(norm1.split())
     tokens2 = set(norm2.split())
 
@@ -138,10 +164,8 @@ def questions_are_similar(q1: str, q2: str, threshold: float = 0.75) -> bool:
     union = len(tokens1 | tokens2)
     token_similarity = overlap / union if union > 0 else 0.0
 
-    # Sequence-based similarity
     seq_similarity = SequenceMatcher(None, norm1, norm2).ratio()
 
-    # Combined score (weighted average)
     combined_score = (token_similarity * 0.4) + (seq_similarity * 0.6)
 
     return combined_score >= threshold
@@ -173,25 +197,26 @@ def is_coherent_medical_text(text: str, conversation_context: str = "") -> bool:
 
     text_lower = text.lower().strip()
 
-    # Filter out common hallucination patterns
     hallucination_patterns = [
-        r'^(um+|uh+|hmm+|ah+|oh+)$',  # Just filler sounds
-        r'^(okay|ok|yeah|yes|no|maybe)$',  # Single word responses that don't add value
-        r'(thank you for watching|subscribe|like and subscribe)',  # YouTube artifacts
-        r'(subtitles|captions|music|applause|laughter)',  # Media artifacts
-        r'^[\W_]+$',  # Only punctuation/special chars
-        r'(.)\1{4,}',  # Repeated characters (e.g., "aaaaaaa")
+        r'^(um+|uh+|hmm+|ah+|oh+)$',
+        r'^(okay|ok|yeah|yes|no|maybe)$',
+        r'(thank you for watching|subscribe|like and subscribe)',
+        r'(subtitles|captions|music|applause|laughter)',
+        r'^[\W_]+$',
+        r'(.)\1{4,}',
+        # FIX: Catch common STT mic-test phrases that pollute the conversation context
+        r'^(one[\s,]*two[\s,]*three|testing[\s,]*one|check[\s,]*one|mic[\s,]*check)',
+        r'^(test(ing)?[\s,]*\d+)',
+        r'(one two three|1 2 3|testing testing)',
     ]
 
     for pattern in hallucination_patterns:
         if re.search(pattern, text_lower):
             return False
 
-    # If text is just numbers or very short, likely noise
     if len(text.strip()) < 5 and text.strip().isdigit():
         return False
 
-    # Check for medical relevance keywords (expanded list)
     medical_keywords = [
         'pain', 'ache', 'hurt', 'feel', 'symptom', 'sick', 'ill', 'doctor', 'hospital',
         'medicine', 'treatment', 'diagnosis', 'test', 'exam', 'blood', 'pressure',
@@ -201,12 +226,9 @@ def is_coherent_medical_text(text: str, conversation_context: str = "") -> bool:
         'hospitali', 'dawa', 'matibabu', 'ugonjwa', 'dalili', 'kipimo'
     ]
 
-    # If conversation context exists and text is reasonably long, check relevance
     if len(text.split()) >= 3:
-        # Allow medical context or reasonable conversational responses
         has_medical_keyword = any(keyword in text_lower for keyword in medical_keywords)
 
-        # Also allow reasonable conversational phrases
         conversational_phrases = [
             'i have', 'i feel', 'it started', 'it hurts', 'when i', 'how long',
             'what about', 'can you', 'could you', 'should i', 'is it',
@@ -215,15 +237,17 @@ def is_coherent_medical_text(text: str, conversation_context: str = "") -> bool:
         has_conversational = any(phrase in text_lower for phrase in conversational_phrases)
 
         if not (has_medical_keyword or has_conversational):
-            # If no clear relevance and we have context, be more strict
             if conversation_context and len(conversation_context) > 100:
                 return False
 
     return True
 
 
-def rank_questions_for_unasked(convo_text: str, questions: List[str], language_mode: str = "bilingual") -> List[
-    Dict[str, Any]]:
+def rank_questions_for_unasked(
+    convo_text: str,
+    questions: List[str],
+    language_mode: str = "bilingual"
+) -> List[Dict[str, Any]]:
     """
     Return list of {question, score} sorted desc.
     - Enhanced with medical relevance focus
@@ -234,11 +258,9 @@ def rank_questions_for_unasked(convo_text: str, questions: List[str], language_m
     if not questions:
         return []
 
-    # First, deduplicate semantically similar questions
     questions = deduplicate_questions(questions)
 
     convo_text = (convo_text or "").strip()
-    # Keep prompt bounded
     convo_clip = convo_text[-6000:] if len(convo_text) > 6000 else convo_text
 
     try:
@@ -247,7 +269,6 @@ def rank_questions_for_unasked(convo_text: str, questions: List[str], language_m
         scorer = agents.get("clinician_agent") or agents.get("question_recommender_agent")
 
         if scorer:
-            # Enhanced prompt with focus on critical diagnostic questions
             q_list = "\n".join([f"- {q}" for q in questions])
             if language_mode == "swahili":
                 instruction = (
@@ -293,12 +314,12 @@ def rank_questions_for_unasked(convo_text: str, questions: List[str], language_m
                         s = float(s)
                     except Exception:
                         s = 0.0
-                    # clamp
-                    if s < 0.0: s = 0.0
-                    if s > 1.0: s = 1.0
+                    if s < 0.0:
+                        s = 0.0
+                    if s > 1.0:
+                        s = 1.0
                     out.append({"question": q, "score": s})
 
-                # Ensure we only return the original questions (avoid hallucinated ones)
                 orig_norm = {normalize_text(q): q for q in questions}
                 filtered = []
                 for row in out:
@@ -308,23 +329,17 @@ def rank_questions_for_unasked(convo_text: str, questions: List[str], language_m
 
                 if filtered:
                     filtered.sort(key=lambda x: x["score"], reverse=True)
-                    # Limit to top 5-10 questions (adjust based on score distribution)
-                    # Keep questions with score >= 0.6, or top 10, whichever gives 5-10 questions
                     high_priority = [q for q in filtered if q["score"] >= 0.6]
                     if len(high_priority) < 5:
-                        # If fewer than 5 high priority, take top 10
                         return filtered[:10]
                     elif len(high_priority) > 10:
-                        # If more than 10 high priority, take top 10
                         return filtered[:10]
                     else:
-                        # Return 5-10 high priority questions
                         return high_priority
     except Exception:
         logger.exception("LLM scoring failed; falling back to heuristic ranking")
 
     # ---------------- fallback heuristic ranking ----------------
-    # Basic relevance: overlap with conversation tokens (last N chars)
     conv_norm = normalize_text(convo_text)
     conv_tokens = set(conv_norm.split())
 
@@ -340,49 +355,43 @@ def rank_questions_for_unasked(convo_text: str, questions: List[str], language_m
         ranked.append({"question": q, "score": float(score)})
 
     ranked.sort(key=lambda x: x["score"], reverse=True)
-    # Limit to top 10 in fallback as well
     return ranked[:10]
 
 
-# ---------------------------- LIVE NORMAL THROTTLE (SURGICAL ADD) ----------------------------
+# ---------------------------------------------------------------------------
+# FIX #4: Live recommender throttle — server-side timestamp tracking.
+#
+# The old implementation called `_recent_recommender_emitted(history, ...)`,
+# which inspected `conversation_history` (session["conv"]) for entries with
+# type == "question_recommender". Those entries are NEVER stored in
+# session["conv"] — only plain messages are — so the check always returned
+# False and the throttle was permanently bypassed, flooding the UI with
+# recommendations on every transcription chunk.
+#
+# Fix: track the last emission time on a module-level dict keyed by
+# (user_id, conversation_id), passed in from app.py via live state.
+# The live state dict already exists per-session in app.py; we expose a
+# helper here that the streaming functions use to read/write it.
+# ---------------------------------------------------------------------------
 
-# One recommendation at most every N seconds in live mode "normal"
 LIVE_RECO_MIN_INTERVAL_SEC = 7
 
 
-def _recent_recommender_emitted(history: list | None, min_interval_sec: int) -> bool:
+def should_throttle_reco(live_state: dict, lock) -> bool:
     """
-    True if a question_recommender was emitted within the last min_interval_sec (based on timestamps in history).
-    Works with your stored history objects that include:
-      - type == "question_recommender"
-      - timestamp == "HH:MM:SS"
+    Return True if a recommendation was emitted within the throttle window.
+    `live_state` is the per-session dict from app.py's LIVE_STATE.
+    `lock` is the LIVE_STATE_LOCK RLock from app.py.
     """
-    if not history:
-        return False
+    with lock:
+        last_ts = live_state.get("last_reco_ts", 0.0)
+    return (time.time() - last_ts) < float(LIVE_RECO_MIN_INTERVAL_SEC)
 
-    now = datetime.now()
 
-    for m in reversed(history):
-        try:
-            if (m.get("type") or "").strip().lower() != "question_recommender":
-                continue
-            ts = (m.get("timestamp") or "").strip()
-            if not ts:
-                return False
-
-            dt = datetime.strptime(ts, "%H:%M:%S").time()
-            last_dt = datetime.combine(now.date(), dt)
-
-            # handle midnight rollover safely (very rare)
-            if last_dt > now:
-                last_dt = datetime.combine(now.date(), dt)  # keep best-effort
-
-            return (now - last_dt).total_seconds() < float(min_interval_sec)
-        except Exception:
-            # If parsing fails, don't block recommendations
-            return False
-
-    return False
+def record_reco_emitted(live_state: dict, lock) -> None:
+    """Mark that a recommendation was just emitted (update timestamp)."""
+    with lock:
+        live_state["last_reco_ts"] = time.time()
 
 
 # ---------------------------- EXISTING CORE ----------------------------
@@ -448,8 +457,13 @@ def sse_recommender(english, swahili, log_hook=None, session_id=None):
 
 
 # Mode 1: Fully simulated
-def simulate_agent_chat_stepwise(initial_message: str, turns: int = 6, language_mode: str = 'bilingual', log_hook=None,
-                                 session_id=None):
+def simulate_agent_chat_stepwise(
+    initial_message: str,
+    turns: int = 6,
+    language_mode: str = 'bilingual',
+    log_hook=None,
+    session_id=None
+):
     llm = load_llm()
     agents = load_agents_from_yaml(AGENT_PATH, llm)
 
@@ -460,7 +474,7 @@ def simulate_agent_chat_stepwise(initial_message: str, turns: int = 6, language_
     similar_cases = []
     similar_bullets = ""
     try:
-        similar_cases = faiss_system.search_similar_cases(initial_message, k=5, similarity_threshold=0.19) or []
+        similar_cases = _get_faiss().search_similar_cases(initial_message, k=5, similarity_threshold=0.19) or []
         similar_bullets = "\n".join(
             f"- {getattr(c, 'title', 'Case')}: {getattr(c, 'summary', '')}" for c in similar_cases
         )
@@ -472,7 +486,6 @@ def simulate_agent_chat_stepwise(initial_message: str, turns: int = 6, language_
         context_log.append("Similar cases (context):\n" + similar_bullets)
 
     for turn in range(turns):
-        # question recommender
         if language_mode == "english":
             recommender_input = "\n".join(
                 context_log) + "\n\nSuggest the next most relevant diagnostic question. Format: English: ..."
@@ -483,8 +496,11 @@ def simulate_agent_chat_stepwise(initial_message: str, turns: int = 6, language_
             recommender_input = "\n".join(
                 context_log) + "\n\nSuggest the next most relevant bilingual question only. Format as:\nEnglish: ...\n\nSwahili: ..."
 
-        recommended = run_task(agents["question_recommender_agent"], recommender_input,
-                               f"Question Suggestion {turn + 1}")
+        recommended = run_task(
+            agents["question_recommender_agent"],
+            recommender_input,
+            f"Question Suggestion {turn + 1}"
+        )
 
         if language_mode == "english":
             english_q, swahili_q = recommended.strip(), ""
@@ -508,7 +524,6 @@ def simulate_agent_chat_stepwise(initial_message: str, turns: int = 6, language_
         yield sse_message("Clinician", plain_q, log_hook, session_id)
         context_log.append(f"Clinician: {plain_q}")
 
-        # simulated patient reply
         if language_mode == "english":
             patient_input = f"Clinician: {english_q}\n\nRespond in English as the patient. Be short and realistic."
         elif language_mode == "swahili":
@@ -532,8 +547,14 @@ def simulate_agent_chat_stepwise(initial_message: str, turns: int = 6, language_
 
 
 # Mode 2: Real actors
-def real_actor_chat_stepwise(initial_message: str, language_mode: str = 'bilingual', speaker_role: str = 'Patient',
-                             conversation_history: list | None = None, log_hook=None, session_id=None):
+def real_actor_chat_stepwise(
+    initial_message: str,
+    language_mode: str = 'bilingual',
+    speaker_role: str = 'Patient',
+    conversation_history: list | None = None,
+    log_hook=None,
+    session_id=None
+):
     """
     Real-actors mode with coherence validation.
     - Patient message triggers Question recommender
@@ -557,17 +578,20 @@ def real_actor_chat_stepwise(initial_message: str, language_mode: str = 'bilingu
         yield sse_message("Clinician", f"**FINAL PLAN**\n\n{final_plan}", log_hook, session_id)
         return
 
-    # Validate coherence before processing
-    context_lines = [f"{m.get('role')}: {m.get('message')}" for m in history[-10:]]  # Last 10 messages
+    context_lines = [f"{m.get('role')}: {m.get('message')}" for m in history[-10:]]
     context_text = "\n".join(context_lines)
 
+    # FIX: Validate the incoming message BEFORE building the full context that
+    # gets sent to the LLM. This stops STT noise (mic tests, garbled audio,
+    # one-word utterances) from polluting the agent's task description.
+    # Note: this check runs on the *raw* incoming message, not the history,
+    # so it catches noise that the caller may have already appended to history.
     if not is_coherent_medical_text(initial_message, context_text):
         logger.info(f"Filtered incoherent text: {initial_message}")
-        return  # Don't yield anything for incoherent input
+        return
 
     yield sse_message(speaker_role, initial_message, log_hook, session_id)
 
-    # Suggest next question after any message (patient or clinician)
     lower_role = speaker_role.lower()
     if lower_role in ("patient", "clinician"):
         context_lines = [f"{m.get('role')}: {m.get('message')}" for m in history]
@@ -599,16 +623,22 @@ def real_actor_chat_stepwise(initial_message: str, language_mode: str = 'bilingu
 
 
 # Mode 3: Live transcription (continuous patient finals → recommender only)
-def live_transcription_stream(initial_message: str,
-                              language_mode: str = 'bilingual',
-                              speaker_role: str = 'patient',
-                              conversation_history: list | None = None,
-                              log_hook=None,
-                              session_id=None):
+def live_transcription_stream(
+    initial_message: str,
+    language_mode: str = 'bilingual',
+    speaker_role: str = 'patient',
+    conversation_history: list | None = None,
+    log_hook=None,
+    session_id=None,
+    # FIX #4: Accept live_state and lock so throttle uses real server-side timestamps.
+    live_state: dict | None = None,
+    live_state_lock=None,
+):
     """
     Live transcription mode (final-driven) with coherence validation.
     - We receive FINAL text once per chunk and recommend next question.
     - Finalize path outputs Listener Summary + Final Plan (Listener-only for live mic mode).
+    - Throttle now uses server-side timestamps stored in live_state["last_reco_ts"].
     """
     llm = load_llm()
     agents = load_agents_from_yaml(AGENT_PATH, llm)
@@ -627,22 +657,23 @@ def live_transcription_stream(initial_message: str,
     if not final_text:
         return
 
-    # Validate coherence with conversation context
-    context_lines = [f"{m.get('role')}: {m.get('message')}" for m in history[-10:]]  # Last 10 messages
+    context_lines = [f"{m.get('role')}: {m.get('message')}" for m in history[-10:]]
     context_text = "\n".join(context_lines)
 
     if not is_coherent_medical_text(final_text, context_text):
         logger.info(f"Filtered incoherent transcription: {final_text}")
-        return  # Don't process incoherent transcriptions
+        return
 
     # 1) Emit patient final line
     yield sse_message("Patient", final_text, log_hook, session_id)
 
-    # -------------------- SURGICAL THROTTLE (NEW) --------------------
-    # If we recently emitted a recommender item, skip generating another one too quickly.
-    # This reduces "normal" live suggestion flooding without affecting other modes.
-    if _recent_recommender_emitted(history, LIVE_RECO_MIN_INTERVAL_SEC):
-        return
+    # -------------------- FIX #4: CORRECTED THROTTLE --------------------
+    # Check using live_state["last_reco_ts"] (server-side epoch timestamp).
+    # The old check used conversation_history which never contains
+    # question_recommender entries, so it was always False.
+    if live_state is not None and live_state_lock is not None:
+        if should_throttle_reco(live_state, live_state_lock):
+            return
     # ---------------------------------------------------------------
 
     # 2) Build recommender context from full history
@@ -670,6 +701,11 @@ def live_transcription_stream(initial_message: str,
             english_q, swahili_q = rec.strip(), ""
 
     yield sse_recommender(english_q, swahili_q, log_hook, session_id)
+
+    # Update the server-side throttle timestamp AFTER emitting
+    if live_state is not None and live_state_lock is not None:
+        record_reco_emitted(live_state, live_state_lock)
+
     return
 
 
@@ -702,5 +738,6 @@ def simulate_agent_chat(user_message):
 
     transcript = [
         {"role": "Patient", "message": user_message, "timestamp": datetime.now().strftime("%H:%M:%S")},
-        {"role": "Clinician", "message": result_text, "timestamp": datetime.now().strftime("%H:%M:%S")}]
+        {"role": "Clinician", "message": result_text, "timestamp": datetime.now().strftime("%H:%M:%S")}
+    ]
     return transcript
