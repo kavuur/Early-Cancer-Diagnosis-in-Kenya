@@ -1,20 +1,21 @@
 import yaml
-from crewai import Agent, Task
-from langchain_openai import ChatOpenAI
+from crewai import Agent, Task, LLM
 from helper import get_openai_api_key
 
 
 def load_llm():
     """
-    Load the LLM with the OpenAI key.
+    Load the LLM using CrewAI's native LLM class.
+    Using CrewAI's LLM instead of ChatOpenAI avoids the 'stop' parameter
+    that LangChain injects — which GPT-5 does not support.
     """
     api_key = get_openai_api_key()
     if not api_key:
         raise ValueError("OPENAI_API_KEY not found in environment!")
-    return ChatOpenAI(
-        temperature=0.0,
-        model="gpt-4o",
-        openai_api_key=api_key
+    return LLM(
+        model="openai/gpt-5",
+        api_key=api_key,
+        # GPT-5 only supports the default temperature (1) — do not set it.
     )
 
 

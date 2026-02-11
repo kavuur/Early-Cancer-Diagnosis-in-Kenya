@@ -9,6 +9,36 @@ import os
 os.environ.setdefault("CREWAI_TELEMETRY", "false")
 os.environ.setdefault("OTEL_SDK_DISABLED", "true")
 
+# ---------------------------------------------------------------------------
+# FIX: Monkey-patch litellm.completion to strip the 'stop' parameter for
+# GPT-5 models. CrewAI's crew_agent_executor hard-codes stop tokens in its
+# internal invoke loop regardless of the LLM wrapper used. GPT-5 rejects any
+# request that includes 'stop', returning HTTP 400. This patch intercepts the
+# call at the litellm layer — the lowest common point before the HTTP request
+# is made — and silently removes 'stop' only for affected models.
+# ---------------------------------------------------------------------------
+import litellm as _litellm
+
+_GPT5_STOP_UNSUPPORTED = ("gpt-5", "gpt-5-mini", "gpt-5-pro",
+                          "gpt-5-chat-latest", "gpt-5.1", "gpt-5.1-chat-latest",
+                          "gpt-5.1-codex", "gpt-5.1-codex-mini", "gpt-5.1-codex-max",
+                          "gpt-5-codex", "gpt-5-search-api")
+
+_original_litellm_completion = _litellm.completion
+
+def _patched_litellm_completion(*args, **kwargs):
+    model = kwargs.get("model", args[0] if args else "")
+    # Strip provider prefix (e.g. "openai/gpt-5" -> "gpt-5")
+    model_name = model.split("/")[-1] if "/" in model else model
+    if any(model_name.startswith(m) for m in _GPT5_STOP_UNSUPPORTED):
+        # GPT-5 does not support 'stop' tokens or non-default temperature values
+        kwargs.pop("stop", None)
+        if kwargs.get("temperature") is not None and kwargs["temperature"] != 1:
+            kwargs.pop("temperature", None)
+    return _original_litellm_completion(*args, **kwargs)
+
+_litellm.completion = _patched_litellm_completion
+
 from crewai import Crew, Task
 from agent_loader import load_llm, load_agents_from_yaml, load_tasks_from_yaml
 from datetime import datetime
